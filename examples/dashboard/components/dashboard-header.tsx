@@ -1,6 +1,6 @@
 "use client"
 
-import { Moon, Sun, TrendingUp, Github, Send, Languages, Newspaper, Wallet } from "lucide-react"
+import { Moon, Sun, TrendingUp, Github, Send, Languages, Newspaper, Wallet, LayoutDashboard, Brain, History, Eye, Lightbulb, FileBarChart } from "lucide-react"
 import { MarketTickerBar } from "@/components/market-ticker-bar"
 import { useTheme } from "next-themes"
 import { useLanguage } from "@/components/language-provider"
@@ -241,6 +241,7 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             onClick={() => onTabChange("dashboard")}
             className="font-medium"
           >
+            <LayoutDashboard className="w-4 h-4 mr-1" />
             {t("header.dashboard")}
           </Button>
           <Button
@@ -248,6 +249,7 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             onClick={() => onTabChange("ai-decisions")}
             className="font-medium"
           >
+            <Brain className="w-4 h-4 mr-1" />
             {t("header.aiDecisions")}
           </Button>
           <Button
@@ -255,6 +257,7 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             onClick={() => onTabChange("trading")}
             className="font-medium"
           >
+            <History className="w-4 h-4 mr-1" />
             {t("header.trading")}
           </Button>
           <Button
@@ -262,6 +265,7 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             onClick={() => onTabChange("watchlist")}
             className="font-medium"
           >
+            <Eye className="w-4 h-4 mr-1" />
             {t("header.watchlist")}
           </Button>
           <Button
@@ -269,45 +273,32 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             onClick={() => onTabChange("insights")}
             className="font-medium"
           >
-            💡 {t("header.insights")}
+            <Lightbulb className="w-4 h-4 mr-1" />
+            {t("header.insights")}
           </Button>
-          {/* 포트폴리오 */}
           <Button
             variant={activeTab === "portfolio" ? "secondary" : "ghost"}
             onClick={() => onTabChange("portfolio")}
-            className={`font-medium ${
-              activeTab === "portfolio"
-                ? "bg-primary text-primary-foreground"
-                : ""
-            }`}
+            className="font-medium"
           >
             <Wallet className="w-4 h-4 mr-1" />
             {language === "ko" ? "포트폴리오" : "Portfolio"}
           </Button>
-          {/* 뉴스 - 실시간 뉴스 키워드 */}
           <Button
             variant={activeTab === "news" ? "secondary" : "ghost"}
             onClick={() => onTabChange("news")}
-            className={`font-medium ${
-              activeTab === "news"
-                ? "bg-primary text-primary-foreground"
-                : ""
-            }`}
+            className="font-medium"
           >
             <Newspaper className="w-4 h-4 mr-1" />
             {language === "ko" ? "뉴스" : "News"}
           </Button>
-          {/* 리포트 - Investment Alpha 월별/매크로 리포트 */}
           <Button
             variant={activeTab === "jeoningu-lab" ? "secondary" : "ghost"}
             onClick={() => onTabChange("jeoningu-lab")}
-            className={`font-medium ${
-              activeTab === "jeoningu-lab"
-                ? "bg-primary text-primary-foreground"
-                : ""
-            }`}
+            className="font-medium"
           >
-            📊 {language === "ko" ? "리포트" : "Reports"}
+            <FileBarChart className="w-4 h-4 mr-1" />
+            {language === "ko" ? "리포트" : "Reports"}
           </Button>
         </nav>
 
@@ -319,7 +310,8 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             size="sm"
             className="font-medium whitespace-nowrap"
           >
-            📊 <span className="hidden sm:inline ml-1">{t("header.dashboard")}</span>
+            <LayoutDashboard className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">{t("header.dashboard")}</span>
           </Button>
           <Button
             variant={activeTab === "ai-decisions" ? "secondary" : "ghost"}
@@ -327,7 +319,8 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             size="sm"
             className="font-medium whitespace-nowrap"
           >
-            🤖 <span className="hidden sm:inline ml-1">{t("header.aiDecisions")}</span>
+            <Brain className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">{t("header.aiDecisions")}</span>
           </Button>
           <Button
             variant={activeTab === "trading" ? "secondary" : "ghost"}
@@ -335,7 +328,8 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             size="sm"
             className="font-medium whitespace-nowrap"
           >
-            💰 <span className="hidden sm:inline ml-1">{t("header.trading")}</span>
+            <History className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">{t("header.trading")}</span>
           </Button>
           <Button
             variant={activeTab === "watchlist" ? "secondary" : "ghost"}
@@ -343,7 +337,8 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             size="sm"
             className="font-medium whitespace-nowrap"
           >
-            👀 <span className="hidden sm:inline ml-1">{t("header.watchlist")}</span>
+            <Eye className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">{t("header.watchlist")}</span>
           </Button>
           <Button
             variant={activeTab === "insights" ? "secondary" : "ghost"}
@@ -351,48 +346,35 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             size="sm"
             className="font-medium whitespace-nowrap"
           >
-            💡 <span className="hidden sm:inline ml-1">{t("header.insights")}</span>
+            <Lightbulb className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">{t("header.insights")}</span>
           </Button>
-          {/* 포트폴리오 (Mobile) */}
           <Button
             variant={activeTab === "portfolio" ? "secondary" : "ghost"}
             onClick={() => onTabChange("portfolio")}
             size="sm"
-            className={`font-medium whitespace-nowrap ${
-              activeTab === "portfolio"
-                ? "bg-primary text-primary-foreground"
-                : ""
-            }`}
+            className="font-medium whitespace-nowrap"
           >
             <Wallet className="w-4 h-4" />
             <span className="hidden sm:inline ml-1">{language === "ko" ? "포트폴리오" : "Portfolio"}</span>
           </Button>
-          {/* 뉴스 (Mobile) */}
           <Button
             variant={activeTab === "news" ? "secondary" : "ghost"}
             onClick={() => onTabChange("news")}
             size="sm"
-            className={`font-medium whitespace-nowrap ${
-              activeTab === "news"
-                ? "bg-primary text-primary-foreground"
-                : ""
-            }`}
+            className="font-medium whitespace-nowrap"
           >
             <Newspaper className="w-4 h-4" />
             <span className="hidden sm:inline ml-1">{language === "ko" ? "뉴스" : "News"}</span>
           </Button>
-          {/* 리포트 (Mobile) */}
           <Button
             variant={activeTab === "jeoningu-lab" ? "secondary" : "ghost"}
             onClick={() => onTabChange("jeoningu-lab")}
             size="sm"
-            className={`font-medium whitespace-nowrap ${
-              activeTab === "jeoningu-lab"
-                ? "bg-primary text-primary-foreground"
-                : ""
-            }`}
+            className="font-medium whitespace-nowrap"
           >
-            📊 <span className="hidden sm:inline">{language === "ko" ? "리포트" : "Reports"}</span>
+            <FileBarChart className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">{language === "ko" ? "리포트" : "Reports"}</span>
           </Button>
         </nav>
       </div>

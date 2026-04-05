@@ -79,7 +79,7 @@ export function ReportsPage() {
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-blue-400" />
-          <h2 className="text-lg font-bold text-foreground">리포트</h2>
+          <h2 className="text-xl font-bold text-foreground">리포트</h2>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>전체 <strong className="text-foreground">{ALL_REPORTS.length}</strong></span>

@@ -220,13 +220,13 @@ export function NewsPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-red-600 to-orange-600">
-            <Newspaper className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold">
+          <div className="flex items-center gap-2">
+            <Newspaper className="w-5 h-5 text-red-400" />
+            <h2 className="text-xl font-bold text-foreground">
               {language === "ko" ? "실시간 뉴스 키워드" : "Live News Keywords"}
             </h2>
+          </div>
+          <div>
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
