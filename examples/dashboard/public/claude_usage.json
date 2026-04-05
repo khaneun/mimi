@@ -1,0 +1,14 @@
+{
+  "updated_at": "2026-04-05T14:07:11Z",
+  "plan": "Max",
+  "model": "Unknown skill: model",
+  "session_count": 0,
+  "date": "2026-04-05",
+  "status": "active",
+  "features": {
+    "agents": 11,
+    "e2e_tests": 25,
+    "pipelines": 9,
+    "components": 23
+  }
+}
