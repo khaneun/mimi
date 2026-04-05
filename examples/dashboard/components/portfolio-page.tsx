@@ -138,21 +138,58 @@ export function PortfolioPage() {
     localStorage.setItem(STORAGE_KEY + "_edited", JSON.stringify(data))
   }, [])
 
+  const [formLookupLoading, setFormLookupLoading] = useState(false)
+  const [formCurrentPrice, setFormCurrentPrice] = useState<number | null>(null)
+
   const resetForm = () => {
     setFormName("")
     setFormCode("")
     setFormQuantity("")
     setFormAvgPrice("")
+    setFormCurrentPrice(null)
+    setFormLookupLoading(false)
+  }
+
+  // 티커 입력 시 종목명+현재가 자동 조회 (dashboard_data.json에서)
+  const lookupTicker = async (code: string) => {
+    if (!code || code.length < 5) {
+      setFormName("")
+      setFormCurrentPrice(null)
+      return
+    }
+    setFormLookupLoading(true)
+    try {
+      const resp = await fetch(`/dashboard_data.json?t=${Date.now()}`)
+      const data = await resp.json()
+      // holdings + watchlist에서 찾기
+      const all = [...(data.holdings || []), ...(data.watchlist || [])]
+      const found = all.find((s: any) => s.ticker === code || s.code === code)
+      if (found) {
+        setFormName(found.company_name || found.name || "")
+        setFormCurrentPrice(found.current_price || null)
+        if (!formAvgPrice) setFormAvgPrice(String(found.current_price || ""))
+      } else {
+        // pykrx API로 종목명 조회 시도 (stock_map.json)
+        try {
+          const mapResp = await fetch(`/dashboard_data.json?t=${Date.now()}`)
+          const mapData = await mapResp.json()
+          // 못 찾으면 코드만 표시
+          setFormName("")
+          setFormCurrentPrice(null)
+        } catch {}
+      }
+    } catch {}
+    setFormLookupLoading(false)
   }
 
   const handleAdd = () => {
-    if (!portfolioData || !formName || !formCode || !formQuantity || !formAvgPrice) return
+    if (!portfolioData || !formCode || !formQuantity || !formAvgPrice) return
     const newData = { ...portfolioData, accounts: portfolioData.accounts.map((a, i) => {
       if (i !== activeAccount) return a
       return {
         ...a,
         stocks: [...a.stocks, {
-          name: formName,
+          name: formName || formCode,
           code: formCode,
           quantity: parseInt(formQuantity),
           avg_price: parseInt(formAvgPrice),
@@ -677,20 +714,61 @@ export function PortfolioPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            {/* 티커 입력 → 자동 조회 */}
             <div className="grid gap-2">
-              <Label>{language === "ko" ? "종목명" : "Stock Name"}</Label>
-              <Input value={formName} onChange={(e) => setFormName(e.target.value)} placeholder={language === "ko" ? "예: 삼성전자" : "e.g. Samsung"} />
+              <Label>{language === "ko" ? "종목 코드 (티커)" : "Stock Code (Ticker)"}</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={formCode}
+                  onChange={(e) => {
+                    setFormCode(e.target.value)
+                    lookupTicker(e.target.value)
+                  }}
+                  placeholder={language === "ko" ? "예: 005930" : "e.g. 005930"}
+                  className="flex-1"
+                />
+                {formLookupLoading && (
+                  <div className="flex items-center px-2">
+                    <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="grid gap-2">
-              <Label>{language === "ko" ? "종목 코드" : "Stock Code"}</Label>
-              <Input value={formCode} onChange={(e) => setFormCode(e.target.value)} placeholder={language === "ko" ? "예: 005930" : "e.g. 005930"} />
-            </div>
+
+            {/* 자동 조회 결과 */}
+            {formName && (
+              <div className="p-3 rounded-lg bg-muted/50 border border-border/50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-foreground">{formName}</p>
+                    <p className="text-xs text-muted-foreground">{formCode}</p>
+                  </div>
+                  {formCurrentPrice && (
+                    <div className="text-right">
+                      <p className="text-xs text-muted-foreground">{language === "ko" ? "현재가" : "Current"}</p>
+                      <p className="font-bold text-foreground">{formCurrentPrice.toLocaleString()}{language === "ko" ? "원" : ""}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 수량 */}
             <div className="grid gap-2">
               <Label>{language === "ko" ? "수량" : "Quantity"}</Label>
               <Input type="number" value={formQuantity} onChange={(e) => setFormQuantity(e.target.value)} placeholder="0" />
             </div>
+
+            {/* 평균 단가 (현재가로 자동 채움, 수정 가능) */}
             <div className="grid gap-2">
-              <Label>{language === "ko" ? "평균 단가" : "Average Price"}</Label>
+              <Label>
+                {language === "ko" ? "평균 단가" : "Average Price"}
+                {formCurrentPrice && (
+                  <span className="text-xs text-muted-foreground ml-2">
+                    ({language === "ko" ? "현재가 자동 입력" : "auto-filled"})
+                  </span>
+                )}
+              </Label>
               <Input type="number" value={formAvgPrice} onChange={(e) => setFormAvgPrice(e.target.value)} placeholder="0" />
             </div>
           </div>
@@ -698,7 +776,7 @@ export function PortfolioPage() {
             <Button variant="outline" onClick={() => setShowAddModal(false)}>
               {language === "ko" ? "취소" : "Cancel"}
             </Button>
-            <Button onClick={handleAdd} disabled={!formName || !formCode || !formQuantity || !formAvgPrice}>
+            <Button onClick={handleAdd} disabled={!formCode || !formQuantity || !formAvgPrice}>
               <Plus className="w-4 h-4 mr-1" />
               {language === "ko" ? "추가" : "Add"}
             </Button>
