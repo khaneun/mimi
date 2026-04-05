@@ -453,13 +453,15 @@ export function NewsPage() {
                     onClick={() => hl.url && window.open(hl.url, '_blank')}
                   >
                     {hl.type === "youtube" ? (
-                      <span className="text-red-500 mt-1 shrink-0 text-sm" title="YouTube">&#9654;</span>
+                      <svg className="w-5 h-4 mt-1 shrink-0" viewBox="0 0 24 18" fill="none">
+                        <rect width="24" height="18" rx="4" fill="#FF0000"/>
+                        <path d="M9.5 13V5L16 9L9.5 13Z" fill="white"/>
+                      </svg>
                     ) : (
                       <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${getSentimentDot(hl.sentiment)}`} />
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium leading-snug group-hover:text-primary transition-colors">
-                        {hl.type === "youtube" && <span className="text-red-500 mr-1">&#9654;</span>}
                         {hl.title}
                       </p>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
