@@ -137,6 +137,7 @@ export function NewsPage() {
   const [data, setData] = useState<NewsData | null>(null)
   const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null)
   const [hoveredKeyword, setHoveredKeyword] = useState<Keyword | null>(null)
+  const [headlineTab, setHeadlineTab] = useState<"all" | "news" | "youtube">("all")
   const [filterCategory, setFilterCategory] = useState<string | null>(null)
   const [isScanning, setIsScanning] = useState(false)
   const [scanPhase, setScanPhase] = useState("")
@@ -416,15 +417,44 @@ export function NewsPage() {
 
         {/* Right: Headlines List */}
         <Card className="border-border/50 bg-card/50 backdrop-blur w-full md:w-[400px] md:shrink-0">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <Newspaper className="w-5 h-5" />
               {language === "ko" ? "주요 헤드라인" : "Top Headlines"}
             </CardTitle>
+            {/* 뉴스/유튜브 탭 */}
+            <div className="flex gap-1 mt-2">
+              {[
+                { key: "all", label: language === "ko" ? "전체" : "All", count: filteredHeadlines.length },
+                { key: "news", label: language === "ko" ? "뉴스" : "News", count: filteredHeadlines.filter(h => h.type !== "youtube").length },
+                { key: "youtube", label: "YouTube", count: filteredHeadlines.filter(h => h.type === "youtube").length },
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setHeadlineTab(tab.key as any)}
+                  className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                    headlineTab === tab.key
+                      ? tab.key === "youtube" ? "bg-red-500/20 text-red-400" : "bg-primary text-primary-foreground"
+                      : "bg-muted/50 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {tab.key === "youtube" && (
+                    <svg className="w-3 h-2.5 inline mr-1 -mt-0.5" viewBox="0 0 24 18" fill="none">
+                      <rect width="24" height="18" rx="4" fill="currentColor"/>
+                      <path d="M9.5 13V5L16 9L9.5 13Z" fill={headlineTab === "youtube" ? "#0f172a" : "#94a3b8"}/>
+                    </svg>
+                  )}
+                  {tab.label} <span className="opacity-60 ml-0.5">({tab.count})</span>
+                </button>
+              ))}
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
-              {filteredHeadlines.map((hl, idx) => {
+              {filteredHeadlines
+                .filter(hl => headlineTab === "all" ? true : headlineTab === "youtube" ? hl.type === "youtube" : hl.type !== "youtube")
+                .slice(0, 10)
+                .map((hl, idx) => {
                 // Relative time calculation
                 const relativeTime = (() => {
                   try {
