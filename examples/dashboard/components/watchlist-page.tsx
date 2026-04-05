@@ -360,17 +360,35 @@ export function WatchlistPage({ watchlist, market = "KR" }: WatchlistPageProps) 
                       {stock.sector || "-"}
                     </TableCell>
                     <TableCell className="text-right font-medium text-foreground">
-                      <div className="flex items-center justify-end gap-1">
-                        <span>{stock.current_price ? formatCurrency(stock.current_price) : "-"}</span>
-                        {stock.current_price > 0 && stock.target_price > 0 && (
-                          <MiniCandle
-                            open={stock.stop_loss || stock.current_price * 0.9}
-                            close={stock.current_price}
-                            high={stock.target_price}
-                            low={stock.stop_loss || stock.current_price * 0.85}
-                          />
-                        )}
-                      </div>
+                      {(() => {
+                        const change = stock.change
+                        const changeRate = stock.change_rate
+                        const hasChange = change != null && !isNaN(change) && changeRate != null && !isNaN(changeRate) && change !== 0
+                        const prevClose = hasChange ? stock.current_price - change : stock.current_price
+                        return (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <div className="text-right">
+                              <span>{stock.current_price ? formatCurrency(stock.current_price) : "-"}</span>
+                              {hasChange && stock.current_price > 0 && (
+                                <div className="flex items-center justify-end gap-1 text-[11px]">
+                                  {changeRate! >= 0
+                                    ? <span className="text-red-400">{"\u25B2"}{Math.abs(change!).toLocaleString()} (+{changeRate!.toFixed(2)}%)</span>
+                                    : <span className="text-blue-400">{"\u25BC"}{Math.abs(change!).toLocaleString()} ({changeRate!.toFixed(2)}%)</span>
+                                  }
+                                </div>
+                              )}
+                            </div>
+                            {stock.current_price > 0 && (
+                              <MiniCandle
+                                open={prevClose}
+                                close={stock.current_price}
+                                high={Math.max(prevClose, stock.current_price) * 1.02}
+                                low={Math.min(prevClose, stock.current_price) * 0.98}
+                              />
+                            )}
+                          </div>
+                        )
+                      })()}
                     </TableCell>
                     <TableCell className="text-right text-sm text-emerald-400">
                       {stock.target_price ? formatCurrency(stock.target_price) : "-"}

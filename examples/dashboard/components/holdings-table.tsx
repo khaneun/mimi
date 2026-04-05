@@ -202,15 +202,33 @@ export function HoldingsTable({ holdings, onStockClick, title = "보유 종목",
                           {formatCurrency(holding.avg_price)}
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <span className="font-medium">{formatCurrency(holding.current_price)}</span>
-                            <MiniCandle
-                              open={holding.buy_price ?? holding.avg_price ?? holding.current_price}
-                              close={holding.current_price}
-                              high={Math.max(holding.current_price, holding.buy_price ?? holding.current_price) * 1.02}
-                              low={Math.min(holding.current_price, holding.buy_price ?? holding.current_price) * 0.98}
-                            />
-                          </div>
+                          {(() => {
+                            const change = holding.change
+                            const changeRate = holding.change_rate
+                            const hasChange = change != null && !isNaN(change) && changeRate != null && !isNaN(changeRate) && change !== 0
+                            const prevClose = hasChange ? holding.current_price - change : holding.current_price
+                            return (
+                              <div className="flex items-center justify-end gap-1.5">
+                                <div className="text-right">
+                                  <span className="font-medium">{formatCurrency(holding.current_price)}</span>
+                                  {hasChange && (
+                                    <div className="flex items-center justify-end gap-1 text-[11px]">
+                                      {changeRate! >= 0
+                                        ? <span className="text-red-400">{"\u25B2"}{Math.abs(change!).toLocaleString()} (+{changeRate!.toFixed(2)}%)</span>
+                                        : <span className="text-blue-400">{"\u25BC"}{Math.abs(change!).toLocaleString()} ({changeRate!.toFixed(2)}%)</span>
+                                      }
+                                    </div>
+                                  )}
+                                </div>
+                                <MiniCandle
+                                  open={prevClose}
+                                  close={holding.current_price}
+                                  high={Math.max(prevClose, holding.current_price) * 1.02}
+                                  low={Math.min(prevClose, holding.current_price) * 0.98}
+                                />
+                              </div>
+                            )
+                          })()}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
@@ -260,15 +278,33 @@ export function HoldingsTable({ holdings, onStockClick, title = "보유 종목",
                           {formatCurrency(buyPrice)}
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <span className="font-medium">{formatCurrency(holding.current_price)}</span>
-                            <MiniCandle
-                              open={holding.buy_price ?? holding.avg_price ?? holding.current_price}
-                              close={holding.current_price}
-                              high={Math.max(holding.current_price, holding.buy_price ?? holding.current_price) * 1.02}
-                              low={Math.min(holding.current_price, holding.buy_price ?? holding.current_price) * 0.98}
-                            />
-                          </div>
+                          {(() => {
+                            const change = holding.change
+                            const changeRate = holding.change_rate
+                            const hasChange = change != null && !isNaN(change) && changeRate != null && !isNaN(changeRate) && change !== 0
+                            const prevClose = hasChange ? holding.current_price - change : holding.current_price
+                            return (
+                              <div className="flex items-center justify-end gap-1.5">
+                                <div className="text-right">
+                                  <span className="font-medium">{formatCurrency(holding.current_price)}</span>
+                                  {hasChange && (
+                                    <div className="flex items-center justify-end gap-1 text-[11px]">
+                                      {changeRate! >= 0
+                                        ? <span className="text-red-400">{"\u25B2"}{Math.abs(change!).toLocaleString()} (+{changeRate!.toFixed(2)}%)</span>
+                                        : <span className="text-blue-400">{"\u25BC"}{Math.abs(change!).toLocaleString()} ({changeRate!.toFixed(2)}%)</span>
+                                      }
+                                    </div>
+                                  )}
+                                </div>
+                                <MiniCandle
+                                  open={prevClose}
+                                  close={holding.current_price}
+                                  high={Math.max(prevClose, holding.current_price) * 1.02}
+                                  low={Math.min(prevClose, holding.current_price) * 0.98}
+                                />
+                              </div>
+                            )
+                          })()}
                         </TableCell>
                         <TableCell className="text-right text-success">
                           {formatCurrency(holding.target_price)}

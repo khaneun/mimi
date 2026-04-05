@@ -64,6 +64,8 @@ export interface Holding {
   value?: number
   profit?: number
   weight?: number
+  change?: number
+  change_rate?: number
   is_new_buy?: boolean
   scenario?: {
     portfolio_analysis?: string
@@ -121,6 +123,8 @@ export interface WatchlistStock {
   stop_loss: number
   investment_period: string
   sector: string
+  change?: number
+  change_rate?: number
   is_new_buy?: boolean
   portfolio_analysis?: string
   valuation_analysis?: string
@@ -268,6 +272,8 @@ export interface HoldingDecision {
   decision_date: string
   decision_time: string
   current_price: number
+  change?: number
+  change_rate?: number
   should_sell: number
   sell_reason: string
   confidence: number

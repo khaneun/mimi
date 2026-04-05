@@ -353,17 +353,35 @@ export function AIDecisionsPage({ data, market = "KR" }: AIDecisionsPageProps) {
                       {stock?.sector || "-"}
                     </TableCell>
                     <TableCell className="text-right font-medium text-foreground">
-                      <div className="flex items-center justify-end gap-1">
-                        <span>{decision.current_price ? formatCurrency(decision.current_price) : "-"}</span>
-                        {decision.current_price > 0 && buyPrice && (
-                          <MiniCandle
-                            open={buyPrice}
-                            close={decision.current_price}
-                            high={Math.max(decision.current_price, buyPrice, targetPrice || 0) * 1.02}
-                            low={Math.min(decision.current_price, buyPrice, decision.stop_loss || buyPrice) * 0.98}
-                          />
-                        )}
-                      </div>
+                      {(() => {
+                        const change = decision.change ?? stock?.change
+                        const changeRate = decision.change_rate ?? stock?.change_rate
+                        const hasChange = change != null && !isNaN(change) && changeRate != null && !isNaN(changeRate) && change !== 0
+                        const prevClose = hasChange && decision.current_price ? decision.current_price - change : decision.current_price
+                        return (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <div className="text-right">
+                              <span>{decision.current_price ? formatCurrency(decision.current_price) : "-"}</span>
+                              {hasChange && decision.current_price > 0 && (
+                                <div className="flex items-center justify-end gap-1 text-[11px]">
+                                  {changeRate! >= 0
+                                    ? <span className="text-red-400">{"\u25B2"}{Math.abs(change!).toLocaleString()} (+{changeRate!.toFixed(2)}%)</span>
+                                    : <span className="text-blue-400">{"\u25BC"}{Math.abs(change!).toLocaleString()} ({changeRate!.toFixed(2)}%)</span>
+                                  }
+                                </div>
+                              )}
+                            </div>
+                            {decision.current_price > 0 && (
+                              <MiniCandle
+                                open={prevClose || decision.current_price}
+                                close={decision.current_price}
+                                high={Math.max(prevClose || decision.current_price, decision.current_price) * 1.02}
+                                low={Math.min(prevClose || decision.current_price, decision.current_price) * 0.98}
+                              />
+                            )}
+                          </div>
+                        )
+                      })()}
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">
                       {buyPrice ? formatCurrency(buyPrice) : "-"}
