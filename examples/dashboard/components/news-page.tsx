@@ -296,104 +296,6 @@ export function NewsPage() {
         ))}
       </div>
 
-      {/* Word Cloud */}
-      <Card className="border-border/50 bg-card/50 backdrop-blur overflow-hidden">
-        <CardContent className="p-6">
-          <div className="relative min-h-[350px] p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/30 border border-border/20">
-            {/* 배경 그리드 애니메이션 */}
-            <div className="absolute inset-0 opacity-5" style={{
-              backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)',
-              backgroundSize: '24px 24px',
-            }} />
-
-            {/* 워드클라우드 */}
-            <div className="relative flex flex-wrap gap-x-3 gap-y-2 justify-center items-center">
-              {filteredKeywords.map((kw, idx) => {
-                const fontSize = Math.max(12, 14 + (kw.count / maxCount) * 36)
-                const isSelected = selectedKeyword === kw.word
-                const isHovered = hoveredKeyword?.word === kw.word
-                const sentColor = kw.sentiment === "긍정" ? "text-green-400" : kw.sentiment === "부정" ? "text-red-400" : "text-blue-300"
-                const glowColor = kw.sentiment === "긍정" ? "drop-shadow(0 0 8px rgba(74,222,128,0.4))" : kw.sentiment === "부정" ? "drop-shadow(0 0 8px rgba(248,113,113,0.4))" : "drop-shadow(0 0 6px rgba(147,197,253,0.3))"
-
-                return (
-                  <div
-                    key={kw.word}
-                    className="relative group"
-                    onMouseEnter={() => setHoveredKeyword(kw)}
-                    onMouseLeave={() => setHoveredKeyword(null)}
-                  >
-                    <button
-                      onClick={() => setSelectedKeyword(isSelected ? null : kw.word)}
-                      className={`
-                        font-bold transition-all duration-500 cursor-pointer
-                        hover:scale-110 whitespace-nowrap
-                        ${sentColor}
-                        ${isSelected ? "scale-110 underline underline-offset-4" : ""}
-                      `}
-                      style={{
-                        fontSize: `${fontSize}px`,
-                        filter: isHovered ? glowColor : 'none',
-                        opacity: selectedKeyword && !isSelected ? 0.3 : 1,
-                        animationName: 'wordFadeIn',
-                        animationDuration: `${0.3 + idx * 0.05}s`,
-                        animationFillMode: 'backwards',
-                        animationTimingFunction: 'ease-out',
-                      }}
-                    >
-                      {kw.word}
-                      <sup className="text-[9px] ml-0.5 opacity-60 font-normal">{kw.count}</sup>
-                    </button>
-
-                    {/* Hover Tooltip */}
-                    {isHovered && (
-                      <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 pointer-events-none">
-                        <div className="bg-popover border border-border rounded-lg shadow-xl p-3 min-w-[200px]">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-bold text-sm">{kw.word}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full border ${getCategoryBadge(kw.category)}`}>
-                              {language === "ko" ? kw.category : CATEGORY_EN[kw.category]}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="flex items-center gap-1">
-                              <TrendingUp className="w-3 h-3 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">
-                                {language === "ko" ? "빈도" : "Freq"}: <b>{kw.count}</b>
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <div className={`w-2 h-2 rounded-full ${getSentimentDot(kw.sentiment)}`} />
-                              <span className="text-xs text-muted-foreground">
-                                {language === "ko" ? kw.sentiment : SENTIMENT_EN[kw.sentiment]}
-                              </span>
-                            </div>
-                          </div>
-                          {kw.related.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {kw.related.map(r => (
-                                <span key={r} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{r}</span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* CSS Animation */}
-            <style>{`
-              @keyframes wordFadeIn {
-                from { opacity: 0; transform: translateY(12px) scale(0.8); }
-                to { opacity: 1; transform: translateY(0) scale(1); }
-              }
-            `}</style>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Selected Keyword Info */}
       {selectedKeyword && (
         <div className="flex items-center gap-2">
@@ -412,72 +314,199 @@ export function NewsPage() {
         </div>
       )}
 
-      {/* Headlines List */}
-      <Card className="border-border/50 bg-card/50 backdrop-blur">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Newspaper className="w-5 h-5" />
-            {language === "ko" ? "주요 헤드라인" : "Top Headlines"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {filteredHeadlines.map((hl, idx) => (
-              <div
-                key={idx}
-                className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50 cursor-pointer group"
-                onClick={() => hl.url && window.open(hl.url, '_blank')}
-              >
-                {hl.type === "youtube" ? (
-                  <span className="text-red-500 mt-1 shrink-0 text-sm">▶</span>
-                ) : (
-                  <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${getSentimentDot(hl.sentiment)}`} />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium leading-snug group-hover:text-primary transition-colors">{hl.title}</p>
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <span className="text-xs text-muted-foreground">{hl.source}</span>
-                    <span className="text-xs text-muted-foreground/50">|</span>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {hl.time}
-                    </span>
-                    <span className="text-xs text-muted-foreground/50">|</span>
-                    {hl.keywords.map(kw => (
+      {/* Word Cloud + Headlines: 2-column on desktop, stacked on mobile */}
+      <div className="flex flex-col md:flex-row gap-4">
+        {/* Left: Word Cloud */}
+        <Card className="border-border/50 bg-card/50 backdrop-blur overflow-hidden flex-1">
+          <CardContent className="p-6">
+            <div className="relative min-h-[350px] p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/30 border border-border/20">
+              {/* 배경 그리드 애니메이션 */}
+              <div className="absolute inset-0 opacity-5" style={{
+                backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)',
+                backgroundSize: '24px 24px',
+              }} />
+
+              {/* 워드클라우드 */}
+              <div className="relative flex flex-wrap gap-x-3 gap-y-2 justify-center items-center">
+                {filteredKeywords.map((kw, idx) => {
+                  const fontSize = Math.max(12, 14 + (kw.count / maxCount) * 36)
+                  const isSelected = selectedKeyword === kw.word
+                  const isHovered = hoveredKeyword?.word === kw.word
+                  const sentColor = kw.sentiment === "긍정" ? "text-green-400" : kw.sentiment === "부정" ? "text-red-400" : "text-blue-300"
+                  const glowColor = kw.sentiment === "긍정" ? "drop-shadow(0 0 8px rgba(74,222,128,0.4))" : kw.sentiment === "부정" ? "drop-shadow(0 0 8px rgba(248,113,113,0.4))" : "drop-shadow(0 0 6px rgba(147,197,253,0.3))"
+
+                  return (
+                    <div
+                      key={kw.word}
+                      className="relative group"
+                      onMouseEnter={() => setHoveredKeyword(kw)}
+                      onMouseLeave={() => setHoveredKeyword(null)}
+                    >
                       <button
-                        key={kw}
-                        onClick={() => setSelectedKeyword(selectedKeyword === kw ? null : kw)}
-                        className="text-[10px] px-1.5 py-0.5 rounded bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                        onClick={() => setSelectedKeyword(isSelected ? null : kw.word)}
+                        className={`
+                          font-bold transition-all duration-500 cursor-pointer
+                          hover:scale-110 whitespace-nowrap
+                          ${sentColor}
+                          ${isSelected ? "scale-110 underline underline-offset-4" : ""}
+                        `}
+                        style={{
+                          fontSize: `${fontSize}px`,
+                          filter: isHovered ? glowColor : 'none',
+                          opacity: selectedKeyword && !isSelected ? 0.3 : 1,
+                          animationName: 'wordFadeIn',
+                          animationDuration: `${0.3 + idx * 0.05}s`,
+                          animationFillMode: 'backwards',
+                          animationTimingFunction: 'ease-out',
+                        }}
                       >
-                        #{kw}
+                        {kw.word}
+                        <sup className="text-[9px] ml-0.5 opacity-60 font-normal">{kw.count}</sup>
                       </button>
-                    ))}
+
+                      {/* Hover Tooltip */}
+                      {isHovered && (
+                        <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 pointer-events-none">
+                          <div className="bg-popover border border-border rounded-lg shadow-xl p-3 min-w-[200px]">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-bold text-sm">{kw.word}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full border ${getCategoryBadge(kw.category)}`}>
+                                {language === "ko" ? kw.category : CATEGORY_EN[kw.category]}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="flex items-center gap-1">
+                                <TrendingUp className="w-3 h-3 text-muted-foreground" />
+                                <span className="text-xs text-muted-foreground">
+                                  {language === "ko" ? "빈도" : "Freq"}: <b>{kw.count}</b>
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className={`w-2 h-2 rounded-full ${getSentimentDot(kw.sentiment)}`} />
+                                <span className="text-xs text-muted-foreground">
+                                  {language === "ko" ? kw.sentiment : SENTIMENT_EN[kw.sentiment]}
+                                </span>
+                              </div>
+                            </div>
+                            {kw.related.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {kw.related.map(r => (
+                                  <span key={r} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{r}</span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* CSS Animation */}
+              <style>{`
+                @keyframes wordFadeIn {
+                  from { opacity: 0; transform: translateY(12px) scale(0.8); }
+                  to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+              `}</style>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Right: Headlines List */}
+        <Card className="border-border/50 bg-card/50 backdrop-blur w-full md:w-[400px] md:shrink-0">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Newspaper className="w-5 h-5" />
+              {language === "ko" ? "주요 헤드라인" : "Top Headlines"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+              {filteredHeadlines.map((hl, idx) => {
+                // Relative time calculation
+                const relativeTime = (() => {
+                  try {
+                    const now = new Date()
+                    const hlDate = new Date(hl.time)
+                    if (isNaN(hlDate.getTime())) return hl.time
+                    const diffMs = now.getTime() - hlDate.getTime()
+                    if (diffMs < 0) return hl.time
+                    const diffMin = Math.floor(diffMs / 60000)
+                    const diffHour = Math.floor(diffMs / 3600000)
+                    const diffDay = Math.floor(diffMs / 86400000)
+                    if (diffMin < 1) return language === "ko" ? "방금 전" : "just now"
+                    if (diffMin < 60) return language === "ko" ? `${diffMin}분 전` : `${diffMin}m ago`
+                    if (diffHour < 24) return language === "ko" ? `${diffHour}시간 전` : `${diffHour}h ago`
+                    if (diffDay < 7) return language === "ko" ? `${diffDay}일 전` : `${diffDay}d ago`
+                    return hl.time
+                  } catch {
+                    return hl.time
+                  }
+                })()
+
+                return (
+                  <div
+                    key={idx}
+                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50 cursor-pointer group"
+                    onClick={() => hl.url && window.open(hl.url, '_blank')}
+                  >
+                    {hl.type === "youtube" ? (
+                      <span className="text-red-500 mt-1 shrink-0 text-sm" title="YouTube">&#9654;</span>
+                    ) : (
+                      <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${getSentimentDot(hl.sentiment)}`} />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium leading-snug group-hover:text-primary transition-colors">
+                        {hl.type === "youtube" && <span className="text-red-500 mr-1">&#9654;</span>}
+                        {hl.title}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <span className="text-xs text-muted-foreground">{hl.source}</span>
+                        <span className="text-xs text-muted-foreground/50">|</span>
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {relativeTime}
+                        </span>
+                        <span className="text-xs text-muted-foreground/50">|</span>
+                        {hl.keywords.map(kw => (
+                          <button
+                            key={kw}
+                            onClick={(e) => { e.stopPropagation(); setSelectedKeyword(selectedKeyword === kw ? null : kw) }}
+                            className="text-[10px] px-1.5 py-0.5 rounded bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                          >
+                            #{kw}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={`text-[10px] shrink-0 ${
+                        hl.sentiment === "긍정"
+                          ? "border-green-500/30 text-green-400"
+                          : hl.sentiment === "부정"
+                          ? "border-red-500/30 text-red-400"
+                          : "border-blue-500/30 text-blue-400"
+                      }`}
+                    >
+                      {language === "ko" ? hl.sentiment : SENTIMENT_EN[hl.sentiment]}
+                    </Badge>
                   </div>
+                )
+              })}
+              {filteredHeadlines.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground text-sm">
+                  {language === "ko"
+                    ? "선택한 키워드에 해당하는 뉴스가 없습니다."
+                    : "No headlines match the selected keyword."}
                 </div>
-                <Badge
-                  variant="outline"
-                  className={`text-[10px] shrink-0 ${
-                    hl.sentiment === "긍정"
-                      ? "border-green-500/30 text-green-400"
-                      : hl.sentiment === "부정"
-                      ? "border-red-500/30 text-red-400"
-                      : "border-blue-500/30 text-blue-400"
-                  }`}
-                >
-                  {language === "ko" ? hl.sentiment : SENTIMENT_EN[hl.sentiment]}
-                </Badge>
-              </div>
-            ))}
-            {filteredHeadlines.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground text-sm">
-                {language === "ko"
-                  ? "선택한 키워드에 해당하는 뉴스가 없습니다."
-                  : "No headlines match the selected keyword."}
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

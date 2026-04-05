@@ -239,7 +239,14 @@ export function WatchlistPage({ watchlist, market = "KR" }: WatchlistPageProps) 
       </div>
 
       {/* ===== Section 3: Stock Table ===== */}
-      <Card className="border-border/50">
+      <div className="relative">
+        {/* Mobile scroll hint gradient */}
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none md:hidden" />
+        <div className="text-xs text-muted-foreground text-right mb-1 md:hidden flex items-center justify-end gap-1">
+          <span>{language === "ko" ? "스크롤" : "Scroll"}</span>
+          <span>&rarr;</span>
+        </div>
+      <Card className="border-border/50 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="border-border/50">
@@ -307,9 +314,6 @@ export function WatchlistPage({ watchlist, market = "KR" }: WatchlistPageProps) 
               const isExpanded = expandedId === (stock.id ?? index)
               const rowId = stock.id ?? index
               const naverUrl = getNaverChartUrl(stock.ticker)
-              const source = stock.rationale?.includes("인베스팅")
-                ? language === "ko" ? "인베스팅" : "Investing"
-                : "AI"
 
               return (
                 <React.Fragment key={`frag-${rowId}`}>
@@ -400,7 +404,19 @@ export function WatchlistPage({ watchlist, market = "KR" }: WatchlistPageProps) 
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
-                      <span className="text-xs text-muted-foreground">{source}</span>
+                      {stock.rationale?.includes("인베스팅") ? (
+                        <Badge variant="outline" className="text-[10px] bg-purple-500/15 text-purple-400 border-purple-500/30">
+                          {language === "ko" ? "인베스팅" : "Investing"}
+                        </Badge>
+                      ) : stock.rationale?.includes("신규 매수") ? (
+                        <Badge variant="outline" className="text-[10px] bg-blue-500/15 text-blue-400 border-blue-500/30">
+                          {language === "ko" ? "AI 분석" : "AI Analysis"}
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-[10px] bg-green-500/15 text-green-400 border-green-500/30">
+                          MarketPulse
+                        </Badge>
+                      )}
                     </TableCell>
                   </TableRow>
 
@@ -594,6 +610,7 @@ export function WatchlistPage({ watchlist, market = "KR" }: WatchlistPageProps) 
           </TableBody>
         </Table>
       </Card>
+      </div>
     </div>
   )
 }

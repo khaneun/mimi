@@ -326,8 +326,8 @@ export function TradingHistoryPage({ history, summary, prismPerformance = [], ma
         </Badge>
       </div>
 
-      {/* 통계 카드 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* 통계 카드 - 3x2 그리드 */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <Card className="border-border/50">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-2">
@@ -381,8 +381,8 @@ export function TradingHistoryPage({ history, summary, prismPerformance = [], ma
         </Card>
       </div>
 
-      {/* 성과 지표 카드 */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      {/* 성과 지표 카드 - 3x2 그리드, 높이 통일 */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <Card className="border-border/50">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-2">
@@ -508,8 +508,8 @@ export function TradingHistoryPage({ history, summary, prismPerformance = [], ma
             </span>
           )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="border-border/50 bg-gradient-to-br from-indigo-500/5 to-transparent">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="border-border/50 bg-gradient-to-br from-indigo-500/5 to-transparent h-full">
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-2">
                 <Activity className="w-5 h-5 text-indigo-600" />
@@ -537,7 +537,7 @@ export function TradingHistoryPage({ history, summary, prismPerformance = [], ma
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 bg-gradient-to-br from-cyan-500/5 to-transparent">
+          <Card className="border-border/50 bg-gradient-to-br from-cyan-500/5 to-transparent h-full">
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-2">
                 <LineChart className="w-5 h-5 text-cyan-600" />
@@ -566,7 +566,7 @@ export function TradingHistoryPage({ history, summary, prismPerformance = [], ma
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 bg-gradient-to-br from-violet-500/5 to-transparent">
+          <Card className="border-border/50 bg-gradient-to-br from-violet-500/5 to-transparent h-full">
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-2">
                 <Gauge className="w-5 h-5 text-violet-600" />
@@ -595,7 +595,7 @@ export function TradingHistoryPage({ history, summary, prismPerformance = [], ma
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 bg-gradient-to-br from-teal-500/5 to-transparent">
+          <Card className="border-border/50 bg-gradient-to-br from-teal-500/5 to-transparent h-full">
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-2">
                 <Target className="w-5 h-5 text-teal-600" />
