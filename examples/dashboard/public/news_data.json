@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-05T20:53:21.127876",
+  "generated_at": "2026-04-05T22:04:12.693642",
   "keywords": [
     {
       "word": "중동",
@@ -9,8 +9,7 @@
       "related": [
         "이란",
         "전쟁",
-        "곡물가격",
-        "유가"
+        "지정학"
       ]
     },
     {
@@ -30,40 +29,29 @@
       "category": "글로벌",
       "sentiment": "중립",
       "related": [
-        "중국",
         "이란",
+        "미국",
         "관세"
       ]
     },
     {
       "word": "비트코인",
-      "count": 65,
+      "count": 60,
       "category": "글로벌",
       "sentiment": "중립",
       "related": [
         "암호화폐",
-        "유동성"
+        "크립토"
       ]
     },
     {
       "word": "삼성전자",
-      "count": 60,
+      "count": 65,
       "category": "종목",
       "sentiment": "중립",
       "related": [
-        "실적발표",
+        "실적",
         "반도체"
-      ]
-    },
-    {
-      "word": "유가",
-      "count": 58,
-      "category": "경제",
-      "sentiment": "부정",
-      "related": [
-        "석유",
-        "중동",
-        "골드만삭스"
       ]
     },
     {
@@ -72,55 +60,56 @@
       "category": "경제",
       "sentiment": "부정",
       "related": [
-        "중동전쟁",
         "사료",
-        "인플레이션"
+        "인플레이션",
+        "중동"
+      ]
+    },
+    {
+      "word": "유가",
+      "count": 60,
+      "category": "경제",
+      "sentiment": "부정",
+      "related": [
+        "석유",
+        "골드만삭스",
+        "중동"
       ]
     },
     {
       "word": "부동산",
-      "count": 52,
+      "count": 50,
       "category": "섹터",
       "sentiment": "중립",
       "related": [
-        "전세대출",
+        "전세",
         "공시가격",
-        "규제"
+        "성동구"
       ]
     },
     {
       "word": "전세대출",
-      "count": 48,
+      "count": 45,
       "category": "이슈",
       "sentiment": "부정",
       "related": [
-        "비거주1주택",
-        "규제"
+        "규제",
+        "비거주1주택"
       ]
     },
     {
       "word": "공시가격",
-      "count": 45,
+      "count": 40,
       "category": "이슈",
       "sentiment": "중립",
       "related": [
-        "성동구",
-        "부동산"
-      ]
-    },
-    {
-      "word": "중국",
-      "count": 44,
-      "category": "글로벌",
-      "sentiment": "중립",
-      "related": [
-        "트럼프",
-        "국빈방문"
+        "부동산",
+        "성동구"
       ]
     },
     {
       "word": "건설",
-      "count": 42,
+      "count": 45,
       "category": "섹터",
       "sentiment": "부정",
       "related": [
@@ -130,7 +119,7 @@
     },
     {
       "word": "태양광",
-      "count": 40,
+      "count": 35,
       "category": "섹터",
       "sentiment": "부정",
       "related": [
@@ -140,8 +129,28 @@
       ]
     },
     {
+      "word": "에코마케팅",
+      "count": 30,
+      "category": "종목",
+      "sentiment": "긍정",
+      "related": [
+        "저평가",
+        "급등"
+      ]
+    },
+    {
+      "word": "아이패밀리SC",
+      "count": 30,
+      "category": "종목",
+      "sentiment": "부정",
+      "related": [
+        "하락",
+        "고평가"
+      ]
+    },
+    {
       "word": "GS칼텍스",
-      "count": 38,
+      "count": 35,
       "category": "종목",
       "sentiment": "긍정",
       "related": [
@@ -152,7 +161,7 @@
     },
     {
       "word": "두산그룹",
-      "count": 35,
+      "count": 25,
       "category": "종목",
       "sentiment": "긍정",
       "related": [
@@ -161,39 +170,28 @@
       ]
     },
     {
-      "word": "KB",
-      "count": 34,
+      "word": "KB금융",
+      "count": 30,
       "category": "종목",
       "sentiment": "긍정",
       "related": [
-        "상권활성화지수",
-        "금융"
-      ]
-    },
-    {
-      "word": "석유",
-      "count": 33,
-      "category": "경제",
-      "sentiment": "부정",
-      "related": [
-        "유가",
-        "골드만삭스",
-        "고갈"
+        "상권활성화",
+        "핀테크"
       ]
     },
     {
       "word": "골드만삭스",
-      "count": 30,
+      "count": 40,
       "category": "글로벌",
       "sentiment": "중립",
       "related": [
         "석유",
-        "분석"
+        "원유"
       ]
     },
     {
       "word": "규제",
-      "count": 28,
+      "count": 45,
       "category": "이슈",
       "sentiment": "부정",
       "related": [
@@ -202,90 +200,50 @@
       ]
     },
     {
-      "word": "에너지",
-      "count": 27,
-      "category": "섹터",
+      "word": "인플레이션",
+      "count": 50,
+      "category": "경제",
       "sentiment": "부정",
       "related": [
-        "석유",
-        "태양광",
-        "세르비아"
+        "곡물",
+        "사료",
+        "물가"
       ]
     },
     {
       "word": "암호화폐",
-      "count": 25,
+      "count": 40,
       "category": "글로벌",
       "sentiment": "중립",
       "related": [
         "비트코인",
-        "Bybit"
+        "거래소"
       ]
     },
     {
-      "word": "인플레이션",
-      "count": 24,
-      "category": "경제",
-      "sentiment": "부정",
-      "related": [
-        "곡물가격",
-        "사료"
-      ]
-    },
-    {
-      "word": "우주데이터센터",
-      "count": 20,
-      "category": "섹터",
+      "word": "실적",
+      "count": 45,
+      "category": "이슈",
       "sentiment": "중립",
       "related": [
-        "기술",
-        "데이터센터"
-      ]
-    },
-    {
-      "word": "비료",
-      "count": 18,
-      "category": "섹터",
-      "sentiment": "중립",
-      "related": [
-        "농업",
-        "수급"
-      ]
-    },
-    {
-      "word": "환율",
-      "count": 17,
-      "category": "경제",
-      "sentiment": "중립",
-      "related": [
-        "외국환",
-        "달러"
+        "삼성전자",
+        "어닝시즌"
       ]
     },
     {
       "word": "ESG",
-      "count": 16,
+      "count": 25,
       "category": "이슈",
       "sentiment": "긍정",
       "related": [
         "GS칼텍스",
-        "베올리아"
-      ]
-    },
-    {
-      "word": "슈카월드",
-      "count": 50,
-      "category": "유튜브",
-      "sentiment": "중립",
-      "related": [
-        "삼성전자",
-        "주식",
-        "부동산"
+        "베올리아",
+        "환경"
       ]
     },
     {
       "word": "로보틱스",
-      "count": 15,
+      "count": 20,
       "category": "섹터",
       "sentiment": "부정",
       "related": [
@@ -294,8 +252,28 @@
       ]
     },
     {
+      "word": "우주",
+      "count": 15,
+      "category": "섹터",
+      "sentiment": "중립",
+      "related": [
+        "데이터센터",
+        "기술"
+      ]
+    },
+    {
+      "word": "비료",
+      "count": 20,
+      "category": "섹터",
+      "sentiment": "중립",
+      "related": [
+        "농업",
+        "수급"
+      ]
+    },
+    {
       "word": "기후동행카드",
-      "count": 14,
+      "count": 20,
       "category": "이슈",
       "sentiment": "긍정",
       "related": [
@@ -304,17 +282,54 @@
       ]
     },
     {
-      "word": "금융협력",
-      "count": 12,
-      "category": "섹터",
-      "sentiment": "긍정",
+      "word": "외환",
+      "count": 25,
+      "category": "경제",
+      "sentiment": "중립",
       "related": [
-        "우리은행",
-        "두산그룹"
+        "환율",
+        "달러"
+      ]
+    },
+    {
+      "word": "주식투자",
+      "count": 35,
+      "category": "유튜브",
+      "sentiment": "중립",
+      "related": [
+        "슈카월드",
+        "개인투자"
+      ]
+    },
+    {
+      "word": "슈카월드",
+      "count": 30,
+      "category": "유튜브",
+      "sentiment": "중립",
+      "related": [
+        "삼성전자",
+        "주식",
+        "부동산"
       ]
     }
   ],
   "headlines": [
+    {
+      "title": "[슈카월드] [슈카월드] 삼성전자 실적 발표가 온다 / 이란에 다시 48시간 주겠다 / 벚꽃이 좀 빨리 피네? / 야구 ABS의 나라 / 중도로 가는 유럽",
+      "source": "YouTube 슈카월드",
+      "time": "2026-04-05",
+      "sentiment": "중립",
+      "importance": 8,
+      "keywords": [
+        "삼성전자",
+        "실적",
+        "이란",
+        "슈카월드"
+      ],
+      "url": "https://www.youtube.com/watch?v=Veuo0k9WVH8",
+      "region": "KR",
+      "type": "youtube"
+    },
     {
       "title": "李대통령 \"더 큰 위기 번지지 않게 모든 수단 대응…연대·협력\"",
       "source": "연합뉴스",
@@ -345,21 +360,6 @@
       "type": "news"
     },
     {
-      "title": "[슈카월드] [슈카월드] 삼성전자 실적 발표가 온다 / 이란에 다시 48시간 주겠다 / 벚꽃이 좀 빨리 피네? / 야구 ABS의 나라 / 중도로 가는 유럽",
-      "source": "YouTube 슈카월드",
-      "time": "2026-04-05",
-      "sentiment": "중립",
-      "importance": 7,
-      "keywords": [
-        "삼성전자",
-        "이란",
-        "슈카월드"
-      ],
-      "url": "https://www.youtube.com/watch?v=Veuo0k9WVH8",
-      "region": "KR",
-      "type": "youtube"
-    },
-    {
       "title": "국토장관, 건설부문 8개 협회 긴급 회동…중동상황 영향 점검",
       "source": "연합뉴스",
       "time": "Sun, 5 Apr 2026 ",
@@ -374,14 +374,27 @@
       "type": "news"
     },
     {
+      "title": "에코마케팅, InvestingPro의 저평가 시그널 후 64% 급등",
+      "source": "Investing.com",
+      "time": "2026-04-05 12:05",
+      "sentiment": "긍정",
+      "importance": 7,
+      "keywords": [
+        "에코마케팅"
+      ],
+      "url": "https://kr.investing.com/news/investment-ideas/article-93CH-1889282",
+      "region": "KR",
+      "type": "news"
+    },
+    {
       "title": "중국 – 트럼프 국빈 방문 연기: 변화하는 것과 변하지 않는 것",
       "source": "Investing.com",
       "time": "2026-04-05 11:35",
       "sentiment": "중립",
       "importance": 7,
       "keywords": [
-        "중국",
-        "트럼프"
+        "트럼프",
+        "중동"
       ],
       "url": "https://kr.investing.com/news/economy-news/article-1889280",
       "region": "KR",
@@ -391,16 +404,29 @@
       "title": "세계는 석유가 고갈되고 있는가? 골드만삭스의 분석",
       "source": "Investing.com",
       "time": "2026-04-05 10:54",
-      "sentiment": "부정",
+      "sentiment": "중립",
       "importance": 7,
       "keywords": [
-        "석유",
-        "골드만삭스",
-        "유가"
+        "유가",
+        "골드만삭스"
       ],
       "url": "https://kr.investing.com/news/economy-news/article-1889276",
       "region": "KR",
       "type": "news"
+    },
+    {
+      "title": "[슈카월드] \"이제 남은 길은 주식 한방 뿐\"",
+      "source": "YouTube 슈카월드",
+      "time": "2026-04-04",
+      "sentiment": "중립",
+      "importance": 6,
+      "keywords": [
+        "주식투자",
+        "슈카월드"
+      ],
+      "url": "https://www.youtube.com/watch?v=hUx5XifMZ7w",
+      "region": "KR",
+      "type": "youtube"
     },
     {
       "title": "비거주1주택 전세대출 제한 등…추가 규제 나온다",
@@ -432,58 +458,17 @@
       "type": "news"
     },
     {
-      "title": "세르비아군, 헝가리 연결 주요 에너지 동맥 파괴 공작 저지",
+      "title": "아이패밀리SC 53% 하락, InvestingPro의 공정가치 예측 적중",
       "source": "Investing.com",
-      "time": "2026-04-05 09:41",
+      "time": "2026-04-05 11:59",
       "sentiment": "부정",
       "importance": 6,
       "keywords": [
-        "에너지"
+        "아이패밀리SC"
       ],
-      "url": "https://kr.investing.com/news/economy-news/article-1889270",
+      "url": "https://kr.investing.com/news/investment-ideas/article-93CH-1889281",
       "region": "KR",
       "type": "news"
-    },
-    {
-      "title": "헝가리 오르반 총리, 세르비아 국경 인근 폭발물 발견 후 국방위원회 소집",
-      "source": "Investing.com",
-      "time": "2026-04-05 09:32",
-      "sentiment": "부정",
-      "importance": 6,
-      "keywords": [
-        "에너지"
-      ],
-      "url": "https://kr.investing.com/news/world-news/article-93CH-1889268",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "Bitcoin slips, drops under $67k as Trump threatens to hit Iran ‘extremely hard’",
-      "source": "Investing글로벌",
-      "time": "2026-04-02 21:52",
-      "sentiment": "부정",
-      "importance": 6,
-      "keywords": [
-        "비트코인",
-        "트럼프",
-        "이란"
-      ],
-      "url": "https://www.investing.com/news/cryptocurrency-news/bitcoin-slides-to-665k-as-trump-threatens-to-hit-iran-extremely-hard-4594610",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "[슈카월드] \"이제 남은 길은 주식 한방 뿐\"",
-      "source": "YouTube 슈카월드",
-      "time": "2026-04-04",
-      "sentiment": "중립",
-      "importance": 5,
-      "keywords": [
-        "슈카월드"
-      ],
-      "url": "https://www.youtube.com/watch?v=hUx5XifMZ7w",
-      "region": "KR",
-      "type": "youtube"
     },
     {
       "title": "[슈카월드] 성동구 공시가격 +29%, 전국 1등 달성",
@@ -507,8 +492,7 @@
       "sentiment": "긍정",
       "importance": 5,
       "keywords": [
-        "KB",
-        "금융협력"
+        "KB금융"
       ],
       "url": "https://www.mk.co.kr/news/economy/12008378",
       "region": "KR",
@@ -529,15 +513,15 @@
       "type": "news"
     },
     {
-      "title": "우주 데이터센터, 기술적으로 실현 가능할까?",
+      "title": "InvestingPro 공정가치, Serve Robotics 36% 하락 경고",
       "source": "Investing.com",
-      "time": "2026-04-05 09:59",
-      "sentiment": "중립",
+      "time": "2026-04-05 11:05",
+      "sentiment": "부정",
       "importance": 5,
       "keywords": [
-        "우주데이터센터"
+        "로보틱스"
       ],
-      "url": "https://kr.investing.com/news/technology-news/article-1889272",
+      "url": "https://kr.investing.com/news/investment-ideas/article-93CH-1889277",
       "region": "KR",
       "type": "news"
     },
@@ -557,6 +541,21 @@
       "type": "news"
     },
     {
+      "title": "Bitcoin slips, drops under $67k as Trump threatens to hit Iran ‘extremely hard’",
+      "source": "Investing글로벌",
+      "time": "2026-04-02 21:52",
+      "sentiment": "부정",
+      "importance": 5,
+      "keywords": [
+        "비트코인",
+        "트럼프",
+        "이란"
+      ],
+      "url": "https://www.investing.com/news/cryptocurrency-news/bitcoin-slides-to-665k-as-trump-threatens-to-hit-iran-extremely-hard-4594610",
+      "region": "KR",
+      "type": "news"
+    },
+    {
       "title": "[포토] 우리銀·두산그룹 생산적 금융 협력",
       "source": "매일경제",
       "time": "Sun, 05 Apr 2026",
@@ -564,7 +563,7 @@
       "importance": 4,
       "keywords": [
         "두산그룹",
-        "금융협력"
+        "KB금융"
       ],
       "url": "https://www.mk.co.kr/news/economy/12008381",
       "region": "KR",
@@ -577,8 +576,7 @@
       "sentiment": "부정",
       "importance": 4,
       "keywords": [
-        "태양광",
-        "에너지"
+        "태양광"
       ],
       "url": "https://www.mk.co.kr/news/economy/12008376",
       "region": "KR",
@@ -598,15 +596,26 @@
       "type": "news"
     },
     {
-      "title": "InvestingPro 공정가치, Serve Robotics 36% 하락 경고",
+      "title": "SunOpta, InvestingPro 공정가치 분석 후 64% 수익률 달성",
       "source": "Investing.com",
-      "time": "2026-04-05 11:05",
-      "sentiment": "부정",
+      "time": "2026-04-05 11:16",
+      "sentiment": "긍정",
+      "importance": 4,
+      "keywords": [],
+      "url": "https://kr.investing.com/news/investment-ideas/article-93CH-1889278",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "우주 데이터센터, 기술적으로 실현 가능할까?",
+      "source": "Investing.com",
+      "time": "2026-04-05 09:59",
+      "sentiment": "중립",
       "importance": 4,
       "keywords": [
-        "로보틱스"
+        "우주"
       ],
-      "url": "https://kr.investing.com/news/investment-ideas/article-93CH-1889277",
+      "url": "https://kr.investing.com/news/technology-news/article-1889272",
       "region": "KR",
       "type": "news"
     },
@@ -659,20 +668,9 @@
       "sentiment": "중립",
       "importance": 3,
       "keywords": [
-        "환율"
+        "외환"
       ],
       "url": "https://www.mk.co.kr/news/economy/12008380",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "SunOpta, InvestingPro 공정가치 분석 후 64% 수익률 달성",
-      "source": "Investing.com",
-      "time": "2026-04-05 11:16",
-      "sentiment": "긍정",
-      "importance": 3,
-      "keywords": [],
-      "url": "https://kr.investing.com/news/investment-ideas/article-93CH-1889278",
       "region": "KR",
       "type": "news"
     },
