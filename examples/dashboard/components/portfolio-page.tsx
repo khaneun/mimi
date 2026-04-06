@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { Plus, Pencil, Trash2, Wallet, ArrowUpDown, ArrowUp, ArrowDown, Search } from "lucide-react"
 import { getNaverChartUrl } from "@/lib/naver-chart"
+import { MiniCandle } from "@/components/mini-candle"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -75,6 +76,7 @@ export function PortfolioPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<{ accountIdx: number; stockIdx: number } | null>(null)
   const [priceMap, setPriceMap] = useState<Record<string, number>>({})
+  const [changeMap, setChangeMap] = useState<Record<string, { change: number; change_rate: number }>>({})
   const [sortKey, setSortKey] = useState<string>("name")
   const [sortAsc, setSortAsc] = useState(true)
   const [filterText, setFilterText] = useState("")
@@ -121,10 +123,17 @@ export function PortfolioPage() {
         const resp = await fetch("/dashboard_data.json")
         const data = await resp.json()
         const map: Record<string, number> = {}
+        const cmap: Record<string, { change: number; change_rate: number }> = {}
         for (const h of [...(data.holdings ?? []), ...(data.watchlist ?? [])]) {
-          if (h.ticker && h.current_price) map[h.ticker] = h.current_price
+          if (h.ticker && h.current_price) {
+            map[h.ticker] = h.current_price
+            if (h.change != null && h.change_rate != null) {
+              cmap[h.ticker] = { change: h.change, change_rate: h.change_rate }
+            }
+          }
         }
         setPriceMap(map)
+        setChangeMap(cmap)
       } catch {}
     }
     loadPrices()
@@ -632,10 +641,32 @@ export function PortfolioPage() {
                     <TableCell className="text-right">{stock.avg_price.toLocaleString()}</TableCell>
                     <TableCell className="text-right">{invested.toLocaleString()}</TableCell>
                     <TableCell className="text-right">
-                      {priceMap[stock.code]
-                        ? <span className="font-medium">{priceMap[stock.code].toLocaleString()}</span>
-                        : <span className="text-muted-foreground text-xs">-</span>
-                      }
+                      {priceMap[stock.code] ? (() => {
+                        const cp = priceMap[stock.code]
+                        const chg = changeMap[stock.code]
+                        const prevClose = chg ? cp - chg.change : stock.avg_price
+                        return (
+                          <div className="flex items-center justify-end gap-1">
+                            <div className="text-right">
+                              <span className="font-medium">{cp.toLocaleString()}</span>
+                              {chg && chg.change !== 0 && (
+                                <div className="text-[10px]">
+                                  {chg.change_rate >= 0
+                                    ? <span className="text-red-400">▲{Math.abs(chg.change).toLocaleString()} (+{chg.change_rate.toFixed(2)}%)</span>
+                                    : <span className="text-blue-400">▼{Math.abs(chg.change).toLocaleString()} ({chg.change_rate.toFixed(2)}%)</span>
+                                  }
+                                </div>
+                              )}
+                            </div>
+                            <MiniCandle
+                              open={prevClose}
+                              close={cp}
+                              high={Math.max(cp, prevClose) * 1.02}
+                              low={Math.min(cp, prevClose) * 0.98}
+                            />
+                          </div>
+                        )
+                      })() : <span className="text-muted-foreground text-xs">-</span>}
                     </TableCell>
                     <TableCell className="text-right">
                       {priceMap[stock.code]

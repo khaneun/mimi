@@ -1,439 +1,470 @@
 {
-  "generated_at": "2026-04-05T22:55:51.317811",
+  "generated_at": "2026-04-06T21:23:25.469805",
   "keywords": [
     {
-      "word": "중동전쟁",
-      "count": 85,
-      "category": "글로벌",
-      "sentiment": "부정",
-      "related": [
-        "이란",
-        "홍해봉쇄",
-        "걸프협력회의"
-      ]
-    },
-    {
       "word": "삼성전자",
-      "count": 75,
+      "count": 45,
       "category": "종목",
-      "sentiment": "중립",
-      "related": [
-        "AI메모리",
-        "실적발표",
-        "SK하이닉스"
-      ]
-    },
-    {
-      "word": "AI메모리",
-      "count": 70,
-      "category": "섹터",
       "sentiment": "긍정",
       "related": [
-        "삼성전자",
-        "SK하이닉스",
-        "반도체"
-      ]
-    },
-    {
-      "word": "환율",
-      "count": 65,
-      "category": "경제",
-      "sentiment": "부정",
-      "related": [
-        "1500원",
-        "원화약세",
-        "중동사태"
+        "반도체",
+        "1분기 실적",
+        "영업익"
       ]
     },
     {
       "word": "트럼프",
-      "count": 60,
+      "count": 40,
       "category": "글로벌",
       "sentiment": "부정",
       "related": [
+        "관세",
         "이란",
-        "중국",
-        "관세"
+        "데드라인"
       ]
     },
     {
       "word": "비트코인",
-      "count": 55,
-      "category": "글로벌",
-      "sentiment": "중립",
-      "related": [
-        "암호화폐",
-        "유동성",
-        "횡보"
-      ]
-    },
-    {
-      "word": "유가",
-      "count": 50,
-      "category": "경제",
-      "sentiment": "부정",
-      "related": [
-        "석유고갈",
-        "골드만삭스",
-        "중동전쟁"
-      ]
-    },
-    {
-      "word": "이란",
-      "count": 50,
-      "category": "글로벌",
-      "sentiment": "부정",
-      "related": [
-        "중동전쟁",
-        "트럼프",
-        "48시간"
-      ]
-    },
-    {
-      "word": "곡물가격",
-      "count": 45,
-      "category": "경제",
-      "sentiment": "부정",
-      "related": [
-        "사료값",
-        "물가",
-        "중동전쟁"
-      ]
-    },
-    {
-      "word": "SK하이닉스",
-      "count": 40,
-      "category": "종목",
-      "sentiment": "긍정",
-      "related": [
-        "AI메모리",
-        "삼성전자",
-        "반도체"
-      ]
-    },
-    {
-      "word": "부동산",
-      "count": 40,
-      "category": "섹터",
-      "sentiment": "중립",
-      "related": [
-        "공시가격",
-        "전세대출",
-        "성동구"
-      ]
-    },
-    {
-      "word": "물가상승",
-      "count": 38,
-      "category": "경제",
-      "sentiment": "부정",
-      "related": [
-        "곡물가격",
-        "사료값",
-        "4월물가"
-      ]
-    },
-    {
-      "word": "미중경쟁",
       "count": 35,
       "category": "글로벌",
       "sentiment": "중립",
       "related": [
-        "트럼프",
-        "중국",
-        "한국기회"
+        "BTC",
+        "Strategy",
+        "SOL"
       ]
     },
     {
-      "word": "에코마케팅",
-      "count": 30,
-      "category": "종목",
-      "sentiment": "긍정",
-      "related": [
-        "저평가",
-        "64%급등"
-      ]
-    },
-    {
-      "word": "건설",
+      "word": "전기버스",
       "count": 30,
       "category": "섹터",
       "sentiment": "부정",
       "related": [
-        "중동상황",
-        "국토장관",
-        "협회"
+        "BYD",
+        "중국산",
+        "보조금"
       ]
     },
     {
-      "word": "태양광",
+      "word": "BYD",
       "count": 28,
-      "category": "섹터",
+      "category": "종목",
       "sentiment": "부정",
       "related": [
-        "화재",
-        "노후설비",
-        "신재생에너지"
+        "전기버스",
+        "중국산",
+        "보조금"
       ]
     },
     {
-      "word": "GS칼텍스",
+      "word": "ETF",
       "count": 25,
-      "category": "종목",
+      "category": "이슈",
+      "sentiment": "중립",
+      "related": [
+        "주린이",
+        "용어정리"
+      ]
+    },
+    {
+      "word": "반도체",
+      "count": 42,
+      "category": "섹터",
       "sentiment": "긍정",
       "related": [
-        "베올리아",
-        "환경솔루션",
-        "ESG"
+        "삼성전자",
+        "실적",
+        "영업익"
       ]
     },
     {
-      "word": "외국인매도",
-      "count": 25,
-      "category": "이슈",
-      "sentiment": "부정",
-      "related": [
-        "코스피",
-        "수급",
-        "반등"
-      ]
-    },
-    {
-      "word": "전세대출규제",
+      "word": "테슬라",
       "count": 22,
-      "category": "이슈",
+      "category": "종목",
       "sentiment": "부정",
       "related": [
-        "비거주1주택",
-        "부동산규제"
+        "에너지 배치",
+        "목표주가 하향",
+        "베어드"
       ]
     },
     {
       "word": "코스피",
-      "count": 22,
+      "count": 30,
       "category": "경제",
-      "sentiment": "중립",
+      "sentiment": "긍정",
       "related": [
-        "반등",
-        "외국인매도",
-        "변동성"
+        "복원력",
+        "국내증시",
+        "내성"
       ]
     },
     {
-      "word": "아이패밀리SC",
-      "count": 20,
-      "category": "종목",
+      "word": "보조금",
+      "count": 28,
+      "category": "이슈",
       "sentiment": "부정",
       "related": [
-        "53%하락",
-        "공정가치"
+        "전기버스",
+        "BYD",
+        "중국산"
       ]
     },
     {
-      "word": "홍해봉쇄",
+      "word": "이란",
       "count": 20,
       "category": "글로벌",
       "sentiment": "부정",
       "related": [
-        "중동전쟁",
-        "물류",
-        "유가"
+        "트럼프",
+        "휴전",
+        "지정학"
       ]
     },
     {
-      "word": "두산그룹",
-      "count": 18,
-      "category": "종목",
-      "sentiment": "중립",
+      "word": "금감원",
+      "count": 15,
+      "category": "경제",
+      "sentiment": "부정",
       "related": [
-        "우리은행",
-        "금융협력"
+        "기술금융",
+        "검사",
+        "은행"
       ]
     },
     {
-      "word": "KB금융",
+      "word": "벤처",
       "count": 18,
-      "category": "종목",
+      "category": "이슈",
       "sentiment": "긍정",
       "related": [
-        "상권활성화지수",
-        "데이터"
+        "세컨더리 펀드",
+        "2조원",
+        "금융투자"
       ]
     },
     {
-      "word": "변동성",
-      "count": 15,
-      "category": "이슈",
-      "sentiment": "부정",
+      "word": "비만약",
+      "count": 20,
+      "category": "섹터",
+      "sentiment": "긍정",
       "related": [
-        "글로벌투자",
-        "전략",
-        "AI투자"
+        "삼천당제약",
+        "FDA",
+        "위고비"
       ]
     },
     {
-      "word": "AI투자위기",
-      "count": 15,
-      "category": "이슈",
-      "sentiment": "부정",
+      "word": "AI",
+      "count": 35,
+      "category": "섹터",
+      "sentiment": "중립",
       "related": [
-        "밸류에이션",
-        "신용붕괴"
+        "드론",
+        "데이터센터",
+        "투자"
       ]
     },
     {
-      "word": "비료원료",
+      "word": "목표주가",
+      "count": 25,
+      "category": "이슈",
+      "sentiment": "중립",
+      "related": [
+        "상향",
+        "하향",
+        "RBC"
+      ]
+    },
+    {
+      "word": "유사수신",
       "count": 12,
+      "category": "이슈",
+      "sentiment": "부정",
+      "related": [
+        "드론",
+        "AI",
+        "사기"
+      ]
+    },
+    {
+      "word": "외국인",
+      "count": 18,
+      "category": "이슈",
+      "sentiment": "중립",
+      "related": [
+        "매매",
+        "주식",
+        "박세익"
+      ]
+    },
+    {
+      "word": "코스닥",
+      "count": 15,
       "category": "경제",
       "sentiment": "중립",
       "related": [
-        "수급점검",
-        "농식품부"
+        "상장예심",
+        "에이치엘지노믹스"
       ]
     },
     {
-      "word": "서브로보틱스",
+      "word": "물가",
+      "count": 20,
+      "category": "경제",
+      "sentiment": "부정",
+      "related": [
+        "폭등",
+        "도미노",
+        "4월"
+      ]
+    },
+    {
+      "word": "미중",
+      "count": 22,
+      "category": "글로벌",
+      "sentiment": "중립",
+      "related": [
+        "전략경쟁",
+        "한국",
+        "기회"
+      ]
+    },
+    {
+      "word": "우리은행",
       "count": 10,
       "category": "종목",
       "sentiment": "부정",
       "related": [
-        "36%하락",
-        "로봇"
+        "점포",
+        "통폐합",
+        "영업점"
       ]
     },
     {
-      "word": "SunOpta",
-      "count": 10,
+      "word": "삼천당제약",
+      "count": 18,
       "category": "종목",
       "sentiment": "긍정",
       "related": [
-        "64%수익률",
-        "공정가치"
+        "비만약",
+        "FDA",
+        "위고비 제네릭"
       ]
     },
     {
-      "word": "기후동행카드",
-      "count": 8,
+      "word": "국방",
+      "count": 15,
       "category": "이슈",
+      "sentiment": "중립",
+      "related": [
+        "예산",
+        "증가"
+      ]
+    },
+    {
+      "word": "데이터센터",
+      "count": 16,
+      "category": "섹터",
       "sentiment": "긍정",
       "related": [
-        "서울시",
-        "교통",
-        "중동대책"
+        "AI",
+        "핀란드",
+        "3E네트워크"
+      ]
+    },
+    {
+      "word": "삼성화재",
+      "count": 12,
+      "category": "종목",
+      "sentiment": "긍정",
+      "related": [
+        "보험금",
+        "실손보험",
+        "보상시스템"
+      ]
+    },
+    {
+      "word": "환율",
+      "count": 14,
+      "category": "경제",
+      "sentiment": "중립",
+      "related": [
+        "외국환",
+        "고시표"
+      ]
+    },
+    {
+      "word": "마약",
+      "count": 8,
+      "category": "이슈",
+      "sentiment": "부정",
+      "related": [
+        "밀수",
+        "국경",
+        "적발"
+      ]
+    },
+    {
+      "word": "공시가격",
+      "count": 10,
+      "category": "경제",
+      "sentiment": "중립",
+      "related": [
+        "산정",
+        "부동산"
+      ]
+    },
+    {
+      "word": "수출입은행",
+      "count": 10,
+      "category": "경제",
+      "sentiment": "긍정",
+      "related": [
+        "신산업",
+        "지원"
       ]
     }
   ],
   "headlines": [
     {
-      "title": "한국 AI 메모리 붐, 삼성전자와 SK하이닉스 전략 전환 촉진",
-      "source": "Investing.com",
-      "time": "2026-04-05 13:35",
+      "title": "[슈카월드] 40조? 50조? 삼성전자 1분기 실적, 얼마나 나올까?",
+      "source": "YouTube 슈카월드",
+      "time": "2026-04-06",
       "sentiment": "긍정",
       "importance": 9,
       "keywords": [
-        "AI메모리",
         "삼성전자",
-        "SK하이닉스"
+        "반도체"
       ],
-      "url": "https://kr.investing.com/news/economy-news/article-1889284",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "[슈카월드] [슈카월드] 삼성전자 실적 발표가 온다 / 이란에 다시 48시간 주겠다 / 벚꽃이 좀 빨리 피네? / 야구 ABS의 나라 / 중도로 가는 유럽",
-      "source": "YouTube 슈카월드",
-      "time": "2026-04-05",
-      "sentiment": "중립",
-      "importance": 8,
-      "keywords": [
-        "삼성전자",
-        "이란",
-        "중동전쟁"
-      ],
-      "url": "https://www.youtube.com/watch?v=Veuo0k9WVH8",
+      "url": "https://www.youtube.com/watch?v=sGzu9Mdczfo",
       "region": "KR",
       "type": "youtube"
     },
     {
-      "title": "李대통령 \"더 큰 위기 번지지 않게 모든 수단 대응…연대·협력\"",
-      "source": "연합뉴스",
-      "time": "Sun, 5 Apr 2026 ",
-      "sentiment": "부정",
-      "importance": 8,
-      "keywords": [
-        "중동전쟁",
-        "이란"
-      ],
-      "url": "https://www.yna.co.kr/view/AKR20260405033400001",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "[삼프로TV] 환율 1500원 시대 시작되나… 전쟁 끝나도 못 내려오는 이유 | 변정규 다이와증권코리아 본부장 [신과대화]",
-      "source": "YouTube 삼프로TV",
-      "time": "2026-04-05",
-      "sentiment": "부정",
-      "importance": 7,
-      "keywords": [
-        "환율",
-        "중동전쟁"
-      ],
-      "url": "https://www.youtube.com/watch?v=LfDYeE9-9zU",
-      "region": "KR",
-      "type": "youtube"
-    },
-    {
-      "title": "[삼프로TV] [긴급토론회] 전쟁통, 대한민국의 생존법은? l 이기헌,최종건,김정섭,김현일,서주석",
-      "source": "YouTube 삼프로TV",
-      "time": "2026-04-04",
-      "sentiment": "부정",
-      "importance": 7,
-      "keywords": [
-        "중동전쟁"
-      ],
-      "url": "https://www.youtube.com/watch?v=sr7l4MKTsRY",
-      "region": "KR",
-      "type": "youtube"
-    },
-    {
-      "title": "[체슬리TV] AI 투자발 위기…밸류에이션·신용, 동시 붕괴 대비해야",
+      "title": "[체슬리TV] 삼성전자 반도체 깜짝실적...영업익 2025년의 40배",
       "source": "YouTube 체슬리TV",
-      "time": "2026-04-03",
-      "sentiment": "부정",
-      "importance": 7,
+      "time": "2026-04-06",
+      "sentiment": "긍정",
+      "importance": 9,
       "keywords": [
-        "AI투자위기",
-        "변동성"
+        "삼성전자",
+        "반도체"
       ],
-      "url": "https://www.youtube.com/watch?v=r37wlOIyhXk",
+      "url": "https://www.youtube.com/watch?v=HiW5dnm0JMs",
       "region": "KR",
       "type": "youtube"
     },
     {
-      "title": "중동전쟁에 글로벌 곡물가격 뛰어…국내서 사룟값 인상 움직임(종합)",
-      "source": "연합뉴스",
-      "time": "Sun, 5 Apr 2026 ",
-      "sentiment": "부정",
-      "importance": 7,
+      "title": "[삼프로TV] 삼성전자 꿈의 '50조' 나올까? ㅣ 명민준, 강아랑, 이권희 [주린이 구조대]",
+      "source": "YouTube 삼프로TV",
+      "time": "2026-04-06",
+      "sentiment": "긍정",
+      "importance": 8,
       "keywords": [
-        "중동전쟁",
-        "곡물가격",
-        "물가상승"
+        "삼성전자",
+        "반도체"
       ],
-      "url": "https://www.yna.co.kr/view/AKR20260404029751030",
+      "url": "https://www.youtube.com/watch?v=Fo1O2r5QIRM",
+      "region": "KR",
+      "type": "youtube"
+    },
+    {
+      "title": "BYD 전기버스 보조금 깎여 … 중국산 韓시장 싹쓸이에 급제동",
+      "source": "매일경제",
+      "time": "Mon, 06 Apr 2026",
+      "sentiment": "부정",
+      "importance": 8,
+      "keywords": [
+        "BYD",
+        "전기버스",
+        "보조금",
+        "중국산"
+      ],
+      "url": "https://www.mk.co.kr/news/economy/12009490",
       "region": "KR",
       "type": "news"
     },
     {
-      "title": "세계는 석유가 고갈되고 있는가? 골드만삭스의 분석",
-      "source": "Investing.com",
-      "time": "2026-04-05 10:54",
-      "sentiment": "중립",
+      "title": "금융투자업계, 2조원 규모 벤처시장 세컨더리 펀드 조성 추진",
+      "source": "연합뉴스",
+      "time": "Mon, 6 Apr 2026 ",
+      "sentiment": "긍정",
+      "importance": 8,
+      "keywords": [
+        "벤처"
+      ],
+      "url": "https://www.yna.co.kr/view/AKR20260406161500008",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "삼천당제약 대표 \"자사 비만약, FDA서 위고비 제네릭 인정\"(종합)",
+      "source": "연합뉴스",
+      "time": "Mon, 6 Apr 2026 ",
+      "sentiment": "긍정",
+      "importance": 8,
+      "keywords": [
+        "삼천당제약",
+        "비만약"
+      ],
+      "url": "https://www.yna.co.kr/view/AKR20260406129051017",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "[삼프로TV] [26.04.06. 오후 방송 전체보기] \"7일 오후 8시!\" 트럼프 데드라인 엄포에도 상승…국내증시 내성 생겼나 [클로징벨 라이브]",
+      "source": "YouTube 삼프로TV",
+      "time": "2026-04-06",
+      "sentiment": "긍정",
       "importance": 7,
       "keywords": [
-        "유가"
+        "트럼프",
+        "코스피"
       ],
-      "url": "https://kr.investing.com/news/economy-news/article-1889276",
+      "url": "https://www.youtube.com/watch?v=8nwzikC4xEE",
+      "region": "KR",
+      "type": "youtube"
+    },
+    {
+      "title": "중국산 전기버스에 보조금 문턱 높인다",
+      "source": "매일경제",
+      "time": "Mon, 06 Apr 2026",
+      "sentiment": "부정",
+      "importance": 7,
+      "keywords": [
+        "전기버스",
+        "보조금",
+        "중국산"
+      ],
+      "url": "https://www.mk.co.kr/news/economy/12009487",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "[단독] 기술금융 실적 부풀리기 의혹에 … 금감원, 은행 대출과정 검사착수",
+      "source": "매일경제",
+      "time": "Mon, 06 Apr 2026",
+      "sentiment": "부정",
+      "importance": 7,
+      "keywords": [
+        "금감원"
+      ],
+      "url": "https://www.mk.co.kr/news/economy/12009445",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "베어드, 에너지 배치 부진에 테슬라 목표 주가 하향",
+      "source": "Investing.com",
+      "time": "2026-04-06 11:59",
+      "sentiment": "부정",
+      "importance": 7,
+      "keywords": [
+        "테슬라",
+        "목표주가"
+      ],
+      "url": "https://kr.investing.com/news/analyst-ratings/article-93CH-1889833",
       "region": "KR",
       "type": "news"
     },
@@ -441,10 +472,10 @@
       "title": "[소수몽키] 미중 전략 경쟁으로 오히려 한국은 절호의 기회? 장기로 주목 받을 주식들┃최영진 한화자산운용 부사장",
       "source": "YouTube 소수몽키",
       "time": "2026-04-03",
-      "sentiment": "긍정",
+      "sentiment": "중립",
       "importance": 6,
       "keywords": [
-        "미중경쟁"
+        "미중"
       ],
       "url": "https://www.youtube.com/watch?v=7BM1C-5h-pg",
       "region": "KR",
@@ -457,265 +488,274 @@
       "sentiment": "부정",
       "importance": 6,
       "keywords": [
-        "물가상승"
+        "물가"
       ],
       "url": "https://www.youtube.com/watch?v=8vVehZZrA8w",
       "region": "KR",
       "type": "youtube"
     },
     {
-      "title": "[소수몽키] 트럼프도 예상 못했다? 홍해 봉쇄 우려, 미 증시에 더 큰 혼란 줄까",
+      "title": "[체슬리TV] “트럼프 말에 휘둘리지 말아야… 코스피 복원력 강할 것”",
+      "source": "YouTube 체슬리TV",
+      "time": "2026-04-06",
+      "sentiment": "긍정",
+      "importance": 6,
+      "keywords": [
+        "코스피",
+        "트럼프"
+      ],
+      "url": "https://www.youtube.com/watch?v=gtB2wY7KE8c",
+      "region": "KR",
+      "type": "youtube"
+    },
+    {
+      "title": "\"드론·AI 투자라더니\"… 유사수신 2년새 두배",
+      "source": "매일경제",
+      "time": "Mon, 06 Apr 2026",
+      "sentiment": "부정",
+      "importance": 6,
+      "keywords": [
+        "AI",
+        "유사수신"
+      ],
+      "url": "https://www.mk.co.kr/news/economy/12009444",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "Bitcoin price today: climbs above $69k on reports of potential Iran ceasefire",
+      "source": "Investing글로벌",
+      "time": "2026-04-06 07:49",
+      "sentiment": "긍정",
+      "importance": 6,
+      "keywords": [
+        "비트코인",
+        "이란"
+      ],
+      "url": "https://www.investing.com/news/cryptocurrency-news/bitcoin-price-today-climbs-above-69k-on-reports-on-potential-iran-ceasefire-4597800",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "[삼프로TV] \"ETF는 이름이 9할\"...주린이 시점 'ETF 용어 총정리' I 명민준, 강아랑, 최창규 [주린이 구조대]",
+      "source": "YouTube 삼프로TV",
+      "time": "2026-04-06",
+      "sentiment": "중립",
+      "importance": 5,
+      "keywords": [
+        "ETF"
+      ],
+      "url": "https://www.youtube.com/watch?v=aW9r6e80twU",
+      "region": "KR",
+      "type": "youtube"
+    },
+    {
+      "title": "[소수몽키] 끝을 향해 달리는 전쟁 공포? 월가 큰손들의 저점 베팅 맞을까",
       "source": "YouTube 소수몽키",
-      "time": "2026-03-30",
-      "sentiment": "부정",
-      "importance": 6,
+      "time": "2026-04-06",
+      "sentiment": "중립",
+      "importance": 5,
       "keywords": [
-        "홍해봉쇄",
-        "중동전쟁"
+        "미중"
       ],
-      "url": "https://www.youtube.com/watch?v=W6m1JmvDPpk",
+      "url": "https://www.youtube.com/watch?v=vKt199nBU6Q",
       "region": "KR",
       "type": "youtube"
     },
     {
-      "title": "[체슬리TV] 코스피 반등에도 이어진 외국인 매도, 지금 필요한 투자 전략을 점검합니다. | 체슬리투자자문 박세익 전무",
+      "title": "[체슬리TV] 외국인 주식 매매 제대로 알고 보자  #박세익",
       "source": "YouTube 체슬리TV",
-      "time": "2026-04-04",
-      "sentiment": "부정",
-      "importance": 6,
+      "time": "2026-04-06",
+      "sentiment": "중립",
+      "importance": 5,
       "keywords": [
-        "외국인매도",
-        "코스피"
+        "외국인"
       ],
-      "url": "https://www.youtube.com/watch?v=2eo0XtoewAA",
+      "url": "https://www.youtube.com/shorts/uDlQOp4F7qY",
       "region": "KR",
       "type": "youtube"
     },
     {
-      "title": "국토장관, 건설부문 8개 협회 긴급 회동…중동상황 영향 점검",
-      "source": "연합뉴스",
-      "time": "Sun, 5 Apr 2026 ",
-      "sentiment": "부정",
-      "importance": 6,
-      "keywords": [
-        "건설",
-        "중동전쟁"
-      ],
-      "url": "https://www.yna.co.kr/view/AKR20260405030700003",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "에코마케팅, InvestingPro의 저평가 시그널 후 64% 급등",
-      "source": "Investing.com",
-      "time": "2026-04-05 12:05",
-      "sentiment": "긍정",
-      "importance": 6,
-      "keywords": [
-        "에코마케팅"
-      ],
-      "url": "https://kr.investing.com/news/investment-ideas/article-93CH-1889282",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "중국 – 트럼프 국빈 방문 연기: 변화하는 것과 변하지 않는 것",
-      "source": "Investing.com",
-      "time": "2026-04-05 11:35",
-      "sentiment": "중립",
-      "importance": 6,
-      "keywords": [
-        "트럼프",
-        "미중경쟁"
-      ],
-      "url": "https://kr.investing.com/news/economy-news/article-1889280",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "[슈카월드] \"이제 남은 길은 주식 한방 뿐\"",
-      "source": "YouTube 슈카월드",
-      "time": "2026-04-04",
-      "sentiment": "부정",
-      "importance": 5,
-      "keywords": [
-        "변동성"
-      ],
-      "url": "https://www.youtube.com/watch?v=hUx5XifMZ7w",
-      "region": "KR",
-      "type": "youtube"
-    },
-    {
-      "title": "[체슬리TV] 변동성이 큰 장세에서도 흔들리지 않는 글로벌 투자 전략 점검 | 체슬리투자자문 최일호 부사장",
-      "source": "YouTube 체슬리TV",
-      "time": "2026-04-05",
+      "title": "[머니두] 석기시대냐? 휴전이냐 ? 새벽2시 트럼프의 선택에 달린 증시",
+      "source": "YouTube 머니두",
+      "time": "2026-04-06",
       "sentiment": "중립",
       "importance": 5,
       "keywords": [
-        "변동성"
-      ],
-      "url": "https://www.youtube.com/watch?v=UKCN2zfhPdc",
-      "region": "KR",
-      "type": "youtube"
-    },
-    {
-      "title": "비거주1주택 전세대출 제한 등…추가 규제 나온다",
-      "source": "매일경제",
-      "time": "Sun, 05 Apr 2026",
-      "sentiment": "부정",
-      "importance": 5,
-      "keywords": [
-        "전세대출규제",
-        "부동산"
-      ],
-      "url": "https://www.mk.co.kr/news/economy/12008379",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "GS칼텍스, 세계 1위 환경설루션기업 베올리아와 운영 혁신 제휴",
-      "source": "연합뉴스",
-      "time": "Sun, 5 Apr 2026 ",
-      "sentiment": "긍정",
-      "importance": 5,
-      "keywords": [
-        "GS칼텍스"
-      ],
-      "url": "https://www.yna.co.kr/view/AKR20260405024500003",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "아이패밀리SC 53% 하락, InvestingPro의 공정가치 예측 적중",
-      "source": "Investing.com",
-      "time": "2026-04-05 11:59",
-      "sentiment": "부정",
-      "importance": 5,
-      "keywords": [
-        "아이패밀리SC"
-      ],
-      "url": "https://kr.investing.com/news/investment-ideas/article-93CH-1889281",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "Bitcoin price today: muted above $66k with focus on Iran conflict, US jobs data",
-      "source": "Investing글로벌",
-      "time": "2026-04-04 08:49",
-      "sentiment": "중립",
-      "importance": 5,
-      "keywords": [
-        "비트코인",
-        "이란"
-      ],
-      "url": "https://www.investing.com/news/cryptocurrency-news/bitcoin-price-today-muted-above-66k-with-focus-on-iran-conflict-us-jobs-data-4596869",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "Bitcoin slips, drops under $67k as Trump threatens to hit Iran ‘extremely hard’",
-      "source": "Investing글로벌",
-      "time": "2026-04-02 21:52",
-      "sentiment": "부정",
-      "importance": 5,
-      "keywords": [
-        "비트코인",
         "트럼프",
         "이란"
       ],
-      "url": "https://www.investing.com/news/cryptocurrency-news/bitcoin-slides-to-665k-as-trump-threatens-to-hit-iran-extremely-hard-4594610",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "[슈카월드] 성동구 공시가격 +29%, 전국 1등 달성",
-      "source": "YouTube 슈카월드",
-      "time": "2026-04-03",
-      "sentiment": "긍정",
-      "importance": 4,
-      "keywords": [
-        "부동산"
-      ],
-      "url": "https://www.youtube.com/watch?v=9RYpCIboM_w",
+      "url": "https://www.youtube.com/watch?v=V_2Z-9bTa-Q",
       "region": "KR",
       "type": "youtube"
     },
     {
-      "title": "KB '상권활성화지수' 개발…동네 상권 한눈에 파악 가능",
+      "title": "삼성화재, 보험금 10분내 지급 … 실손보험금 보상 시스템 구축",
       "source": "매일경제",
-      "time": "Sun, 05 Apr 2026",
+      "time": "Mon, 06 Apr 2026",
       "sentiment": "긍정",
-      "importance": 4,
+      "importance": 5,
       "keywords": [
-        "KB금융"
+        "삼성화재"
       ],
-      "url": "https://www.mk.co.kr/news/economy/12008378",
+      "url": "https://www.mk.co.kr/news/economy/12009443",
       "region": "KR",
       "type": "news"
     },
     {
-      "title": "'태양광 화재' 30% 급증…노후설비 관리 개선시급",
-      "source": "매일경제",
-      "time": "Sun, 05 Apr 2026",
-      "sentiment": "부정",
-      "importance": 4,
-      "keywords": [
-        "태양광"
-      ],
-      "url": "https://www.mk.co.kr/news/economy/12008376",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "송미령 농식품부 장관, 비료원료 수급점검…\"7월까지 안정공급\"",
+      "title": "또 점포 줄이는 우리은행…영업점·출장소 37곳 통폐합",
       "source": "연합뉴스",
-      "time": "Sun, 5 Apr 2026 ",
+      "time": "Mon, 6 Apr 2026 ",
+      "sentiment": "부정",
+      "importance": 5,
+      "keywords": [
+        "우리은행"
+      ],
+      "url": "https://www.yna.co.kr/view/AKR20260406155700002",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "'원료의약품 제조업' 에이치엘지노믹스, 코스닥 상장예심 신청",
+      "source": "연합뉴스",
+      "time": "Mon, 6 Apr 2026 ",
+      "sentiment": "중립",
+      "importance": 5,
+      "keywords": [
+        "코스닥"
+      ],
+      "url": "https://www.yna.co.kr/view/AKR20260406147800008",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "3E 네트워크, 핀란드 AI 데이터센터 건설 시작",
+      "source": "Investing.com",
+      "time": "2026-04-06 12:02",
+      "sentiment": "긍정",
+      "importance": 5,
+      "keywords": [
+        "AI",
+        "데이터센터"
+      ],
+      "url": "https://kr.investing.com/news/company-news/article-93CH-1889836",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "Strategy reports bitcoin purchase and stock sale activities",
+      "source": "Investing글로벌",
+      "time": "2026-04-06 12:09",
+      "sentiment": "중립",
+      "importance": 5,
+      "keywords": [
+        "비트코인"
+      ],
+      "url": "https://www.investing.com/news/cryptocurrency-news/strategy-reports-bitcoin-purchase-and-stock-sale-activities-432SI-4598279",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "[슈카월드] 국방 예산이 어디가 늘어났지?",
+      "source": "YouTube 슈카월드",
+      "time": "2026-04-06",
       "sentiment": "중립",
       "importance": 4,
       "keywords": [
-        "비료원료"
+        "국방"
       ],
-      "url": "https://www.yna.co.kr/view/AKR20260405018500030",
+      "url": "https://www.youtube.com/shorts/SZcWb2H0GNI",
+      "region": "KR",
+      "type": "youtube"
+    },
+    {
+      "title": "[포토] 수출입銀, 3대 신산업 지원",
+      "source": "매일경제",
+      "time": "Mon, 06 Apr 2026",
+      "sentiment": "긍정",
+      "importance": 4,
+      "keywords": [
+        "수출입은행"
+      ],
+      "url": "https://www.mk.co.kr/news/economy/12009446",
       "region": "KR",
       "type": "news"
     },
     {
-      "title": "서울시, 기후동행카드 이용자에 석달간 월3만원…중동사태 대책(종합)",
+      "title": "김윤덕 \"공시가격 산정, 큰 무리 없어…더 정교하도록 노력\"",
       "source": "연합뉴스",
-      "time": "Sun, 5 Apr 2026 ",
-      "sentiment": "긍정",
+      "time": "Mon, 6 Apr 2026 ",
+      "sentiment": "중립",
       "importance": 4,
       "keywords": [
-        "기후동행카드",
-        "중동전쟁"
+        "공시가격"
       ],
-      "url": "https://www.yna.co.kr/view/AKR20260405021451004",
+      "url": "https://www.yna.co.kr/view/AKR20260406148100001",
       "region": "KR",
       "type": "news"
     },
     {
-      "title": "SunOpta, InvestingPro 공정가치 분석 후 64% 수익률 달성",
+      "title": "RBC 캐피탈, 파르바리스 목표 주가 하향 조정",
       "source": "Investing.com",
-      "time": "2026-04-05 11:16",
-      "sentiment": "긍정",
-      "importance": 4,
-      "keywords": [
-        "SunOpta"
-      ],
-      "url": "https://kr.investing.com/news/investment-ideas/article-93CH-1889278",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "InvestingPro 공정가치, Serve Robotics 36% 하락 경고",
-      "source": "Investing.com",
-      "time": "2026-04-05 11:05",
+      "time": "2026-04-06 12:00",
       "sentiment": "부정",
       "importance": 4,
       "keywords": [
-        "서브로보틱스"
+        "목표주가"
       ],
-      "url": "https://kr.investing.com/news/investment-ideas/article-93CH-1889277",
+      "url": "https://kr.investing.com/news/analyst-ratings/article-93CH-1889835",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "누베이션 바이오, 뇌종양 잠재력에 RBC 목표 주가 상향",
+      "source": "Investing.com",
+      "time": "2026-04-06 12:00",
+      "sentiment": "긍정",
+      "importance": 4,
+      "keywords": [
+        "목표주가"
+      ],
+      "url": "https://kr.investing.com/news/analyst-ratings/article-93CH-1889834",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "Guggenheim, 에이다진 목표 주가 상향…암 치료제 데이터에 힘입어",
+      "source": "Investing.com",
+      "time": "2026-04-06 11:59",
+      "sentiment": "긍정",
+      "importance": 4,
+      "keywords": [
+        "목표주가"
+      ],
+      "url": "https://kr.investing.com/news/analyst-ratings/article-93CH-1889832",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "카나코드, Taysha Gene Therapies 목표가 상향 조정",
+      "source": "Investing.com",
+      "time": "2026-04-06 11:59",
+      "sentiment": "긍정",
+      "importance": 4,
+      "keywords": [
+        "목표주가"
+      ],
+      "url": "https://kr.investing.com/news/analyst-ratings/article-93CH-1889830",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "Sharps Technology reports $269.1 million in assets after SOL accumulation",
+      "source": "Investing글로벌",
+      "time": "2026-04-06 11:02",
+      "sentiment": "중립",
+      "importance": 4,
+      "keywords": [
+        "비트코인"
+      ],
+      "url": "https://www.investing.com/news/cryptocurrency-news/sharps-technology-reports-2691-million-in-assets-after-sol-accumulation-432SI-4598051",
       "region": "KR",
       "type": "news"
     },
@@ -731,6 +771,17 @@
       "url": "https://www.investing.com/news/cryptocurrency-news/bitcoin-trades-sideways-during-the-long-easter-weekend-amid-low-liquidity-4597531",
       "region": "KR",
       "type": "news"
+    },
+    {
+      "title": "[슈카월드] 돈 없어도 주식 하는 법",
+      "source": "YouTube 슈카월드",
+      "time": "2026-04-06",
+      "sentiment": "중립",
+      "importance": 3,
+      "keywords": [],
+      "url": "https://www.youtube.com/shorts/N24y6znXREE",
+      "region": "KR",
+      "type": "youtube"
     },
     {
       "title": "[머니두] 주식 투자에 성공하려면 지켜야 될 네 번째(ft.양양스승님)",
@@ -755,102 +806,52 @@
       "type": "youtube"
     },
     {
-      "title": "[머니두] 주식투자 하루 만에 끝내기 1탄 주식투자를 왜 해야 되는가?",
-      "source": "YouTube 머니두",
-      "time": "2026-04-03",
-      "sentiment": "중립",
-      "importance": 3,
-      "keywords": [],
-      "url": "https://www.youtube.com/watch?v=lzGYxITMJD8",
-      "region": "KR",
-      "type": "youtube"
-    },
-    {
-      "title": "[포토] 우리銀·두산그룹 생산적 금융 협력",
-      "source": "매일경제",
-      "time": "Sun, 05 Apr 2026",
-      "sentiment": "긍정",
+      "title": "1분기 국경단계 마약 424만명분 적발…여행자 밀수 다시 기승(종합)",
+      "source": "연합뉴스",
+      "time": "Mon, 6 Apr 2026 ",
+      "sentiment": "부정",
       "importance": 3,
       "keywords": [
-        "두산그룹",
-        "KB금융"
+        "마약"
       ],
-      "url": "https://www.mk.co.kr/news/economy/12008381",
+      "url": "https://www.yna.co.kr/view/AKR20260406109851002",
       "region": "KR",
       "type": "news"
     },
     {
-      "title": "[포토] 구윤철 부총리, 걸프협력회의 6개국 대사 면담",
-      "source": "매일경제",
-      "time": "Sun, 05 Apr 2026",
+      "title": "페이페이, 도이체방크, 밸류에이션에 ’보유’ 등급 개시",
+      "source": "Investing.com",
+      "time": "2026-04-06 11:59",
       "sentiment": "중립",
       "importance": 3,
       "keywords": [
-        "걸프협력회의",
-        "중동전쟁"
+        "목표주가"
       ],
-      "url": "https://www.mk.co.kr/news/economy/12008383",
+      "url": "https://kr.investing.com/news/analyst-ratings/article-93CH-1889831",
       "region": "KR",
       "type": "news"
     },
     {
       "title": "[표] 외국환율고시표",
       "source": "매일경제",
-      "time": "Sun, 05 Apr 2026",
+      "time": "Mon, 06 Apr 2026",
       "sentiment": "중립",
-      "importance": 3,
+      "importance": 2,
       "keywords": [
         "환율"
       ],
-      "url": "https://www.mk.co.kr/news/economy/12008380",
+      "url": "https://www.mk.co.kr/news/economy/12009447",
       "region": "KR",
       "type": "news"
     },
     {
-      "title": "[삼프로TV] 이집트 몰락의 시작… 최고 전성기에 벌어진 일  | 주원준 한님성서연구소 수석연구원 [에인션트]",
-      "source": "YouTube 삼프로TV",
-      "time": "2026-04-05",
-      "sentiment": "중립",
-      "importance": 2,
-      "keywords": [],
-      "url": "https://www.youtube.com/watch?v=-y7Y89VlDUA",
-      "region": "KR",
-      "type": "youtube"
-    },
-    {
-      "title": "청년 채용한다던 체납관리단 … 2030은 19%",
-      "source": "매일경제",
-      "time": "Sun, 05 Apr 2026",
-      "sentiment": "부정",
-      "importance": 2,
-      "keywords": [
-        "청년채용"
-      ],
-      "url": "https://www.mk.co.kr/news/economy/12008382",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "[연합뉴스 이 시각 헤드라인] - 15:00",
+      "title": "[연합뉴스 이 시각 헤드라인] - 18:00",
       "source": "연합뉴스",
-      "time": "Sun, 5 Apr 2026 ",
+      "time": "Mon, 6 Apr 2026 ",
       "sentiment": "중립",
       "importance": 1,
       "keywords": [],
-      "url": "https://www.yna.co.kr/view/AKR20260405031100011",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "BTCC Exchange Named Official Regional Partner of the Argentine National Team",
-      "source": "Investing글로벌",
-      "time": "2026-04-02 13:30",
-      "sentiment": "중립",
-      "importance": 1,
-      "keywords": [
-        "비트코인"
-      ],
-      "url": "https://www.investing.com/news/cryptocurrency-news/btcc-exchange-named-official-regional-partner-of-the-argentine-national-team-4595771",
+      "url": "https://www.yna.co.kr/view/AKR20260406145500011",
       "region": "KR",
       "type": "news"
     }
