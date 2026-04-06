@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-04-06T22:48:29.598908",
+  "generated_at": "2026-04-06T22:51:14.771207",
   "trading_mode": "demo",
   "market": "KR",
   "currency": "KRW",
   "summary": {
     "portfolio": {
       "total_stocks": 20,
-      "total_profit": 108446942,
-      "avg_profit_rate": 55.93,
+      "total_profit": 111606492,
+      "avg_profit_rate": 57.56,
       "slot_usage": "3/10",
       "slot_percentage": 30,
       "sector_distribution": {
@@ -38,9 +38,9 @@
     },
     "real_trading": {
       "total_stocks": 20,
-      "total_eval_amount": 302348655,
-      "total_profit_amount": 108446942,
-      "total_profit_rate": 55.93,
+      "total_eval_amount": 305508205,
+      "total_profit_amount": 111606492,
+      "total_profit_rate": 57.56,
       "deposit": 193901713,
       "total_cash": 53440000,
       "available_amount": 53440000
@@ -53,18 +53,18 @@
       "name": "SK하이닉스",
       "buy_price": 180623,
       "buy_date": "2026-04-04",
-      "current_price": 876000,
+      "current_price": 886000,
       "last_updated": "2026-04-04T23:50:40.131240",
       "target_price": 1050000,
       "stop_loss": 800000,
-      "profit_rate": 384.99,
+      "profit_rate": 390.52,
       "holding_days": 0,
       "sector": "반도체",
       "investment_period": "중기",
       "quantity": 138,
       "avg_price": 180623,
-      "value": 120888000,
-      "profit": 95962026,
+      "value": 122268000,
+      "profit": 97342026,
       "weight": 5.0,
       "scenario": {
         "portfolio_analysis": "2026년 4월 4일 기준 현재가 876,000원으로 전일 대비 5.54% 급등 마감. 3월 말 807,000원 저점 이후 강한 반등세를 보이며 단기 이동평균선(5일, 20일)을 상향 돌파했습니다. 외국인 매수세가 집중되며 거래량 동반 상승 중입니다. RSI 55 수준으로 과매수 구간 진입 전이며, MACD 골든크로스 형성으로 추가 상승 모멘텀이 유효합니다. 1분기 실적 발표(4/29)를 앞두고 어닝 서프라이즈 기대감이 주가에 선반영되고 있습니다.",
@@ -81,8 +81,8 @@
         "market_condition": "코스피가 3월 급락 이후 4월 들어 반등세를 보이고 있으며, 증권사들은 4월 코스피 밴드를 4,700~6,300pt로 제시했습니다. 반도체 중심 수출 호조와 AI 인프라 투자 확대가 시장을 지지하고 있으나, 미중 무역 관세 정책 불확실성과 고유가 장기화 리스크가 상존합니다. 외국인 매수세가 반도체주에 집중되며 업종 차별화 장세가 전개 중입니다.",
         "max_portfolio_size": "10"
       },
-      "change": 46000,
-      "change_rate": 5.54
+      "change": 10000,
+      "change_rate": 1.14
     },
     {
       "ticker": "005930",
@@ -90,18 +90,18 @@
       "name": "삼성전자",
       "buy_price": 97163,
       "buy_date": "2026-04-04",
-      "current_price": 186200,
+      "current_price": 193100,
       "last_updated": "2026-04-04T23:50:40.448652",
       "target_price": 230000,
       "stop_loss": 170000,
-      "profit_rate": 91.64,
+      "profit_rate": 98.74,
       "holding_days": 0,
       "sector": "전자",
       "investment_period": "중기",
       "quantity": 243,
       "avg_price": 97163,
-      "value": 45246600,
-      "profit": 21635991,
+      "value": 46923300,
+      "profit": 23312691,
       "weight": 5.0,
       "scenario": {
         "portfolio_analysis": "2026년 4월 4일 기준 현재가 186,200원으로 전일 대비 4.37% 상승. 3월 하순 167,200원 저점에서 11.4% 반등하며 기술적 바닥 확인 후 상승 추세로 전환 중입니다. 20일 이동평균선을 상향 돌파했으며, 거래량 증가와 함께 매수 세력 유입이 뚜렷합니다. 4/23 1분기 실적 발표를 앞두고 기대감이 반영되는 구간입니다. HBM4 양산 개시와 파운드리 가동률 80% 회복이 긍정적 시그널입니다.",
@@ -118,8 +118,8 @@
         "market_condition": "코스피가 3월 급락 이후 4월 들어 반등세를 보이고 있으며, 증권사들은 4월 코스피 밴드를 4,700~6,300pt로 제시했습니다. 반도체 중심 수출 호조와 AI 인프라 투자 확대가 시장을 지지하고 있으나, 미중 무역 관세 정책 불확실성과 고유가 장기화 리스크가 상존합니다. 삼성전자와 SK하이닉스 간 70조원 투자 전쟁이 본격화되며 업계 전반의 기술 경쟁이 심화되고 있습니다.",
         "max_portfolio_size": "10"
       },
-      "change": 7800,
-      "change_rate": 4.37
+      "change": 6900,
+      "change_rate": 3.71
     },
     {
       "ticker": "035420",
@@ -127,18 +127,18 @@
       "name": "네이버",
       "buy_price": 238000,
       "buy_date": "2026-04-04",
-      "current_price": 197500,
+      "current_price": 196800,
       "last_updated": "2026-04-04T23:50:40.765221",
       "target_price": 280000,
       "stop_loss": 185000,
-      "profit_rate": -17.02,
+      "profit_rate": -17.31,
       "holding_days": 0,
       "sector": "인터넷",
       "investment_period": "중기",
       "quantity": 80,
       "avg_price": 238000,
-      "value": 15800000,
-      "profit": -3240000,
+      "value": 15744000,
+      "profit": -3296000,
       "weight": 5.0,
       "scenario": {
         "portfolio_analysis": "2026년 4월 4일 기준 현재가 197,500원으로 수익률 +0.9%. 52주 고점 295,000원 대비 33% 하락한 저평가 구간에 위치해 있습니다. 200,000원 근처에서 강한 지지선이 형성되어 있으며, 4월 초 바닥 다지기 과정을 거치고 있습니다. 거래량은 평균 수준을 유지하고 있으나, 기관 매수세가 점진적으로 유입되고 있습니다. 증권사 목표주가 평균 340,000~350,000원 대비 현재가가 크게 괴리되어 밸류에이션 매력이 높은 상태입니다.",
@@ -155,8 +155,8 @@
         "market_condition": "글로벌 IT 섹터 조정이 일단락되며 반등 조짐을 보이고 있습니다. 국내 증시는 반도체 중심 회복세이나, AI 플랫폼 기업들의 재평가도 점진적으로 진행 중입니다. 미중 무역 관세 리스크는 네이버의 국내 중심 사업 특성상 직접적 영향이 제한적이며, 오히려 원달러 환율 상승은 해외 사업(라인, 왈라팝 등) 수익성에 긍정적 요인입니다. AI 서비스 상용화 경쟁이 본격화되며 플랫폼 기업 간 차별화 장세가 예상됩니다.",
         "max_portfolio_size": "10"
       },
-      "change": 1700,
-      "change_rate": 0.87
+      "change": -700,
+      "change_rate": -0.35
     },
     {
       "ticker": "012330",
@@ -189,27 +189,27 @@
         "sector": "자동차부품",
         "investment_period": "중기"
       },
-      "change": -1000,
-      "change_rate": -0.26
+      "change": 0,
+      "change_rate": 0.0
     },
     {
       "ticker": "078930",
       "company_name": "GS",
       "name": "GS",
-      "current_price": 63300,
+      "current_price": 65600,
       "buy_price": 72854,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:41.492242",
       "target_price": 85000,
       "stop_loss": 58000,
-      "profit_rate": -13.11,
+      "profit_rate": -9.96,
       "holding_days": 0,
       "sector": "에너지",
       "investment_period": "중기",
       "quantity": 130,
       "avg_price": 72854,
-      "value": 8229000,
-      "profit": -1242020,
+      "value": 8528000,
+      "profit": -943020,
       "weight": 5.0,
       "scenario": {
         "decision": "홀드",
@@ -223,27 +223,27 @@
         "sector": "에너지",
         "investment_period": "중기"
       },
-      "change": 500,
-      "change_rate": 0.8
+      "change": 2300,
+      "change_rate": 3.63
     },
     {
       "ticker": "083450",
       "company_name": "GST",
       "name": "GST",
-      "current_price": 25850,
+      "current_price": 25750,
       "buy_price": 30550,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:41.795609",
       "target_price": 40000,
       "stop_loss": 24000,
-      "profit_rate": -15.38,
+      "profit_rate": -15.71,
       "holding_days": 0,
       "sector": "반도체장비",
       "investment_period": "중기",
       "quantity": 130,
       "avg_price": 30550,
-      "value": 3360500,
-      "profit": -611000,
+      "value": 3347500,
+      "profit": -624000,
       "weight": 5.0,
       "scenario": {
         "decision": "매수",
@@ -257,27 +257,27 @@
         "sector": "반도체장비",
         "investment_period": "중기"
       },
-      "change": 300,
-      "change_rate": 1.17
+      "change": -100,
+      "change_rate": -0.39
     },
     {
       "ticker": "005380",
       "company_name": "현대차",
       "name": "현대차",
-      "current_price": 471000,
+      "current_price": 469000,
       "buy_price": 556250,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:42.176948",
       "target_price": 650000,
       "stop_loss": 430000,
-      "profit_rate": -15.33,
+      "profit_rate": -15.69,
       "holding_days": 0,
       "sector": "자동차",
       "investment_period": "중기",
       "quantity": 4,
       "avg_price": 556250,
-      "value": 1884000,
-      "profit": -341000,
+      "value": 1876000,
+      "profit": -349000,
       "weight": 5.0,
       "scenario": {
         "decision": "매수",
@@ -291,27 +291,27 @@
         "sector": "자동차",
         "investment_period": "중기"
       },
-      "change": 5500,
-      "change_rate": 1.18
+      "change": -2000,
+      "change_rate": -0.42
     },
     {
       "ticker": "034020",
       "company_name": "두산에너빌리티",
       "name": "두산에너빌리티",
-      "current_price": 96600,
+      "current_price": 95700,
       "buy_price": 99866,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:42.483871",
       "target_price": 140000,
       "stop_loss": 80000,
-      "profit_rate": -3.27,
+      "profit_rate": -4.17,
       "holding_days": 0,
       "sector": "에너지",
       "investment_period": "장기",
       "quantity": 120,
       "avg_price": 99866,
-      "value": 11592000,
-      "profit": -391920,
+      "value": 11484000,
+      "profit": -499920,
       "weight": 5.0,
       "scenario": {
         "decision": "매수",
@@ -325,27 +325,27 @@
         "sector": "에너지",
         "investment_period": "장기"
       },
-      "change": 3000,
-      "change_rate": 3.21
+      "change": -900,
+      "change_rate": -0.93
     },
     {
       "ticker": "064350",
       "company_name": "현대로템",
       "name": "현대로템",
-      "current_price": 210000,
+      "current_price": 211000,
       "buy_price": 263000,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:42.794228",
       "target_price": 270000,
       "stop_loss": 145000,
-      "profit_rate": -20.15,
+      "profit_rate": -19.77,
       "holding_days": 0,
       "sector": "방산",
       "investment_period": "중기",
       "quantity": 10,
       "avg_price": 263000,
-      "value": 2100000,
-      "profit": -530000,
+      "value": 2110000,
+      "profit": -520000,
       "weight": 5.0,
       "scenario": {
         "decision": "매수",
@@ -359,27 +359,27 @@
         "sector": "방산",
         "investment_period": "중기"
       },
-      "change": 8500,
-      "change_rate": 4.22
+      "change": 1000,
+      "change_rate": 0.48
     },
     {
       "ticker": "035720",
       "company_name": "카카오",
       "name": "카카오",
-      "current_price": 45200,
+      "current_price": 44850,
       "buy_price": 51900,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:43.106947",
       "target_price": 80000,
       "stop_loss": 48000,
-      "profit_rate": -12.91,
+      "profit_rate": -13.58,
       "holding_days": 0,
       "sector": "인터넷",
       "investment_period": "중기",
       "quantity": 10,
       "avg_price": 51900,
-      "value": 452000,
-      "profit": -67000,
+      "value": 448500,
+      "profit": -70500,
       "weight": 5.0,
       "scenario": {
         "decision": "매수",
@@ -393,27 +393,27 @@
         "sector": "인터넷",
         "investment_period": "중기"
       },
-      "change": -200,
-      "change_rate": -0.44
+      "change": -350,
+      "change_rate": -0.77
     },
     {
       "ticker": "029460",
       "company_name": "케이씨텍",
       "name": "케이씨텍",
-      "current_price": 30000,
+      "current_price": 29450,
       "buy_price": 37100,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:43.422472",
       "target_price": 55000,
       "stop_loss": 35000,
-      "profit_rate": -19.14,
+      "profit_rate": -20.62,
       "holding_days": 0,
       "sector": "반도체장비",
       "investment_period": "중기",
       "quantity": 100,
       "avg_price": 37100,
-      "value": 3000000,
-      "profit": -710000,
+      "value": 2945000,
+      "profit": -765000,
       "weight": 5.0,
       "scenario": {
         "decision": "매수",
@@ -427,27 +427,27 @@
         "sector": "반도체장비",
         "investment_period": "중기"
       },
-      "change": 400,
-      "change_rate": 1.35
+      "change": -550,
+      "change_rate": -1.83
     },
     {
       "ticker": "015760",
       "company_name": "한국전력",
       "name": "한국전력",
-      "current_price": 40300,
+      "current_price": 40250,
       "buy_price": 48750,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:43.783479",
       "target_price": 60000,
       "stop_loss": 33000,
-      "profit_rate": -17.33,
+      "profit_rate": -17.44,
       "holding_days": 0,
       "sector": "전력",
       "investment_period": "중기",
       "quantity": 100,
       "avg_price": 48750,
-      "value": 4030000,
-      "profit": -845000,
+      "value": 4025000,
+      "profit": -850000,
       "weight": 5.0,
       "scenario": {
         "decision": "매수",
@@ -461,8 +461,8 @@
         "sector": "전력",
         "investment_period": "중기"
       },
-      "change": -950,
-      "change_rate": -2.3
+      "change": -50,
+      "change_rate": -0.12
     },
     {
       "ticker": "GOLD",
@@ -500,20 +500,20 @@
       "ticker": "360750",
       "company_name": "TIGER S&P500",
       "name": "TIGER S&P500",
-      "current_price": 24570,
+      "current_price": 24605,
       "buy_price": 20000,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:44.382236",
       "target_price": 26500,
       "stop_loss": 21000,
-      "profit_rate": 22.85,
+      "profit_rate": 23.03,
       "holding_days": 0,
       "sector": "해외ETF",
       "investment_period": "중기",
       "quantity": 233,
       "avg_price": 20000,
-      "value": 5724810,
-      "profit": 1064810,
+      "value": 5732965,
+      "profit": 1072965,
       "weight": 5.0,
       "scenario": {
         "decision": "매수",
@@ -527,27 +527,27 @@
         "sector": "해외ETF",
         "investment_period": "중기"
       },
-      "change": 95,
-      "change_rate": 0.39
+      "change": 35,
+      "change_rate": 0.14
     },
     {
       "ticker": "307520",
       "company_name": "TIGER 지주회사",
       "name": "TIGER 지주회사",
-      "current_price": 19475,
+      "current_price": 19550,
       "buy_price": 21035,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:44.690838",
       "target_price": 17000,
       "stop_loss": 12500,
-      "profit_rate": -7.42,
+      "profit_rate": -7.06,
       "holding_days": 0,
       "sector": "지주ETF",
       "investment_period": "중기",
       "quantity": 1816,
       "avg_price": 21035,
-      "value": 35366600,
-      "profit": -2832960,
+      "value": 35502800,
+      "profit": -2696760,
       "weight": 5.0,
       "scenario": {
         "decision": "매수",
@@ -561,27 +561,27 @@
         "sector": "지주ETF",
         "investment_period": "중기"
       },
-      "change": 295,
-      "change_rate": 1.54
+      "change": 75,
+      "change_rate": 0.39
     },
     {
       "ticker": "449450",
       "company_name": "PLUS K방산",
       "name": "PLUS K방산",
-      "current_price": 76695,
+      "current_price": 75740,
       "buy_price": 71600,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:44.996185",
       "target_price": 95000,
       "stop_loss": 68000,
-      "profit_rate": 7.12,
+      "profit_rate": 5.78,
       "holding_days": 0,
       "sector": "방산ETF",
       "investment_period": "중기",
       "quantity": 100,
       "avg_price": 71600,
-      "value": 7669500,
-      "profit": 509500,
+      "value": 7574000,
+      "profit": 414000,
       "weight": 5.0,
       "scenario": {
         "decision": "매수",
@@ -595,27 +595,27 @@
         "sector": "방산ETF",
         "investment_period": "중기"
       },
-      "change": 2940,
-      "change_rate": 3.99
+      "change": -955,
+      "change_rate": -1.25
     },
     {
       "ticker": "329750",
       "company_name": "TIGER 달러단기채권",
       "name": "TIGER 달러단기채권",
-      "current_price": 14070,
+      "current_price": 14090,
       "buy_price": 13545,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:45.384374",
       "target_price": 13800,
       "stop_loss": 12900,
-      "profit_rate": 3.88,
+      "profit_rate": 4.02,
       "holding_days": 0,
       "sector": "채권ETF",
       "investment_period": "단기",
       "quantity": 128,
       "avg_price": 13545,
-      "value": 1800960,
-      "profit": 67200,
+      "value": 1803520,
+      "profit": 69760,
       "weight": 5.0,
       "scenario": {
         "decision": "홀드",
@@ -629,8 +629,8 @@
         "sector": "채권ETF",
         "investment_period": "단기"
       },
-      "change": -145,
-      "change_rate": -1.02
+      "change": 20,
+      "change_rate": 0.14
     },
     {
       "ticker": "0036R0",
@@ -670,20 +670,20 @@
       "ticker": "139230",
       "company_name": "TIGER 200중공업",
       "name": "TIGER 200중공업",
-      "current_price": 15225,
+      "current_price": 15020,
       "buy_price": 13316,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:45.956160",
       "target_price": 8800,
       "stop_loss": 6200,
-      "profit_rate": 14.34,
+      "profit_rate": 12.8,
       "holding_days": 0,
       "sector": "중공업ETF",
       "investment_period": "중기",
       "quantity": 23,
       "avg_price": 13316,
-      "value": 350175,
-      "profit": 43907,
+      "value": 345460,
+      "profit": 39192,
       "weight": 5.0,
       "scenario": {
         "decision": "매수",
@@ -697,27 +697,27 @@
         "sector": "중공업ETF",
         "investment_period": "중기"
       },
-      "change": 570,
-      "change_rate": 3.89
+      "change": -205,
+      "change_rate": -1.35
     },
     {
       "ticker": "411060",
       "company_name": "ACE KRX금현물",
       "name": "ACE KRX금현물",
-      "current_price": 31715,
+      "current_price": 31570,
       "buy_price": 21667,
       "buy_date": "2026-04-04",
       "last_updated": "2026-04-04T23:50:46.256975",
       "target_price": 40000,
       "stop_loss": 29500,
-      "profit_rate": 46.37,
+      "profit_rate": 45.71,
       "holding_days": 0,
       "sector": "금ETF",
       "investment_period": "장기",
       "quantity": 30,
       "avg_price": 21667,
-      "value": 951450,
-      "profit": 301440,
+      "value": 947100,
+      "profit": 297090,
       "weight": 5.0,
       "scenario": {
         "decision": "매수",
@@ -731,8 +731,8 @@
         "sector": "금ETF",
         "investment_period": "장기"
       },
-      "change": 600,
-      "change_rate": 1.93
+      "change": -145,
+      "change_rate": -0.46
     }
   ],
   "real_portfolio": [],
@@ -2197,11 +2197,11 @@
       "confidence": 82,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 876000,
+      "current_price": 886000,
       "target_price": 1050000,
       "stop_loss": 800000,
       "buy_score": 82,
-      "change_rate": 5.54,
+      "change_rate": 1.14,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2221,7 +2221,7 @@
       "new_stop_loss": 800000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 46000
+      "change": 10000
     },
     {
       "id": "claude-005930",
@@ -2232,11 +2232,11 @@
       "confidence": 78,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 186200,
+      "current_price": 193100,
       "target_price": 230000,
       "stop_loss": 170000,
       "buy_score": 78,
-      "change_rate": 4.37,
+      "change_rate": 3.71,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2256,7 +2256,7 @@
       "new_stop_loss": 170000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 7800
+      "change": 6900
     },
     {
       "id": "claude-035420",
@@ -2267,11 +2267,11 @@
       "confidence": 75,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 197500,
+      "current_price": 196800,
       "target_price": 280000,
       "stop_loss": 185000,
       "buy_score": 75,
-      "change_rate": 0.87,
+      "change_rate": -0.35,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2291,7 +2291,7 @@
       "new_stop_loss": 185000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 1700
+      "change": -700
     },
     {
       "id": "claude-012330",
@@ -2306,7 +2306,7 @@
       "target_price": 500000,
       "stop_loss": 330000,
       "buy_score": 75,
-      "change_rate": -0.26,
+      "change_rate": 0.0,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2326,7 +2326,7 @@
       "new_stop_loss": 330000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": -1000
+      "change": 0
     },
     {
       "id": "claude-078930",
@@ -2337,11 +2337,11 @@
       "confidence": 62,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 63300,
+      "current_price": 65600,
       "target_price": 85000,
       "stop_loss": 58000,
       "buy_score": 62,
-      "change_rate": 0.8,
+      "change_rate": 3.63,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2361,7 +2361,7 @@
       "new_stop_loss": 58000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 500
+      "change": 2300
     },
     {
       "id": "claude-083450",
@@ -2372,11 +2372,11 @@
       "confidence": 78,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 25850,
+      "current_price": 25750,
       "target_price": 40000,
       "stop_loss": 24000,
       "buy_score": 78,
-      "change_rate": 1.17,
+      "change_rate": -0.39,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2396,7 +2396,7 @@
       "new_stop_loss": 24000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 300
+      "change": -100
     },
     {
       "id": "claude-005380",
@@ -2407,11 +2407,11 @@
       "confidence": 80,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 471000,
+      "current_price": 469000,
       "target_price": 650000,
       "stop_loss": 430000,
       "buy_score": 80,
-      "change_rate": 1.18,
+      "change_rate": -0.42,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2431,7 +2431,7 @@
       "new_stop_loss": 430000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 5500
+      "change": -2000
     },
     {
       "id": "claude-034020",
@@ -2442,11 +2442,11 @@
       "confidence": 85,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 96600,
+      "current_price": 95700,
       "target_price": 140000,
       "stop_loss": 80000,
       "buy_score": 85,
-      "change_rate": 3.21,
+      "change_rate": -0.93,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2466,7 +2466,7 @@
       "new_stop_loss": 80000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 3000
+      "change": -900
     },
     {
       "id": "claude-064350",
@@ -2477,11 +2477,11 @@
       "confidence": 72,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 210000,
+      "current_price": 211000,
       "target_price": 270000,
       "stop_loss": 145000,
       "buy_score": 72,
-      "change_rate": 4.22,
+      "change_rate": 0.48,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2501,7 +2501,7 @@
       "new_stop_loss": 145000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 8500
+      "change": 1000
     },
     {
       "id": "claude-035720",
@@ -2512,11 +2512,11 @@
       "confidence": 76,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 45200,
+      "current_price": 44850,
       "target_price": 80000,
       "stop_loss": 48000,
       "buy_score": 76,
-      "change_rate": -0.44,
+      "change_rate": -0.77,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2536,7 +2536,7 @@
       "new_stop_loss": 48000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": -200
+      "change": -350
     },
     {
       "id": "claude-029460",
@@ -2547,11 +2547,11 @@
       "confidence": 74,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 30000,
+      "current_price": 29450,
       "target_price": 55000,
       "stop_loss": 35000,
       "buy_score": 74,
-      "change_rate": 1.35,
+      "change_rate": -1.83,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2571,7 +2571,7 @@
       "new_stop_loss": 35000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 400
+      "change": -550
     },
     {
       "id": "claude-015760",
@@ -2582,11 +2582,11 @@
       "confidence": 77,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 40300,
+      "current_price": 40250,
       "target_price": 60000,
       "stop_loss": 33000,
       "buy_score": 77,
-      "change_rate": -2.3,
+      "change_rate": -0.12,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2606,7 +2606,7 @@
       "new_stop_loss": 33000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": -950
+      "change": -50
     },
     {
       "id": "claude-GOLD",
@@ -2652,11 +2652,11 @@
       "confidence": 72,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 24570,
+      "current_price": 24605,
       "target_price": 26500,
       "stop_loss": 21000,
       "buy_score": 72,
-      "change_rate": 0.39,
+      "change_rate": 0.14,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2676,7 +2676,7 @@
       "new_stop_loss": 21000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 95
+      "change": 35
     },
     {
       "id": "claude-105010",
@@ -2687,11 +2687,11 @@
       "confidence": 68,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 19475,
+      "current_price": 19550,
       "target_price": 17000,
       "stop_loss": 12500,
       "buy_score": 68,
-      "change_rate": 1.54,
+      "change_rate": 0.39,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2711,7 +2711,7 @@
       "new_stop_loss": 12500,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 295
+      "change": 75
     },
     {
       "id": "claude-394670",
@@ -2722,11 +2722,11 @@
       "confidence": 82,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 76695,
+      "current_price": 75740,
       "target_price": 95000,
       "stop_loss": 68000,
       "buy_score": 82,
-      "change_rate": 3.99,
+      "change_rate": -1.25,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2746,7 +2746,7 @@
       "new_stop_loss": 68000,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 2940
+      "change": -955
     },
     {
       "id": "claude-329750",
@@ -2757,11 +2757,11 @@
       "confidence": 65,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 14070,
+      "current_price": 14090,
       "target_price": 13800,
       "stop_loss": 12900,
       "buy_score": 65,
-      "change_rate": -1.02,
+      "change_rate": 0.14,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2781,7 +2781,7 @@
       "new_stop_loss": 12900,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": -145
+      "change": 20
     },
     {
       "id": "claude-0036R0",
@@ -2827,11 +2827,11 @@
       "confidence": 74,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 15225,
+      "current_price": 15020,
       "target_price": 8800,
       "stop_loss": 6200,
       "buy_score": 74,
-      "change_rate": 3.89,
+      "change_rate": -1.35,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2851,7 +2851,7 @@
       "new_stop_loss": 6200,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 570
+      "change": -205
     },
     {
       "id": "claude-411060",
@@ -2862,11 +2862,11 @@
       "confidence": 80,
       "decision_date": "2026-04-04",
       "decision_time": "21:00",
-      "current_price": 31715,
+      "current_price": 31570,
       "target_price": 40000,
       "stop_loss": 29500,
       "buy_score": 80,
-      "change_rate": 1.93,
+      "change_rate": -0.46,
       "volume_ratio": 100.0,
       "avg_volume_20d": 0,
       "last_volume": 0,
@@ -2886,7 +2886,7 @@
       "new_stop_loss": 29500,
       "adjustment_urgency": "낮음",
       "created_at": "2026-04-04T21:00:00",
-      "change": 600
+      "change": -145
     }
   ],
   "operating_costs": {

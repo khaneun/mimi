@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-06T22:37:56.197200",
+  "generated_at": "2026-04-06T22:52:04.222894",
   "keywords": [
     {
       "word": "삼성전자",
@@ -8,8 +8,8 @@
       "sentiment": "긍정",
       "related": [
         "반도체",
-        "1분기실적",
-        "영업이익"
+        "1분기 실적",
+        "영업익"
       ]
     },
     {
@@ -29,15 +29,26 @@
       "category": "글로벌",
       "sentiment": "중립",
       "related": [
-        "Strategy",
         "BTC",
-        "이란"
+        "Strategy",
+        "SOL"
+      ]
+    },
+    {
+      "word": "한은 총재",
+      "count": 30,
+      "category": "경제",
+      "sentiment": "중립",
+      "related": [
+        "신현송",
+        "인사청문회",
+        "금리"
       ]
     },
     {
       "word": "전기버스",
-      "count": 30,
-      "category": "섹터",
+      "count": 28,
+      "category": "이슈",
       "sentiment": "긍정",
       "related": [
         "BYD",
@@ -47,18 +58,51 @@
     },
     {
       "word": "BYD",
-      "count": 28,
+      "count": 25,
       "category": "종목",
       "sentiment": "부정",
       "related": [
         "전기버스",
-        "보조금",
-        "중국"
+        "보조금 삭감",
+        "중국산"
+      ]
+    },
+    {
+      "word": "코스피",
+      "count": 22,
+      "category": "경제",
+      "sentiment": "긍정",
+      "related": [
+        "복원력",
+        "내성",
+        "국내증시"
+      ]
+    },
+    {
+      "word": "이란",
+      "count": 20,
+      "category": "글로벌",
+      "sentiment": "부정",
+      "related": [
+        "트럼프",
+        "전쟁",
+        "휴전"
+      ]
+    },
+    {
+      "word": "반도체",
+      "count": 18,
+      "category": "섹터",
+      "sentiment": "긍정",
+      "related": [
+        "삼성전자",
+        "깜짝실적",
+        "ST마이크로"
       ]
     },
     {
       "word": "ETF",
-      "count": 25,
+      "count": 16,
       "category": "이슈",
       "sentiment": "중립",
       "related": [
@@ -68,52 +112,19 @@
       ]
     },
     {
-      "word": "코스피",
-      "count": 24,
-      "category": "경제",
-      "sentiment": "긍정",
-      "related": [
-        "복원력",
-        "국내증시",
-        "외국인"
-      ]
-    },
-    {
-      "word": "IPO",
-      "count": 22,
-      "category": "이슈",
-      "sentiment": "중립",
-      "related": [
-        "매디슨에어",
-        "에이치엘지노믹스",
-        "코스닥"
-      ]
-    },
-    {
-      "word": "반도체",
-      "count": 20,
+      "word": "벤처",
+      "count": 15,
       "category": "섹터",
       "sentiment": "긍정",
       "related": [
-        "삼성전자",
-        "실적",
-        "영업이익"
-      ]
-    },
-    {
-      "word": "이란",
-      "count": 18,
-      "category": "글로벌",
-      "sentiment": "부정",
-      "related": [
-        "트럼프",
-        "휴전",
-        "전쟁"
+        "세컨더리 펀드",
+        "금융투자업계",
+        "2조원"
       ]
     },
     {
       "word": "보조금",
-      "count": 17,
+      "count": 14,
       "category": "이슈",
       "sentiment": "중립",
       "related": [
@@ -123,208 +134,189 @@
       ]
     },
     {
-      "word": "한국은행",
-      "count": 16,
-      "category": "경제",
-      "sentiment": "중립",
-      "related": [
-        "신현송",
-        "총재",
-        "인사청문회"
-      ]
-    },
-    {
-      "word": "비만약",
-      "count": 15,
-      "category": "섹터",
-      "sentiment": "긍정",
-      "related": [
-        "삼천당제약",
-        "FDA",
-        "위고비"
-      ]
-    },
-    {
-      "word": "벤처펀드",
-      "count": 14,
-      "category": "이슈",
-      "sentiment": "긍정",
-      "related": [
-        "세컨더리",
-        "2조원",
-        "금융투자"
-      ]
-    },
-    {
-      "word": "유사수신",
-      "count": 13,
-      "category": "이슈",
-      "sentiment": "부정",
-      "related": [
-        "드론",
-        "AI",
-        "사기"
-      ]
-    },
-    {
-      "word": "드론",
-      "count": 12,
-      "category": "섹터",
-      "sentiment": "부정",
-      "related": [
-        "유사수신",
-        "AI",
-        "사기"
-      ]
-    },
-    {
-      "word": "AI",
-      "count": 11,
-      "category": "섹터",
-      "sentiment": "중립",
-      "related": [
-        "드론",
-        "유사수신",
-        "투자"
-      ]
-    },
-    {
-      "word": "외국인매매",
-      "count": 10,
-      "category": "이슈",
-      "sentiment": "중립",
-      "related": [
-        "코스피",
-        "주식",
-        "박세익"
-      ]
-    },
-    {
       "word": "물가",
-      "count": 9,
+      "count": 12,
       "category": "경제",
       "sentiment": "부정",
       "related": [
-        "4월",
         "폭등",
-        "도미노"
+        "도미노",
+        "월가"
       ]
     },
     {
-      "word": "미중경쟁",
-      "count": 8,
-      "category": "글로벌",
+      "word": "외국인 매매",
+      "count": 11,
+      "category": "이슈",
       "sentiment": "중립",
       "related": [
-        "한국",
-        "기회",
-        "전략경쟁"
-      ]
-    },
-    {
-      "word": "SpaceX",
-      "count": 7,
-      "category": "글로벌",
-      "sentiment": "긍정",
-      "related": [
-        "플래닛",
-        "위성",
-        "펠리컨"
-      ]
-    },
-    {
-      "word": "삼천당제약",
-      "count": 6,
-      "category": "종목",
-      "sentiment": "긍정",
-      "related": [
-        "비만약",
-        "FDA",
-        "위고비"
+        "박세익",
+        "주식"
       ]
     },
     {
       "word": "우리은행",
-      "count": 5,
+      "count": 10,
       "category": "종목",
       "sentiment": "부정",
       "related": [
-        "점포축소",
+        "점포 축소",
         "통폐합",
         "영업점"
       ]
     },
     {
-      "word": "삼성화재",
-      "count": 5,
+      "word": "삼천당제약",
+      "count": 10,
       "category": "종목",
       "sentiment": "긍정",
       "related": [
-        "보험금",
-        "실손보험",
-        "보상시스템"
+        "비만약",
+        "FDA",
+        "위고비 제네릭"
       ]
     },
     {
-      "word": "국방예산",
-      "count": 4,
-      "category": "경제",
+      "word": "미중 경쟁",
+      "count": 9,
+      "category": "글로벌",
       "sentiment": "중립",
       "related": [
-        "예산증가",
-        "방산"
+        "한국 기회",
+        "전략 경쟁"
       ]
     },
     {
-      "word": "공시가격",
-      "count": 3,
-      "category": "경제",
-      "sentiment": "중립",
-      "related": [
-        "부동산",
-        "산정"
-      ]
-    },
-    {
-      "word": "수출입은행",
-      "count": 3,
-      "category": "경제",
+      "word": "신산업",
+      "count": 8,
+      "category": "섹터",
       "sentiment": "긍정",
       "related": [
-        "신산업",
+        "수출입은행",
         "지원"
       ]
     },
     {
-      "word": "매디슨에어",
-      "count": 3,
+      "word": "삼성화재",
+      "count": 8,
+      "category": "종목",
+      "sentiment": "긍정",
+      "related": [
+        "실손보험",
+        "보험금",
+        "보상 시스템"
+      ]
+    },
+    {
+      "word": "석유주",
+      "count": 7,
+      "category": "섹터",
+      "sentiment": "중립",
+      "related": [
+        "울프 리서치",
+        "변동성"
+      ]
+    },
+    {
+      "word": "엔터지",
+      "count": 6,
+      "category": "종목",
+      "sentiment": "긍정",
+      "related": [
+        "사상 최고가",
+        "유틸리티"
+      ]
+    },
+    {
+      "word": "공시가격",
+      "count": 5,
+      "category": "경제",
+      "sentiment": "중립",
+      "related": [
+        "김윤덕",
+        "산정"
+      ]
+    },
+    {
+      "word": "에이치엘지노믹스",
+      "count": 5,
       "category": "종목",
       "sentiment": "중립",
       "related": [
-        "IPO",
-        "로드쇼",
-        "22억달러"
+        "코스닥",
+        "상장예심",
+        "원료의약품"
+      ]
+    },
+    {
+      "word": "AI·드론",
+      "count": 5,
+      "category": "이슈",
+      "sentiment": "부정",
+      "related": [
+        "사기",
+        "범죄"
+      ]
+    },
+    {
+      "word": "국방 예산",
+      "count": 4,
+      "category": "경제",
+      "sentiment": "중립",
+      "related": [
+        "방산"
+      ]
+    },
+    {
+      "word": "환율",
+      "count": 4,
+      "category": "경제",
+      "sentiment": "중립",
+      "related": [
+        "외국환율고시"
+      ]
+    },
+    {
+      "word": "월가",
+      "count": 8,
+      "category": "글로벌",
+      "sentiment": "중립",
+      "related": [
+        "저점 베팅",
+        "큰손",
+        "경고"
+      ]
+    },
+    {
+      "word": "ST마이크로",
+      "count": 3,
+      "category": "종목",
+      "sentiment": "긍정",
+      "related": [
+        "52주 최고가",
+        "반도체"
+      ]
+    },
+    {
+      "word": "비만약",
+      "count": 7,
+      "category": "섹터",
+      "sentiment": "긍정",
+      "related": [
+        "삼천당제약",
+        "위고비",
+        "FDA"
       ]
     },
     {
       "word": "관세",
-      "count": 2,
+      "count": 6,
       "category": "글로벌",
       "sentiment": "부정",
       "related": [
         "트럼프",
-        "무역전쟁"
-      ]
-    },
-    {
-      "word": "저점매수",
-      "count": 2,
-      "category": "유튜브",
-      "sentiment": "긍정",
-      "related": [
-        "월가",
-        "큰손",
-        "베팅"
+        "무역전쟁",
+        "데드라인"
       ]
     }
   ],
@@ -373,14 +365,15 @@
     },
     {
       "title": "국회, 신현송 한은 총재 후보자 인사청문회 15일 개최",
-      "source": "연합뉴스",
-      "time": "Mon, 6 Apr 2026 ",
+      "source": "매일경제",
+      "time": "Mon, 06 Apr 2026",
       "sentiment": "중립",
       "importance": 8,
       "keywords": [
-        "한국은행"
+        "한은 총재",
+        "신현송"
       ],
-      "url": "https://www.yna.co.kr/view/AKR20260406165300001",
+      "url": "https://www.mk.co.kr/news/economy/12009638",
       "region": "KR",
       "type": "news"
     },
@@ -392,7 +385,8 @@
       "importance": 7,
       "keywords": [
         "트럼프",
-        "코스피"
+        "코스피",
+        "관세"
       ],
       "url": "https://www.youtube.com/watch?v=8nwzikC4xEE",
       "region": "KR",
@@ -434,7 +428,7 @@
       "sentiment": "긍정",
       "importance": 7,
       "keywords": [
-        "벤처펀드"
+        "벤처"
       ],
       "url": "https://www.yna.co.kr/view/AKR20260406161500008",
       "region": "KR",
@@ -461,7 +455,7 @@
       "sentiment": "긍정",
       "importance": 6,
       "keywords": [
-        "미중경쟁"
+        "미중 경쟁"
       ],
       "url": "https://www.youtube.com/watch?v=7BM1C-5h-pg",
       "region": "KR",
@@ -474,7 +468,8 @@
       "sentiment": "부정",
       "importance": 6,
       "keywords": [
-        "물가"
+        "물가",
+        "월가"
       ],
       "url": "https://www.youtube.com/watch?v=8vVehZZrA8w",
       "region": "KR",
@@ -498,7 +493,7 @@
       "title": "[머니두] 석기시대냐? 휴전이냐 ? 새벽2시 트럼프의 선택에 달린 증시",
       "source": "YouTube 머니두",
       "time": "2026-04-06",
-      "sentiment": "중립",
+      "sentiment": "부정",
       "importance": 6,
       "keywords": [
         "트럼프",
@@ -509,26 +504,13 @@
       "type": "youtube"
     },
     {
-      "title": "[삼프로TV] \"ETF는 이름이 9할\"...주린이 시점 'ETF 용어 총정리' I 명민준, 강아랑, 최창규 [주린이 구조대]",
-      "source": "YouTube 삼프로TV",
+      "title": "[소수몽키] 끝을 향해 달리는 전쟁 공포? 월가 큰손들의 저점 베팅 맞을까",
+      "source": "YouTube 소수몽키",
       "time": "2026-04-06",
       "sentiment": "중립",
       "importance": 5,
       "keywords": [
-        "ETF"
-      ],
-      "url": "https://www.youtube.com/watch?v=aW9r6e80twU",
-      "region": "KR",
-      "type": "youtube"
-    },
-    {
-      "title": "[소수몽키] 끝을 향해 달리는 전쟁 공포? 월가 큰손들의 저점 베팅 맞을까",
-      "source": "YouTube 소수몽키",
-      "time": "2026-04-06",
-      "sentiment": "긍정",
-      "importance": 5,
-      "keywords": [
-        "저점매수"
+        "월가"
       ],
       "url": "https://www.youtube.com/watch?v=vKt199nBU6Q",
       "region": "KR",
@@ -541,24 +523,35 @@
       "sentiment": "중립",
       "importance": 5,
       "keywords": [
-        "외국인매매"
+        "외국인 매매"
       ],
       "url": "https://www.youtube.com/shorts/uDlQOp4F7qY",
       "region": "KR",
       "type": "youtube"
     },
     {
-      "title": "\"드론·AI 투자라더니\"… 유사수신 2년새 두배",
+      "title": "삼성화재, 보험금 10분내 지급 … 실손보험금 보상 시스템 구축",
       "source": "매일경제",
       "time": "Mon, 06 Apr 2026",
+      "sentiment": "긍정",
+      "importance": 5,
+      "keywords": [
+        "삼성화재"
+      ],
+      "url": "https://www.mk.co.kr/news/economy/12009443",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "또 점포 줄이는 우리은행…영업점·출장소 37곳 통폐합",
+      "source": "연합뉴스",
+      "time": "Mon, 6 Apr 2026 ",
       "sentiment": "부정",
       "importance": 5,
       "keywords": [
-        "유사수신",
-        "드론",
-        "AI"
+        "우리은행"
       ],
-      "url": "https://www.mk.co.kr/news/economy/12009444",
+      "url": "https://www.yna.co.kr/view/AKR20260406155700002",
       "region": "KR",
       "type": "news"
     },
@@ -569,63 +562,22 @@
       "sentiment": "중립",
       "importance": 5,
       "keywords": [
-        "IPO"
+        "에이치엘지노믹스"
       ],
       "url": "https://www.yna.co.kr/view/AKR20260406147800008",
       "region": "KR",
       "type": "news"
     },
     {
-      "title": "플래닛, SpaceX 발사 앞두고 펠리컨 위성 3기 발송",
+      "title": "울프 리서치, 시장 변동성 속 주시할 최고 석유주 선정",
       "source": "Investing.com",
-      "time": "2026-04-06 13:18",
-      "sentiment": "긍정",
-      "importance": 5,
-      "keywords": [
-        "SpaceX"
-      ],
-      "url": "https://kr.investing.com/news/company-news/article-93CH-1890047",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "매디슨 에어, IPO 로드쇼 개시…최대 22억 달러 조달 목표",
-      "source": "Investing.com",
-      "time": "2026-04-06 13:18",
+      "time": "2026-04-06 13:36",
       "sentiment": "중립",
       "importance": 5,
       "keywords": [
-        "매디슨에어",
-        "IPO"
+        "석유주"
       ],
-      "url": "https://kr.investing.com/news/company-news/article-93CH-1890046",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "매디슨 에어, 8,270만 주 규모 IPO 로드쇼 시작",
-      "source": "Investing.com",
-      "time": "2026-04-06 13:14",
-      "sentiment": "중립",
-      "importance": 5,
-      "keywords": [
-        "매디슨에어",
-        "IPO"
-      ],
-      "url": "https://kr.investing.com/news/stock-market-news/article-432SI-1890044",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "Strategy reports bitcoin purchase and stock sale activities",
-      "source": "Investing글로벌",
-      "time": "2026-04-06 12:09",
-      "sentiment": "중립",
-      "importance": 5,
-      "keywords": [
-        "비트코인"
-      ],
-      "url": "https://www.investing.com/news/cryptocurrency-news/strategy-reports-bitcoin-purchase-and-stock-sale-activities-432SI-4598279",
+      "url": "https://kr.investing.com/news/stock-market-news/article-93CH-1890081",
       "region": "KR",
       "type": "news"
     },
@@ -650,61 +602,102 @@
       "sentiment": "중립",
       "importance": 4,
       "keywords": [
-        "국방예산"
+        "국방 예산"
       ],
       "url": "https://www.youtube.com/shorts/SZcWb2H0GNI",
       "region": "KR",
       "type": "youtube"
     },
     {
-      "title": "사기꾼들, 옥장판에서 드론·AI로 간판 바꿨네…작년에만 1600건",
-      "source": "매일경제",
-      "time": "Mon, 06 Apr 2026",
-      "sentiment": "부정",
+      "title": "[삼프로TV] \"ETF는 이름이 9할\"...주린이 시점 'ETF 용어 총정리' I 명민준, 강아랑, 최창규 [주린이 구조대]",
+      "source": "YouTube 삼프로TV",
+      "time": "2026-04-06",
+      "sentiment": "중립",
       "importance": 4,
       "keywords": [
-        "유사수신",
-        "드론",
-        "AI"
+        "ETF"
       ],
-      "url": "https://www.mk.co.kr/news/economy/12009593",
+      "url": "https://www.youtube.com/watch?v=aW9r6e80twU",
       "region": "KR",
-      "type": "news"
+      "type": "youtube"
     },
     {
-      "title": "삼성화재, 보험금 10분내 지급 … 실손보험금 보상 시스템 구축",
+      "title": "[포토] 수출입銀, 3대 신산업 지원",
       "source": "매일경제",
       "time": "Mon, 06 Apr 2026",
       "sentiment": "긍정",
       "importance": 4,
       "keywords": [
-        "삼성화재"
+        "신산업"
       ],
-      "url": "https://www.mk.co.kr/news/economy/12009443",
+      "url": "https://www.mk.co.kr/news/economy/12009446",
       "region": "KR",
       "type": "news"
     },
     {
-      "title": "또 점포 줄이는 우리은행…영업점·출장소 37곳 통폐합",
+      "title": "김윤덕 \"공시가격 산정, 큰 무리 없어…더 정교하도록 노력\"",
       "source": "연합뉴스",
       "time": "Mon, 6 Apr 2026 ",
-      "sentiment": "부정",
+      "sentiment": "중립",
       "importance": 4,
       "keywords": [
-        "우리은행"
+        "공시가격"
       ],
-      "url": "https://www.yna.co.kr/view/AKR20260406155700002",
+      "url": "https://www.yna.co.kr/view/AKR20260406148100001",
       "region": "KR",
       "type": "news"
     },
     {
-      "title": "레이먼드 제임스, Phreesia 목표 주가 하향 조정: 제약 광고 역풍",
+      "title": "엔터지, 주가 사상 최고치인 115.32달러 기록",
       "source": "Investing.com",
-      "time": "2026-04-06 13:14",
-      "sentiment": "부정",
+      "time": "2026-04-06 13:39",
+      "sentiment": "긍정",
       "importance": 4,
-      "keywords": [],
-      "url": "https://kr.investing.com/news/analyst-ratings/article-93CH-1890043",
+      "keywords": [
+        "엔터지"
+      ],
+      "url": "https://kr.investing.com/news/company-news/article-93CH-1890085",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "ST마이크로일렉트로닉스, 52주 최고가인 35.11 USD 기록",
+      "source": "Investing.com",
+      "time": "2026-04-06 13:36",
+      "sentiment": "긍정",
+      "importance": 4,
+      "keywords": [
+        "ST마이크로",
+        "반도체"
+      ],
+      "url": "https://kr.investing.com/news/company-news/article-93CH-1890082",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "Strategy reports bitcoin purchase and stock sale activities",
+      "source": "Investing글로벌",
+      "time": "2026-04-06 12:09",
+      "sentiment": "중립",
+      "importance": 4,
+      "keywords": [
+        "비트코인"
+      ],
+      "url": "https://www.investing.com/news/cryptocurrency-news/strategy-reports-bitcoin-purchase-and-stock-sale-activities-432SI-4598279",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "Bitcoin price today: muted above $66k with focus on Iran conflict, US jobs data",
+      "source": "Investing글로벌",
+      "time": "2026-04-04 08:49",
+      "sentiment": "중립",
+      "importance": 4,
+      "keywords": [
+        "비트코인",
+        "이란"
+      ],
+      "url": "https://www.investing.com/news/cryptocurrency-news/bitcoin-price-today-muted-above-66k-with-focus-on-iran-conflict-us-jobs-data-4596869",
       "region": "KR",
       "type": "news"
     },
@@ -714,7 +707,9 @@
       "time": "2026-04-06",
       "sentiment": "중립",
       "importance": 3,
-      "keywords": [],
+      "keywords": [
+        "ETF"
+      ],
       "url": "https://www.youtube.com/shorts/N24y6znXREE",
       "region": "KR",
       "type": "youtube"
@@ -742,39 +737,48 @@
       "type": "youtube"
     },
     {
-      "title": "[포토] 수출입銀, 3대 신산업 지원",
+      "title": "[표] 외국환율고시표",
       "source": "매일경제",
       "time": "Mon, 06 Apr 2026",
-      "sentiment": "긍정",
-      "importance": 3,
-      "keywords": [
-        "수출입은행"
-      ],
-      "url": "https://www.mk.co.kr/news/economy/12009446",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "김윤덕 \"공시가격 산정, 큰 무리 없어…더 정교하도록 노력\"",
-      "source": "연합뉴스",
-      "time": "Mon, 6 Apr 2026 ",
       "sentiment": "중립",
       "importance": 3,
       "keywords": [
-        "공시가격"
+        "환율"
       ],
-      "url": "https://www.yna.co.kr/view/AKR20260406148100001",
+      "url": "https://www.mk.co.kr/news/economy/12009447",
       "region": "KR",
       "type": "news"
     },
     {
-      "title": "글레이셔 뱅코프, 견조한 성장 전망에 KBW ’아웃퍼폼’ 등급 유지",
+      "title": "라이트웨이브 로직, 주가 52주 신고가 경신: 8.79달러",
       "source": "Investing.com",
-      "time": "2026-04-06 13:14",
+      "time": "2026-04-06 13:42",
       "sentiment": "긍정",
       "importance": 3,
       "keywords": [],
-      "url": "https://kr.investing.com/news/analyst-ratings/article-93CH-1890042",
+      "url": "https://kr.investing.com/news/company-news/article-93CH-1890094",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "이리듐 커뮤니케이션스, 52주 최고가인 33.36 USD 기록",
+      "source": "Investing.com",
+      "time": "2026-04-06 13:41",
+      "sentiment": "긍정",
+      "importance": 3,
+      "keywords": [],
+      "url": "https://kr.investing.com/news/company-news/article-93CH-1890092",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "Adtran, 52주 신고가 경신, 13.15 USD 기록",
+      "source": "Investing.com",
+      "time": "2026-04-06 13:41",
+      "sentiment": "긍정",
+      "importance": 3,
+      "keywords": [],
+      "url": "https://kr.investing.com/news/company-news/article-93CH-1890090",
       "region": "KR",
       "type": "news"
     },
@@ -805,35 +809,26 @@
       "type": "news"
     },
     {
-      "title": "사이히트, 4월 25일 임시 주주총회 개최 예정",
-      "source": "Investing.com",
-      "time": "2026-04-06 13:19",
-      "sentiment": "중립",
-      "importance": 2,
-      "keywords": [],
-      "url": "https://kr.investing.com/news/sec-filings/article-93CH-1890048",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "렌트 더 런웨이, 이자 자본화 허용 위해 신용 계약 수정",
-      "source": "Investing.com",
-      "time": "2026-04-06 13:16",
-      "sentiment": "중립",
-      "importance": 2,
-      "keywords": [],
-      "url": "https://kr.investing.com/news/sec-filings/article-93CH-1890045",
-      "region": "KR",
-      "type": "news"
-    },
-    {
-      "title": "[표] 외국환율고시표",
+      "title": "사기꾼들, 옥장판에서 드론·AI로 간판 바꿨네…작년에만 1600건",
       "source": "매일경제",
       "time": "Mon, 06 Apr 2026",
+      "sentiment": "부정",
+      "importance": 2,
+      "keywords": [
+        "AI·드론"
+      ],
+      "url": "https://www.mk.co.kr/news/economy/12009593",
+      "region": "KR",
+      "type": "news"
+    },
+    {
+      "title": "체넷 조레이, Airsculpt Technologies(AIRS) 주식 253,800달러 상당 매수",
+      "source": "Investing.com",
+      "time": "2026-04-06 13:41",
       "sentiment": "중립",
-      "importance": 1,
+      "importance": 2,
       "keywords": [],
-      "url": "https://www.mk.co.kr/news/economy/12009447",
+      "url": "https://kr.investing.com/news/insider-trading-news/article-93CH-1890091",
       "region": "KR",
       "type": "news"
     },

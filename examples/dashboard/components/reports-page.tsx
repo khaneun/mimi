@@ -33,24 +33,25 @@ const CATEGORY_BADGE: Record<Exclude<Category, "전체">, string> = {
 
 const ALL_REPORTS: Report[] = [
   // 매크로 (6개)
-  { name: "거시경제 분석", file: "macro/macro_economy_report.html", category: "매크로", icon: Landmark, color: "text-sky-400", desc: "금리, GDP, 인플레이션, 환율", date: "2026-04-04" },
-  { name: "원자재 분석", file: "macro/commodity_report.html", category: "매크로", icon: Gem, color: "text-amber-400", desc: "금, 은, 원유, 구리", date: "2026-04-04" },
-  { name: "주식시장 분석", file: "macro/stock_market_report.html", category: "매크로", icon: CandlestickChart, color: "text-rose-400", desc: "S&P500, KOSPI, 종목 추천", date: "2026-04-04" },
-  { name: "부동산 분석", file: "macro/real_estate_report.html", category: "매크로", icon: MapPin, color: "text-emerald-400", desc: "서울 권역별, REITs", date: "2026-04-04" },
-  { name: "종합 투자 분석", file: "macro/final_investment_report.html", category: "매크로", icon: Crown, color: "text-violet-400", desc: "4개 분야 종합, 포트폴리오 전략", date: "2026-04-04" },
-  { name: "매수 타이밍 전략", file: "macro/timing_strategy_report.html", category: "매크로", icon: Clock, color: "text-orange-400", desc: "이벤트 캘린더, 분할매수", date: "2026-04-04" },
+  { name: "거시경제 분석", file: "macro/macro_economy_report.html", category: "매크로", icon: Landmark, color: "text-sky-400", desc: "금리, GDP, 인플레이션, 환율", date: "2026-04-06" },
+  { name: "원자재 분석", file: "macro/commodity_report.html", category: "매크로", icon: Gem, color: "text-amber-400", desc: "금, 은, 원유, 구리", date: "2026-04-06" },
+  { name: "주식시장 분석", file: "macro/stock_market_report.html", category: "매크로", icon: CandlestickChart, color: "text-rose-400", desc: "S&P500, KOSPI, 종목 추천", date: "2026-04-06" },
+  { name: "부동산 분석", file: "macro/real_estate_report.html", category: "매크로", icon: MapPin, color: "text-emerald-400", desc: "서울 권역별, REITs", date: "2026-04-06" },
+  { name: "종합 투자 분석", file: "macro/final_investment_report.html", category: "매크로", icon: Crown, color: "text-violet-400", desc: "4개 분야 종합, 포트폴리오 전략", date: "2026-04-06" },
+  { name: "매수 타이밍 전략", file: "macro/timing_strategy_report.html", category: "매크로", icon: Clock, color: "text-orange-400", desc: "이벤트 캘린더, 분할매수", date: "2026-04-06" },
   // 특별 (4개)
-  { name: "코스피 종합 분석", file: "special/kospi_market_analysis_report.html", category: "특별", icon: Activity, color: "text-indigo-400", desc: "외국인/기관, 섹터, 환율", date: "2026-04-04" },
-  { name: "외국인 매도 분석", file: "special/foreign_selling_analysis_report.html", category: "특별", icon: Users, color: "text-pink-400", desc: "매도 타임라인, 복귀 시그널", date: "2026-04-04" },
-  { name: "유가 급등 영향", file: "special/oil_surge_impact_report.html", category: "특별", icon: Fuel, color: "text-amber-500", desc: "시나리오별 대응 전략", date: "2026-04-04" },
-  { name: "전쟁 비교 분석", file: "special/war_historical_comparison_report.html", category: "특별", icon: Swords, color: "text-red-400", desc: "1973/1990/2003 vs 2026", date: "2026-04-04" },
+  { name: "코스피 종합 분석", file: "macro/kospi_market_analysis_report.html", category: "특별", icon: Activity, color: "text-indigo-400", desc: "외국인/기관, 섹터, 환율", date: "2026-04-06" },
+  { name: "외국인 매도 분석", file: "macro/foreign_selling_analysis_report.html", category: "특별", icon: Users, color: "text-pink-400", desc: "매도 타임라인, 복귀 시그널", date: "2026-04-06" },
+  { name: "유가 급등 영향", file: "macro/oil_surge_impact_report.html", category: "특별", icon: Fuel, color: "text-amber-500", desc: "시나리오별 대응 전략", date: "2026-04-06" },
+  { name: "전쟁 비교 분석", file: "macro/war_historical_comparison_report.html", category: "특별", icon: Swords, color: "text-red-400", desc: "1973/1990/2003 vs 2026", date: "2026-04-06" },
   // 종목 (3개)
   { name: "SK하이닉스 (000660)", file: "stocks/000660_SK하이닉스_20260404.html", category: "종목", icon: Brain, color: "text-emerald-400", desc: "5개 에이전트 병렬 분석", date: "2026-04-04" },
   { name: "삼성전자 (005930)", file: "stocks/005930_삼성전자_20260404.html", category: "종목", icon: Brain, color: "text-emerald-400", desc: "5개 에이전트 병렬 분석", date: "2026-04-04" },
   { name: "네이버 (035420)", file: "stocks/035420_네이버_20260404.html", category: "종목", icon: Brain, color: "text-emerald-400", desc: "5개 에이전트 병렬 분석", date: "2026-04-04" },
-  // 월별 (2개)
+  // 월별 (3개)
+  { name: "2026년 4월 월별 종합", file: "macro/monthly_report_2026-04.html", category: "월별", icon: CalendarDays, color: "text-teal-400", desc: "4월 시장 분석 + 포트폴리오 실적", date: "2026-04-06" },
   { name: "2026년 3월 월별 종합", file: "macro/monthly_report_2026-03.html", category: "월별", icon: CalendarDays, color: "text-teal-400", desc: "매매 실적 + 시장 분석", date: "2026-04-04" },
-  { name: "포트폴리오 종합 분석", file: "macro/portfolio_analysis_report.html", category: "월별", icon: Wallet, color: "text-cyan-400", desc: "15종목 수익률, 리밸런싱", date: "2026-04-04" },
+  { name: "포트폴리오 종합 분석", file: "macro/portfolio_analysis_report.html", category: "월별", icon: Wallet, color: "text-cyan-400", desc: "20종목 수익률, 리밸런싱", date: "2026-04-06" },
 ]
 
 const CATEGORIES: Category[] = ["전체", "매크로", "특별", "종목", "월별"]
