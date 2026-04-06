@@ -30,9 +30,29 @@ mkdir -p "${LOG_DIR}" "${REPORTS_DIR}" "${DASHBOARD_DIR}" "${STATE_DIR}"
 log() { echo "[$(date '+%H:%M:%S')] $1" | tee -a "${LOG_FILE}"; }
 
 log "=========================================="
-log "MarketPulse Harness Pipeline v2"
+log "MarketPulse Harness Pipeline v3"
 log "날짜: ${DATETIME}"
 log "=========================================="
+
+# ================================================================
+# Phase 0: DATA SNAPSHOT
+# 단일 시점에서 모든 데이터 수집 → snapshot.json
+# 이후 모든 에이전트가 이 파일만 참조 (WebSearch 가격 조회 금지)
+# ================================================================
+log ""
+log "=== Phase 0: DATA SNAPSHOT ==="
+
+SNAPSHOT="${STATE_DIR}/snapshot.json"
+VENV="${WORK_DIR}/.venv/bin/activate"
+
+cd "${WORK_DIR}" && source "${VENV}" 2>/dev/null
+python3 "${WORK_DIR}/scripts/collect_snapshot.py" 2>&1 | tee -a "${LOG_FILE}"
+
+if [ ! -f "${SNAPSHOT}" ]; then
+  log "❌ 스냅샷 생성 실패 — 파이프라인 중단"
+  exit 1
+fi
+log "스냅샷: $(wc -c < "${SNAPSHOT}") bytes"
 
 # ================================================================
 # Phase 1: PLANNER
@@ -47,7 +67,11 @@ SPRINT="${STATE_DIR}/sprint_contract.md"
 
 오늘 ${DATE} 기준으로 스프린트 계약을 작성하세요.
 
-## 작업 1: WebSearch로 시장 핵심 이벤트 파악
+## 데이터 스냅샷 (단일 시점 — 정합성 기준)
+${SNAPSHOT} 파일을 읽고, 이 데이터를 기준으로 사양을 작성하세요.
+모든 에이전트가 이 스냅샷의 가격/지수만 사용합니다.
+
+## 작업 1: WebSearch로 시장 핵심 이벤트(뉴스/이슈만) 파악
 - 코스피/코스닥 최근 동향
 - 미국 증시 (S&P500, 나스닥)
 - 원유/금/환율 동향
@@ -90,11 +114,16 @@ log "=== Phase 2a: GENERATOR A (기초 분석) ==="
 "${CLAUDE}" -p "당신은 Investment Alpha 에이전트 A (Generator)입니다.
 작성일시: ${DATETIME}
 
+## ⚠️ 중요: 데이터 정합성 규칙
+가격/지수 데이터는 반드시 ${SNAPSHOT} 파일의 값만 사용하세요.
+WebSearch는 뉴스/이슈/전망 조사에만 사용하고, 가격 조회에 사용하지 마세요.
+스냅샷에 없는 데이터만 WebSearch로 보완하세요.
+
 ## 스프린트 계약
 ${SPRINT} 파일을 읽고 분석 사양을 따르세요.
 
 ## 작업: 6개 기초 분석 리포트 작성
-WebSearch로 최신 데이터를 조사하고, 각 리포트를 파일로 저장하세요.
+${SNAPSHOT}의 가격 데이터를 기반으로, WebSearch로 뉴스/이슈를 조사하여 작성하세요.
 
 1. ${REPORTS_DIR}/macro_economy_report.md — 거시경제 (금리, GDP, 인플레이션, 환율)
 2. ${REPORTS_DIR}/commodity_report.md — 원자재 (금, 은, 원유, 구리)
@@ -122,6 +151,11 @@ log "=== Phase 2b: GENERATOR B (종합 분석 — A 결과 참조) ==="
 
 "${CLAUDE}" -p "당신은 Investment Alpha 에이전트 B (Generator)입니다.
 작성일시: ${DATETIME}
+
+## ⚠️ 중요: 데이터 정합성 규칙
+가격/지수 데이터는 반드시 ${SNAPSHOT} 파일의 값만 사용하세요.
+WebSearch는 뉴스/이슈/전망 조사에만 사용하고, 가격 조회에 사용하지 마세요.
+에이전트 A의 리포트와 동일한 가격을 사용해야 합니다.
 
 ## 스프린트 계약
 ${SPRINT} 파일을 읽고 분석 사양을 따르세요.
@@ -174,17 +208,33 @@ while [ ${RETRY} -lt ${MAX_RETRY} ] && [ "${OVERALL_PASS}" != "true" ]; do
 
   # --- 3a: 자동 검증 (스크립트) ---
   AUTO_FAIL=""
+
+  # 스냅샷에서 KOSPI 값 추출 (정합성 기준)
+  SNAP_KOSPI=$(python3 -c "import json; d=json.load(open('${SNAPSHOT}')); print(int(d.get('indices',{}).get('KOSPI',{}).get('value',0)))" 2>/dev/null || echo 0)
+
   for md_file in "${REPORTS_DIR}"/*.md; do
     [ -f "$md_file" ] || continue
     fname=$(basename "$md_file")
     chars=$(wc -c < "$md_file" | tr -d ' ')
     has_date=$(grep -c "${DATE}\|4월 6일\|April 6" "$md_file" 2>/dev/null || echo 0)
 
+    # 글자수 체크
     if [ "$chars" -lt 3000 ]; then
       AUTO_FAIL="${AUTO_FAIL}\n  ❌ ${fname}: ${chars}자 (3000자 미만)"
     fi
+    # 날짜 체크
     if [ "$has_date" -eq 0 ]; then
       AUTO_FAIL="${AUTO_FAIL}\n  ❌ ${fname}: 오늘 날짜(${DATE}) 미포함"
+    fi
+    # KOSPI 정합성 체크 (스냅샷 기준 ±2% 이내)
+    if [ "${SNAP_KOSPI}" -gt 0 ] && echo "${fname}" | grep -qi "kospi\|macro_economy\|stock_market\|final_investment"; then
+      REPORT_KOSPI=$(grep -oP '\d{1},\d{3}' "$md_file" 2>/dev/null | head -1 | tr -d ',')
+      if [ -n "${REPORT_KOSPI}" ] && [ "${REPORT_KOSPI}" -gt 0 ]; then
+        DIFF=$(( (REPORT_KOSPI - SNAP_KOSPI) * 100 / SNAP_KOSPI ))
+        if [ "${DIFF#-}" -gt 2 ]; then
+          AUTO_FAIL="${AUTO_FAIL}\n  ❌ ${fname}: KOSPI ${REPORT_KOSPI} vs 스냅샷 ${SNAP_KOSPI} (${DIFF}% 차이)"
+        fi
+      fi
     fi
   done
 
@@ -219,9 +269,13 @@ ${AUTO_FAIL}
 ${REPORTS_DIR}/ 디렉토리의 모든 .md 파일을 읽고 평가하세요.
 스프린트 계약: ${SPRINT} 파일 참조.
 
+## ⚠️ 핵심: 스냅샷 기반 데이터 정합성 검증
+${SNAPSHOT} 파일을 읽고, 각 리포트에 기재된 가격/지수가 스냅샷과 일치하는지 확인하세요.
+예: 스냅샷의 KOSPI가 5,377인데 리포트에 5,400으로 기재 → FAIL
+
 ## 평가 기준
-1. 데이터 정확성 — WebSearch로 핵심 가격/지수 1개 이상 교차검증
-2. 일관성 — 12개 리포트 간 결론 모순 체크 (예: A에서 매수, B에서 매도)
+1. 데이터 정합성 — 리포트 가격이 ${SNAPSHOT}과 일치하는가? (±1% 허용)
+2. 일관성 — 12개 리포트 간 동일 지수가 같은 값인가?
 3. 완성도 — 분석 근거와 출처가 있는가
 4. 시의성 — ${DATE} 데이터 반영 여부
 
