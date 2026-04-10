@@ -108,10 +108,105 @@ token_tmp = get_token_filename()
 # Empty token files cause authentication failures and should only be created
 # when saving a valid token via save_token()
 
-# Store and manage app key, app secret, token, account number, etc., set to your own path and filename.
-# pip install PyYAML (package installation)
-with open(os.path.join(config_root, "kis_devlp.yaml"), encoding="UTF-8") as f:
-    _cfg = yaml.safe_load(f)
+# ------------------------------------------------------------------ #
+# Config 로드: .env 환경변수 우선, 없으면 kis_devlp.yaml fallback
+#
+# 권장 방식: .env 파일에 아래 환경변수 설정 (yaml 파일 불필요)
+#   KIS_PAPER_APP_KEY    / KIS_PAPER_APP_SECRET    — 모의투자
+#   KIS_PAPER_ACCOUNT    / KIS_PAPER_ACCOUNT_PRODUCT
+#   KIS_REAL_APP_KEY     / KIS_REAL_APP_SECRET     — 실전투자
+#   KIS_REAL_ACCOUNT     / KIS_REAL_ACCOUNT_PRODUCT
+#   KIS_HTS_ID           — HTS 로그인 ID (공통)
+#   KIS_MODE             — paper(모의) or real(실전)
+#   KIS_AUTO_TRADING     — true/false
+#   KIS_DEFAULT_UNIT_AMOUNT     — 종목당 기본 매수 금액 (KRW)
+#   KIS_DEFAULT_UNIT_AMOUNT_USD — 종목당 기본 매수 금액 (USD)
+#
+# yaml 파일은 다중 계좌(accounts 리스트) 설정이 필요할 때만 사용하세요.
+# ------------------------------------------------------------------ #
+_yaml_path = os.path.join(config_root, "kis_devlp.yaml")
+
+if os.path.exists(_yaml_path):
+    with open(_yaml_path, encoding="UTF-8") as f:
+        _cfg = yaml.safe_load(f)
+    # 환경변수가 설정되어 있으면 yaml 값을 덮어씀 (EC2/도커 배포 시 .env만으로 운용)
+    if os.getenv("KIS_REAL_APP_KEY"):
+        _cfg["my_app"] = os.getenv("KIS_REAL_APP_KEY")
+    if os.getenv("KIS_REAL_APP_SECRET"):
+        _cfg["my_sec"] = os.getenv("KIS_REAL_APP_SECRET")
+    if os.getenv("KIS_PAPER_APP_KEY"):
+        _cfg["paper_app"] = os.getenv("KIS_PAPER_APP_KEY")
+    if os.getenv("KIS_PAPER_APP_SECRET"):
+        _cfg["paper_sec"] = os.getenv("KIS_PAPER_APP_SECRET")
+    if os.getenv("KIS_HTS_ID"):
+        _cfg["my_htsid"] = os.getenv("KIS_HTS_ID")
+    if os.getenv("KIS_AUTO_TRADING"):
+        _cfg["auto_trading"] = os.getenv("KIS_AUTO_TRADING", "false").lower() == "true"
+    if os.getenv("KIS_DEFAULT_UNIT_AMOUNT"):
+        _cfg["default_unit_amount"] = int(os.getenv("KIS_DEFAULT_UNIT_AMOUNT"))
+    if os.getenv("KIS_DEFAULT_UNIT_AMOUNT_USD"):
+        _cfg["default_unit_amount_usd"] = float(os.getenv("KIS_DEFAULT_UNIT_AMOUNT_USD"))
+    if os.getenv("KIS_MODE"):
+        _cfg["default_mode"] = os.getenv("KIS_MODE")
+    # 계좌 번호 env 설정 시 accounts 리스트에 없으면 추가
+    _existing_real = any(a.get("mode") == "real" for a in _cfg.get("accounts", []))
+    _existing_demo = any(a.get("mode") in ("demo", "paper") for a in _cfg.get("accounts", []))
+    if os.getenv("KIS_REAL_ACCOUNT") and not _existing_real:
+        _cfg.setdefault("accounts", []).append({
+            "name": "실전-메인",
+            "mode": "real",
+            "market": "all",
+            "account": os.getenv("KIS_REAL_ACCOUNT"),
+            "product": os.getenv("KIS_REAL_ACCOUNT_PRODUCT", "01"),
+        })
+    if os.getenv("KIS_PAPER_ACCOUNT") and not _existing_demo:
+        _cfg.setdefault("accounts", []).append({
+            "name": "모의-메인",
+            "mode": "demo",
+            "market": "all",
+            "account": os.getenv("KIS_PAPER_ACCOUNT"),
+            "product": os.getenv("KIS_PAPER_ACCOUNT_PRODUCT", "01"),
+        })
+else:
+    # yaml 없음 — 환경변수만으로 config 구성
+    _cfg = {
+        "my_app":      os.getenv("KIS_REAL_APP_KEY", ""),
+        "my_sec":      os.getenv("KIS_REAL_APP_SECRET", ""),
+        "paper_app":   os.getenv("KIS_PAPER_APP_KEY", ""),
+        "paper_sec":   os.getenv("KIS_PAPER_APP_SECRET", ""),
+        "my_htsid":    os.getenv("KIS_HTS_ID", ""),
+        "default_product_code": os.getenv("KIS_REAL_ACCOUNT_PRODUCT", "01"),
+        "default_unit_amount": int(os.getenv("KIS_DEFAULT_UNIT_AMOUNT", "0") or 0),
+        "default_unit_amount_usd": float(os.getenv("KIS_DEFAULT_UNIT_AMOUNT_USD", "0") or 0),
+        "auto_trading": os.getenv("KIS_AUTO_TRADING", "false").lower() == "true",
+        "default_mode": os.getenv("KIS_MODE", "paper"),
+        "prod": "https://openapi.koreainvestment.com:9443",
+        "vps":  "https://openapivts.koreainvestment.com:29443",
+        "ops":  "ws://ops.koreainvestment.com:21000",
+        "vops": "ws://ops.koreainvestment.com:31000",
+        "my_token": "",
+        "my_agent": "Mozilla/5.0",
+        "accounts": [],
+    }
+    # 계좌 정보를 accounts 리스트로 추가
+    real_acct = os.getenv("KIS_REAL_ACCOUNT", "")
+    paper_acct = os.getenv("KIS_PAPER_ACCOUNT", "")
+    if real_acct:
+        _cfg["accounts"].append({
+            "name": "실전-메인",
+            "mode": "real",
+            "market": "all",
+            "account": real_acct,
+            "product": os.getenv("KIS_REAL_ACCOUNT_PRODUCT", "01"),
+        })
+    if paper_acct:
+        _cfg["accounts"].append({
+            "name": "모의-메인",
+            "mode": "demo",
+            "market": "all",
+            "account": paper_acct,
+            "product": os.getenv("KIS_PAPER_ACCOUNT_PRODUCT", "01"),
+        })
 
 
 DEFAULT_PRODUCT_CODE = str(_cfg.get("default_product_code", "01"))

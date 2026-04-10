@@ -26,7 +26,11 @@ DASHBOARD_JSON = Path(__file__).parent.parent / "examples" / "dashboard" / "publ
 # KIS API 활성화 여부 (환경변수 또는 config 파일 존재 여부로 판단)
 KIS_ENABLED = os.getenv("KIS_ENABLED", "auto").lower()
 if KIS_ENABLED == "auto":
-    KIS_ENABLED = CONFIG_PATH.exists() or bool(os.getenv("KIS_APP_KEY"))
+    KIS_ENABLED = (
+        CONFIG_PATH.exists()
+        or bool(os.getenv("KIS_PAPER_APP_KEY"))
+        or bool(os.getenv("KIS_REAL_APP_KEY"))
+    )
 
 
 def _parse_watch_tickers() -> list[str]:
@@ -51,39 +55,44 @@ class KISClient:
     """한국투자증권 REST API 클라이언트
 
     인증 정보 우선순위:
-      1. 환경변수 KIS_APP_KEY / KIS_APP_SECRET / KIS_MODE
+      1. 환경변수 (모드별 분리):
+           paper: KIS_PAPER_APP_KEY / KIS_PAPER_APP_SECRET
+           real:  KIS_REAL_APP_KEY  / KIS_REAL_APP_SECRET
       2. trading/config/kis_devlp.yaml
     """
 
     def __init__(self):
-        # 환경변수 우선, 없으면 yaml fallback
-        env_key = os.getenv("KIS_APP_KEY")
-        env_sec = os.getenv("KIS_APP_SECRET")
         kis_mode = os.getenv("KIS_MODE", "paper").lower()  # paper(모의) or real(실전)
+
+        # 모드에 따라 해당하는 env var 선택
+        if kis_mode == "paper":
+            env_key = os.getenv("KIS_PAPER_APP_KEY")
+            env_sec = os.getenv("KIS_PAPER_APP_SECRET")
+            env_url = "https://openapivts.koreainvestment.com:29443"
+            yaml_key, yaml_sec, yaml_url = "paper_app", "paper_sec", "vps"
+        else:
+            env_key = os.getenv("KIS_REAL_APP_KEY")
+            env_sec = os.getenv("KIS_REAL_APP_SECRET")
+            env_url = "https://openapi.koreainvestment.com:9443"
+            yaml_key, yaml_sec, yaml_url = "my_app", "my_sec", "prod"
 
         if env_key and env_sec:
             self.app_key = env_key
             self.app_secret = env_sec
-            self.base_url = (
-                "https://openapivts.koreainvestment.com:29443"
-                if kis_mode == "paper"
-                else "https://openapi.koreainvestment.com:9443"
-            )
+            self.base_url = env_url
             logger.info(f"KIS 인증: 환경변수 사용 (mode={kis_mode})")
         elif CONFIG_PATH.exists():
             with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
                 config = yaml.safe_load(f)
-            mode_key = 'paper_app' if kis_mode == "paper" else 'my_app'
-            mode_sec = 'paper_sec' if kis_mode == "paper" else 'my_sec'
-            self.app_key = config.get(mode_key) or config.get('my_app', '')
-            self.app_secret = config.get(mode_sec) or config.get('my_sec', '')
-            self.base_url = config.get('vps' if kis_mode == "paper" else 'prod',
-                                       'https://openapi.koreainvestment.com:9443')
+            self.app_key = config.get(yaml_key) or config.get('my_app', '')
+            self.app_secret = config.get(yaml_sec) or config.get('my_sec', '')
+            self.base_url = config.get(yaml_url, env_url)
             logger.info(f"KIS 인증: kis_devlp.yaml 사용 (mode={kis_mode})")
         else:
             raise RuntimeError(
-                "KIS API 인증 정보 없음. "
-                "환경변수 KIS_APP_KEY/KIS_APP_SECRET을 설정하거나 "
+                f"KIS API 인증 정보 없음 (mode={kis_mode}). "
+                f"환경변수 KIS_{'PAPER' if kis_mode == 'paper' else 'REAL'}_APP_KEY / "
+                f"KIS_{'PAPER' if kis_mode == 'paper' else 'REAL'}_APP_SECRET을 설정하거나 "
                 "trading/config/kis_devlp.yaml을 생성하세요."
             )
 
@@ -507,7 +516,8 @@ def run_realtime(interval_sec: int = 60):
     if not KIS_ENABLED:
         logger.warning(
             "KIS API 비활성화 상태 — 실시간 시세 갱신 스킵. "
-            "KIS_APP_KEY/KIS_APP_SECRET 또는 kis_devlp.yaml 설정 후 재시작하세요."
+            "모의투자: KIS_PAPER_APP_KEY/KIS_PAPER_APP_SECRET, "
+            "실전투자: KIS_REAL_APP_KEY/KIS_REAL_APP_SECRET 설정 후 재시작하세요."
         )
         return
 

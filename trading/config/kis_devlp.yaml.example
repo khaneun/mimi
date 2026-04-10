@@ -1,5 +1,11 @@
 # KIS Developer API 설정 파일 예시
-# 이 파일을 kis_devlp.yaml로 복사한 뒤 실제 값으로 수정하세요.
+#
+# ✅ 권장: 이 yaml 파일 없이 .env 파일만으로 운용 가능합니다.
+#    .env에 KIS_PAPER_APP_KEY, KIS_REAL_APP_KEY 등 환경변수를 설정하면
+#    이 파일이 없어도 동작합니다. 환경변수가 yaml보다 항상 우선 적용됩니다.
+#
+# 이 yaml 파일은 다중 계좌(accounts 리스트)가 필요한 경우에만 사용하세요:
+#   cp trading/config/kis_devlp.yaml.example trading/config/kis_devlp.yaml
 
 # 종목별 기본 매수 금액
 default_unit_amount: 10000       # 한국 주식 (KRW)

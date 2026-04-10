@@ -11,7 +11,6 @@ import os
 import sys
 import logging
 import datetime
-import yaml
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from dotenv import load_dotenv
@@ -29,14 +28,12 @@ sys.path.insert(0, str(PARENT_DIR / "prism-us"))  # prism-us for US modules
 sys.path.insert(0, str(TRADING_DIR))              # trading/ for local imports
 sys.path.insert(0, str(PARENT_DIR))               # project root - MUST be first for 'from trading.xxx'
 
-# Load configuration file
-CONFIG_FILE = TRADING_DIR / "config" / "kis_devlp.yaml"
-with open(CONFIG_FILE, encoding="UTF-8") as f:
-    _cfg = yaml.safe_load(f)
-
-# Import local modules
+# Import local modules — kis_auth loads config from .env or kis_devlp.yaml
 from trading.domestic_stock_trading import DomesticStockTrading
 from trading import kis_auth as ka
+
+# kis_auth에서 이미 .env 또는 yaml을 읽어 _cfg를 구성함
+_cfg = ka._cfg
 from telegram_bot_agent import TelegramBotAgent
 
 # Import US trading module (optional - may not be available)

@@ -13,12 +13,10 @@ import time
 from pathlib import Path
 from typing import Optional, Dict, List, Any
 
-import yaml
-
 # Path to directory where current file is located
 TRADING_DIR = Path(__file__).parent
 
-# kis_auth import (same directory)
+# kis_auth import (same directory) — _cfg is loaded from .env or kis_devlp.yaml
 import sys
 sys.path.insert(0, str(TRADING_DIR))
 import kis_auth as ka
@@ -33,10 +31,8 @@ from kis_auth import (
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Load configuration file
-CONFIG_FILE = TRADING_DIR / "config" / "kis_devlp.yaml"
-with open(CONFIG_FILE, encoding="UTF-8") as f:
-    _cfg = yaml.safe_load(f)
+# kis_auth에서 이미 .env 또는 yaml을 읽어 _cfg를 구성함
+_cfg = ka._cfg
 
 
 class DomesticStockTrading:
