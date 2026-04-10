@@ -97,6 +97,17 @@ case "${CMD}" in
         start_dashboard
         echo ""
         show_status
+        echo ""
+        echo ">>> 텔레그램 기동 알림 발송..."
+        PUBLIC_IP=$(curl -sf \
+            --connect-timeout 2 \
+            -H "X-aws-ec2-metadata-token: $(curl -sf -X PUT \
+                'http://169.254.169.254/latest/api/token' \
+                -H 'X-aws-ec2-metadata-token-ttl-seconds: 60' 2>/dev/null)" \
+            http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null \
+            || hostname -I | awk '{print $1}')
+        "${PYTHON}" "${WORK_DIR}/utils/notify_startup.py" "${PUBLIC_IP}" 2>&1 || \
+            echo "  (텔레그램 알림 실패 — 서비스는 정상 실행중)"
         ;;
     stop)
         stop_service "${PID_DASHBOARD}" "대시보드"

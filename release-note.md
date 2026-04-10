@@ -5,6 +5,106 @@
 
 ---
 
+## v1.1.0 (2026-04-10)
+
+v1.0.0 이후 인프라·설정 전면 개편. 다중 LLM 지원, KIS 설정 분리, AWS 보안 강화, EC2 자동 배포 기반을 확립했습니다.
+
+---
+
+### 다중 LLM 프로바이더 지원
+
+`LLM_PROVIDER` 환경변수 하나로 AI 엔진 전환 가능. 코드 변경 없음.
+
+| 프로바이더 | 설정값 | 비고 |
+|-----------|--------|------|
+| Claude Code CLI | `claude-cli` | 현재 로그인 계정 토큰 사용 (기본) |
+| Anthropic API | `anthropic` | `ANTHROPIC_API_KEY` 필요 |
+| OpenAI ChatGPT | `openai` | `OPENAI_API_KEY` 필요 |
+| Google Gemini | `gemini` | `GEMINI_API_KEY` 필요 |
+
+- `cores/llm_client.py` 완전 재작성 — 단일 `LLMClient` 클래스로 4개 백엔드 통합
+- Claude CLI 타임아웃 120s → 600s 상향 (병렬 에이전트 안정성 개선)
+- `google-genai>=1.0.0` 신규 패키지로 교체 (구버전 `google-generativeai` 제거)
+
+---
+
+### KIS API 설정 분리 및 .env 통합
+
+모의투자/실전투자 인증 정보를 별도 환경변수로 분리.
+
+```
+KIS_PAPER_APP_KEY / KIS_PAPER_APP_SECRET / KIS_PAPER_ACCOUNT  ← 모의투자
+KIS_REAL_APP_KEY  / KIS_REAL_APP_SECRET  / KIS_REAL_ACCOUNT   ← 실전투자
+```
+
+- `trading/config/kis_devlp.yaml` 없이 `.env`만으로 완전 운용 가능
+- 환경변수가 yaml보다 항상 우선 적용 (EC2/Docker 배포 친화)
+- yaml은 다중 계좌(`accounts` 리스트) 운용 시에만 선택 사용
+- `domestic_stock_trading.py`, `portfolio_telegram_reporter.py`: yaml 직접 오픈 제거 → `ka._cfg` 재사용
+
+---
+
+### AWS Secrets Manager 연동
+
+API 키·비밀번호·토큰을 코드/파일에서 완전 분리.
+
+| 항목 | 내용 |
+|------|------|
+| 시크릿 이름 | `mimi/production` (14개 키) |
+| 저장 항목 | KRX/KIS/Telegram/Anthropic/OpenAI/Gemini 자격증명 |
+| EC2 접근 | `mimi-trader-role` IAM 역할 (SecretsManagerReadPolicy) |
+| 로컬 개발 | `.env.local` 파일 (git 제외) |
+
+- `utils/load_secrets.py` 신규: Secrets Manager → os.environ 자동 로더
+  - boto3 없거나 IAM 권한 없으면 `.env` fallback (로컬 개발 무중단)
+  - 기존 env var는 덮어쓰지 않음 (명시적 설정 최우선)
+- `.env`: 시크릿 제거, 비민감 설정값만 유지
+- `.env.local.example`: 로컬 개발용 시크릿 템플릿 추가
+- `realtime_server.py`, `telegram_control_bot.py`, `collect_snapshot.py`: `load_env()` 연결
+
+---
+
+### Telegram 제어 봇 (`pipeline/telegram_control_bot.py`)
+
+EC2 원격 관리 명령어 지원.
+
+| 명령어 | 설명 | 권한 |
+|--------|------|------|
+| `/start`, `/help` | 도움말 | 전체 |
+| `/dashboard` | 대시보드 공개 URL 조회 | 전체 |
+| `/status` | 서비스 상태 확인 | 전체 |
+| `/instance` | EC2 인스턴스 정보 | 전체 |
+| `/stop` | 봇 중단 | 관리자 |
+| `/deploy` | git pull + 재배포 | 관리자 |
+| `/restart <svc>` | 서비스 재시작 | 관리자 |
+| `/logs <svc>` | 최근 로그 조회 | 관리자 |
+
+- `TELEGRAM_ADMIN_IDS` 환경변수로 관리자 제한
+- EC2 IMDSv2로 퍼블릭 IP 자동 조회
+
+---
+
+### EC2 자동 배포 인프라
+
+- **인스턴스**: `mimi-trader` (t3.small, ap-northeast-2, 20GB gp3)
+- **보안그룹**: `mimi-trader-sg` (22/3000/8080 개방)
+- **IAM 역할**: `mimi-trader-role` (Secrets Manager 읽기 전용)
+- `scripts/start.sh`: 서비스 기동 통합 스크립트
+  - `all` / `dashboard` / `realtime` / `stop` / `status` 명령 지원
+  - 기동 완료 후 Telegram으로 퍼블릭 URL 자동 알림
+- `utils/notify_startup.py`: 기동 알림 유틸 (대시보드 URL + KST 시간)
+- rsync 기반 배포 (`.git`, `.venv`, `node_modules` 제외)
+
+---
+
+### 기타 개선
+
+- `scripts/daily_run.sh`: 하드코딩된 Mac 절대경로 → 동적 `WORK_DIR` 변수
+- `requirements.txt`: `mcp-agent` PyPI 공식 패키지로 교체 (삭제된 git repo 참조 제거)
+- `KIS_DEFAULT_UNIT_AMOUNT_USD` 환경변수 추가 (미국 주식 기본 매수 금액)
+
+---
+
 ## v1.0.0 (2026-04-10)
 
 첫 번째 정식 릴리즈입니다. 한국/미국 주식 시장 분석, 자동 매매, 실시간 대시보드를 통합한 AI 투자 플랫폼의 전체 기능이 포함됩니다.
