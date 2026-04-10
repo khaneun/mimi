@@ -174,7 +174,7 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
 
           {/* Daily / Night Selector */}
           {onMarketChange && (
-            <div className="hidden sm:flex items-center">
+            <div className="flex items-center">
               <div className="flex bg-muted/50 rounded-lg p-0.5 gap-0.5">
                 <button
                   onClick={() => onMarketChange("KR")}
@@ -199,28 +199,6 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
           )}
 
         </div>
-
-        {/* Mobile Daily / Night Selector */}
-        {onMarketChange && (
-          <div className="sm:hidden flex gap-1 pb-2">
-            <button
-              onClick={() => onMarketChange("KR")}
-              className={`flex items-center justify-center gap-1 px-3 py-1 rounded-md font-medium text-xs transition-all ${
-                market === "KR" ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white" : "text-muted-foreground bg-muted/50"
-              }`}
-            >
-              <span>☀️</span>
-              <span>Daily</span>
-            </button>
-            <button
-              disabled
-              className="flex items-center justify-center gap-1 px-3 py-1 rounded-md font-medium text-xs text-muted-foreground/30 cursor-not-allowed bg-muted/20"
-            >
-              <span>🌙</span>
-              <span>Night</span>
-            </button>
-          </div>
-        )}
 
         {/* ── Row 2: 메인 메뉴 (4개) ── */}
         <div className="flex items-end gap-0 border-t border-border/20 pt-1">
