@@ -62,6 +62,7 @@ examples/dashboard/node_modules/
 
 # Generated reports & data
 reports/
+!examples/dashboard/app/api/reports/
 pdf_reports/
 telegram_messages/
 *.sqlite

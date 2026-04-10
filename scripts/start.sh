@@ -35,6 +35,7 @@ start_dashboard() {
         echo "  빌드 중..."
         npm run build
     fi
+    REPORTS_DIR="${WORK_DIR}/reports" \
     nohup npm start -- -p "${DASHBOARD_PORT:-3000}" \
         > "${LOG_DIR}/dashboard.log" 2>&1 &
     echo $! > "${PID_DASHBOARD}"

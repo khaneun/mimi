@@ -1,8 +1,9 @@
 {
   "accounts": [
     {
-      "name": "NH투자증권",
-      "type": "NH",
+      "name": "한국투자증권 (모의투자)",
+      "type": "KIS",
+      "account_number": "50181784",
       "stocks": [
         {
           "name": "SK하이닉스",
@@ -154,8 +155,9 @@
       ]
     },
     {
-      "name": "미래에셋증권",
-      "type": "미래에셋",
+      "name": "한국투자증권 (실전투자)",
+      "type": "KIS",
+      "account_number": "67921008",
       "stocks": []
     }
   ]
