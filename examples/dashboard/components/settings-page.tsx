@@ -1,7 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Settings, RefreshCw, CheckCircle, AlertCircle, Building2, ToggleLeft, ToggleRight } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import {
+  Settings, RefreshCw, CheckCircle, AlertCircle, Building2,
+  ToggleLeft, ToggleRight, Bot, LogIn, LogOut, ExternalLink, Copy, Loader2
+} from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -13,6 +16,17 @@ interface SettingsData {
   available_modes: { value: string; label: string; description: string }[]
 }
 
+interface ClaudeStatus {
+  installed: boolean
+  logged_in: boolean
+  auth_method?: string
+  provider?: string
+  login_pending?: boolean
+  login_url?: string | null
+  bin_path?: string
+  error?: string
+}
+
 export function SettingsPage() {
   const { language } = useLanguage()
   const [settings, setSettings] = useState<SettingsData | null>(null)
@@ -22,8 +36,19 @@ export function SettingsPage() {
   const [error, setError] = useState<string | null>(null)
   const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "done" | "error">("idle")
 
+  // Claude CLI 상태
+  const [claudeStatus, setClaudeStatus] = useState<ClaudeStatus | null>(null)
+  const [claudeLoading, setClaudeLoading] = useState(false)
+  const [loginUrl, setLoginUrl] = useState<string | null>(null)
+  const [loginPolling, setLoginPolling] = useState(false)
+  const [testResult, setTestResult] = useState<"idle" | "testing" | "ok" | "fail">("idle")
+  const [copied, setCopied] = useState(false)
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
   useEffect(() => {
     fetchSettings()
+    fetchClaudeStatus()
+    return () => { if (pollRef.current) clearInterval(pollRef.current) }
   }, [])
 
   const fetchSettings = async () => {
@@ -33,10 +58,115 @@ export function SettingsPage() {
       const data = await res.json()
       setSettings(data)
       setSavedMode(data.kis_mode)
-    } catch (e) {
+    } catch {
       setError("설정을 불러오지 못했습니다.")
     }
     setLoading(false)
+  }
+
+  const fetchClaudeStatus = async () => {
+    setClaudeLoading(true)
+    try {
+      const res = await fetch("/api/claude-login")
+      const data = await res.json()
+      setClaudeStatus(data)
+      if (data.login_pending && data.login_url) {
+        setLoginUrl(data.login_url)
+        startPolling()
+      }
+    } catch {}
+    setClaudeLoading(false)
+  }
+
+  const startPolling = () => {
+    setLoginPolling(true)
+    if (pollRef.current) clearInterval(pollRef.current)
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch("/api/claude-login")
+        const data = await res.json()
+        setClaudeStatus(data)
+        if (data.logged_in) {
+          stopPolling()
+          setLoginUrl(null)
+        }
+      } catch {}
+    }, 3000)
+    // 5분 후 자동 중지
+    setTimeout(() => stopPolling(), 300000)
+  }
+
+  const stopPolling = () => {
+    setLoginPolling(false)
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null }
+  }
+
+  const handleStartLogin = async () => {
+    setError(null)
+    setLoginUrl(null)
+    try {
+      const res = await fetch("/api/claude-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "start-login" }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        setLoginUrl(data.url)
+        startPolling()
+      } else {
+        setError(data.error || "로그인 URL을 가져오지 못했습니다.")
+      }
+    } catch (e) {
+      setError("로그인 시작 실패")
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/claude-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "logout" }),
+      })
+      setLoginUrl(null)
+      stopPolling()
+      await fetchClaudeStatus()
+    } catch {}
+  }
+
+  const handleCancelLogin = async () => {
+    await fetch("/api/claude-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "cancel-login" }),
+    })
+    setLoginUrl(null)
+    stopPolling()
+    await fetchClaudeStatus()
+  }
+
+  const handleTest = async () => {
+    setTestResult("testing")
+    try {
+      const res = await fetch("/api/claude-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "test" }),
+      })
+      const data = await res.json()
+      setTestResult(data.success ? "ok" : "fail")
+      setTimeout(() => setTestResult("idle"), 5000)
+    } catch {
+      setTestResult("fail")
+      setTimeout(() => setTestResult("idle"), 5000)
+    }
+  }
+
+  const handleCopyUrl = async (url: string) => {
+    await navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   const handleModeChange = async (mode: string) => {
@@ -56,7 +186,7 @@ export function SettingsPage() {
       } else {
         setError(data.error || "설정 저장 실패")
       }
-    } catch (e) {
+    } catch {
       setError("설정 저장 중 오류가 발생했습니다.")
     }
     setSaving(false)
@@ -71,15 +201,10 @@ export function SettingsPage() {
         body: JSON.stringify({ mode: settings?.kis_mode }),
       })
       const data = await res.json()
-      if (data.success) {
-        setSyncStatus("done")
-        setTimeout(() => setSyncStatus("idle"), 3000)
-      } else {
-        setSyncStatus("error")
-        setError(data.error || "동기화 실패")
-        setTimeout(() => setSyncStatus("idle"), 5000)
-      }
-    } catch (e) {
+      setSyncStatus(data.success ? "done" : "error")
+      if (!data.success) setError(data.error || "동기화 실패")
+      setTimeout(() => setSyncStatus("idle"), 3000)
+    } catch {
       setSyncStatus("error")
       setError("포트폴리오 동기화 중 오류가 발생했습니다.")
       setTimeout(() => setSyncStatus("idle"), 5000)
@@ -105,9 +230,7 @@ export function SettingsPage() {
           <Settings className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h2 className="text-xl font-bold">
-            {language === "ko" ? "설정" : "Settings"}
-          </h2>
+          <h2 className="text-xl font-bold">{language === "ko" ? "설정" : "Settings"}</h2>
           <p className="text-sm text-muted-foreground">
             {language === "ko" ? "투자 계좌 및 시스템 설정을 관리합니다" : "Manage account and system settings"}
           </p>
@@ -119,10 +242,162 @@ export function SettingsPage() {
         <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
+          <button onClick={() => setError(null)} className="ml-auto text-red-400/60 hover:text-red-400">✕</button>
         </div>
       )}
 
-      {/* KIS 계좌 설정 */}
+      {/* ─── Claude CLI 로그인 ─── */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Bot className="w-5 h-5 text-primary" />
+            <CardTitle className="text-base">Claude CLI 인증</CardTitle>
+          </div>
+          <CardDescription>
+            {language === "ko"
+              ? "AI 에이전트 실행에 필요한 Claude Code CLI 로그인 상태를 관리합니다"
+              : "Manage Claude Code CLI login required for AI agent execution"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* 상태 표시 */}
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/30">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Claude CLI</span>
+              {claudeStatus?.bin_path && (
+                <span className="text-[10px] text-muted-foreground font-mono">{claudeStatus.bin_path}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {claudeLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              ) : claudeStatus?.installed === false ? (
+                <Badge variant="outline" className="border-red-500/40 text-red-400 text-[11px]">미설치</Badge>
+              ) : claudeStatus?.logged_in ? (
+                <Badge variant="outline" className="border-emerald-500/40 text-emerald-400 text-[11px]">
+                  <CheckCircle className="w-3 h-3 mr-1" />
+                  로그인됨
+                </Badge>
+              ) : loginPolling ? (
+                <Badge variant="outline" className="border-amber-500/40 text-amber-400 text-[11px]">
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                  인증 대기중
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="border-zinc-500/40 text-zinc-400 text-[11px]">
+                  <AlertCircle className="w-3 h-3 mr-1" />
+                  로그인 필요
+                </Badge>
+              )}
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={fetchClaudeStatus}>
+                <RefreshCw className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          </div>
+
+          {/* 로그인 URL 표시 */}
+          {loginUrl && (
+            <div className="space-y-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
+                <p className="text-sm font-semibold text-amber-300">
+                  {language === "ko" ? "브라우저에서 로그인을 완료해주세요" : "Complete login in your browser"}
+                </p>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {language === "ko"
+                  ? "아래 URL을 브라우저에서 열고 Claude 계정으로 로그인하세요. 완료되면 자동으로 상태가 업데이트됩니다."
+                  : "Open the URL below in your browser and sign in with your Claude account. Status will update automatically."}
+              </p>
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border/30">
+                <span className="text-xs font-mono text-foreground break-all flex-1 leading-relaxed">
+                  {loginUrl}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  className="gap-1.5 flex-1"
+                  onClick={() => handleCopyUrl(loginUrl)}
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  {copied ? "복사됨!" : (language === "ko" ? "URL 복사" : "Copy URL")}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5"
+                  asChild
+                >
+                  <a href={loginUrl} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    {language === "ko" ? "열기" : "Open"}
+                  </a>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleCancelLogin}
+                  className="text-muted-foreground"
+                >
+                  {language === "ko" ? "취소" : "Cancel"}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* 액션 버튼 */}
+          <div className="flex flex-wrap gap-2">
+            {!claudeStatus?.logged_in && !loginUrl && (
+              <Button
+                onClick={handleStartLogin}
+                className="gap-2"
+                disabled={loginPolling}
+              >
+                <LogIn className="w-4 h-4" />
+                {language === "ko" ? "Claude 로그인" : "Sign in to Claude"}
+              </Button>
+            )}
+
+            {claudeStatus?.logged_in && (
+              <>
+                <Button
+                  onClick={handleTest}
+                  variant="outline"
+                  className="gap-2"
+                  disabled={testResult === "testing"}
+                >
+                  {testResult === "testing" ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" />{language === "ko" ? "테스트 중..." : "Testing..."}</>
+                  ) : testResult === "ok" ? (
+                    <><CheckCircle className="w-4 h-4 text-emerald-400" />{language === "ko" ? "정상 작동" : "Working"}</>
+                  ) : testResult === "fail" ? (
+                    <><AlertCircle className="w-4 h-4 text-red-400" />{language === "ko" ? "오류 발생" : "Error"}</>
+                  ) : (
+                    <><Bot className="w-4 h-4" />{language === "ko" ? "동작 테스트" : "Test CLI"}</>
+                  )}
+                </Button>
+                <Button
+                  onClick={handleLogout}
+                  variant="ghost"
+                  className="gap-2 text-muted-foreground"
+                >
+                  <LogOut className="w-4 h-4" />
+                  {language === "ko" ? "로그아웃" : "Logout"}
+                </Button>
+              </>
+            )}
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            {language === "ko"
+              ? "* Claude Code CLI는 claude.ai 계정으로 로그인합니다. API 키가 필요 없습니다."
+              : "* Claude Code CLI signs in with your claude.ai account. No API key required."}
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* ─── KIS 계좌 설정 ─── */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -160,10 +435,9 @@ export function SettingsPage() {
                 >
                   {isActive && (
                     <span className="absolute top-2 right-2">
-                      {m.value === "paper"
-                        ? <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-500"><CheckCircle className="w-3 h-3 text-white" /></span>
-                        : <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500"><CheckCircle className="w-3 h-3 text-white" /></span>
-                      }
+                      <span className={`flex items-center justify-center w-5 h-5 rounded-full ${m.value === "paper" ? "bg-blue-500" : "bg-emerald-500"}`}>
+                        <CheckCircle className="w-3 h-3 text-white" />
+                      </span>
                     </span>
                   )}
                   <div className="flex items-center gap-2">
@@ -191,11 +465,8 @@ export function SettingsPage() {
             })}
           </div>
 
-          {/* 현재 모드 표시 */}
           <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/30">
-            <div className="text-sm text-muted-foreground">
-              {language === "ko" ? "현재 설정" : "Current setting"}
-            </div>
+            <span className="text-sm text-muted-foreground">{language === "ko" ? "현재 설정" : "Current"}</span>
             <Badge
               variant="outline"
               className={settings?.kis_mode === "real"
@@ -209,20 +480,14 @@ export function SettingsPage() {
 
           {saving && (
             <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <span className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin inline-block" />
+              <Loader2 className="w-3 h-3 animate-spin inline" />
               {language === "ko" ? "설정 저장 중..." : "Saving..."}
-            </p>
-          )}
-          {!saving && savedMode && savedMode === settings?.kis_mode && (
-            <p className="text-xs text-emerald-400 flex items-center gap-1">
-              <CheckCircle className="w-3 h-3" />
-              {language === "ko" ? "설정이 저장되었습니다" : "Settings saved"}
             </p>
           )}
         </CardContent>
       </Card>
 
-      {/* 포트폴리오 동기화 */}
+      {/* ─── 포트폴리오 동기화 ─── */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -237,57 +502,35 @@ export function SettingsPage() {
               : "Fetch live balance from KIS API"}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              {language === "ko"
-                ? "포트폴리오 탭의 종목 데이터를 KIS 계좌 잔고로 업데이트합니다."
-                : "Update portfolio holdings with actual KIS account balance."}
-            </div>
-          </div>
+        <CardContent className="space-y-3">
           <Button
             onClick={handlePortfolioSync}
             disabled={syncStatus === "syncing"}
-            className="gap-2"
             variant={syncStatus === "done" ? "outline" : "default"}
+            className="gap-2"
           >
             {syncStatus === "syncing" ? (
-              <>
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                {language === "ko" ? "동기화 중..." : "Syncing..."}
-              </>
+              <><RefreshCw className="w-4 h-4 animate-spin" />{language === "ko" ? "동기화 중..." : "Syncing..."}</>
             ) : syncStatus === "done" ? (
-              <>
-                <CheckCircle className="w-4 h-4 text-emerald-400" />
-                {language === "ko" ? "동기화 완료" : "Synced"}
-              </>
+              <><CheckCircle className="w-4 h-4 text-emerald-400" />{language === "ko" ? "동기화 완료" : "Synced"}</>
             ) : syncStatus === "error" ? (
-              <>
-                <AlertCircle className="w-4 h-4 text-red-400" />
-                {language === "ko" ? "동기화 실패" : "Sync Failed"}
-              </>
+              <><AlertCircle className="w-4 h-4 text-red-400" />{language === "ko" ? "동기화 실패" : "Failed"}</>
             ) : (
-              <>
-                <RefreshCw className="w-4 h-4" />
-                {language === "ko" ? "지금 동기화" : "Sync Now"}
-              </>
+              <><RefreshCw className="w-4 h-4" />{language === "ko" ? "지금 동기화" : "Sync Now"}</>
             )}
           </Button>
-
           <p className="text-xs text-muted-foreground">
             {language === "ko"
-              ? "* KIS API가 설정된 경우에만 동작합니다. 장 운영 시간(09:00~15:30)에 사용하세요."
+              ? "* KIS API 키가 설정된 경우에만 동작합니다. 장 운영 시간(09:00~15:30)에 사용하세요."
               : "* Works only when KIS API is configured. Use during market hours (09:00~15:30)."}
           </p>
         </CardContent>
       </Card>
 
-      {/* 시스템 정보 */}
+      {/* ─── 시스템 정보 ─── */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">
-            {language === "ko" ? "시스템 정보" : "System Info"}
-          </CardTitle>
+          <CardTitle className="text-base">{language === "ko" ? "시스템 정보" : "System Info"}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2 text-sm">
