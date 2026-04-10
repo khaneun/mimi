@@ -312,49 +312,6 @@ function DashboardContent() {
           <div className="space-y-6">
             <PageHeaderBlock tabId="dashboard" onRefresh={handlePageRefresh} />
 
-            {/* 투자 현황 배너 — KIS 우선, fallback: dashboard_data */}
-            {(() => {
-              const rt = kisPortfolio?.summary ?? data.summary?.real_trading
-              if (!rt) return null
-              const deposit = rt.deposit ?? 0
-              const evalAmount = rt.total_eval_amount ?? 0
-              const profitAmount = rt.total_profit_amount ?? 0
-              const profitRate = rt.total_profit_rate ?? 0
-              const isProfit = profitAmount >= 0
-              return (
-                <div className={`rounded-2xl p-5 border-2 ${
-                  isProfit
-                    ? "bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border-emerald-500/30"
-                    : "bg-gradient-to-r from-red-500/10 to-orange-500/10 border-red-500/30"
-                }`}>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                    {language === "ko" ? "투자 현황" : "Portfolio Status"}
-                    {kisMode === "paper" && (
-                      <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 normal-case">모의</span>
-                    )}
-                    {kisMode === "real" && (
-                      <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 normal-case">실전</span>
-                    )}
-                  </p>
-                  <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                    <span className="text-sm text-muted-foreground">
-                      {language === "ko" ? "예수금" : "Deposit"}{" "}
-                      <span className="text-base font-semibold text-foreground">{formatCurrency(deposit, market, language as "ko" | "en")}</span>
-                    </span>
-                    <span className="text-muted-foreground/40">→</span>
-                    <span className="text-sm text-muted-foreground">
-                      {language === "ko" ? "평가금" : "Valuation"}{" "}
-                      <span className="text-base font-semibold text-foreground">{formatCurrency(evalAmount, market, language as "ko" | "en")}</span>
-                    </span>
-                    <span className={`text-xl font-bold ${isProfit ? "text-red-400" : "text-blue-400"}`}>
-                      {formatCurrency(profitAmount, market, language as "ko" | "en")}
-                      <span className="text-base ml-1">({profitRate >= 0 ? "+" : ""}{(profitRate ?? 0).toFixed(2)}%)</span>
-                    </span>
-                  </div>
-                </div>
-              )
-            })()}
-
             {/* 핵심 지표 카드 */}
             <MetricsCards
               summary={data.summary}

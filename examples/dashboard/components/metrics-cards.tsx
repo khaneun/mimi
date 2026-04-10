@@ -96,45 +96,32 @@ export function MetricsCards({
               </div>
             </div>
           )}
-          <Card className="border-border/50">
-            <CardContent className="p-5">
-              <div className="grid grid-cols-3 divide-x divide-border/40">
-                {/* 총자산 */}
-                <div className="pr-5">
-                  <p className="text-xs text-muted-foreground mb-2">{t("metrics.realTotalAssets")}</p>
-                  <p className="text-2xl font-bold text-foreground">{formatCurrency(totalAssets)}</p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    {language === "ko" ? "평가" : "Holdings"} {formatCurrency(rt.total_eval_amount || 0)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("metrics.deposit")} {formatCurrency(totalCash)} · {rt.total_stocks || 0}{t("metrics.stocks")}
-                  </p>
-                </div>
-                {/* 평가손익 */}
-                <div className="px-5">
-                  <p className="text-xs text-muted-foreground mb-2">{t("metrics.realHoldingsProfit")}</p>
-                  <p className={`text-2xl font-bold ${isRealProfit ? "text-red-400" : "text-blue-400"}`}>
-                    {formatCurrency(rt.total_profit_amount || 0)}
-                  </p>
-                  <p className={`text-sm font-semibold mt-2 ${isRealProfit ? "text-red-400" : "text-blue-400"}`}>
-                    {formatPercent(rt.total_profit_rate || 0)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{t("metrics.excludeRealized")}</p>
-                </div>
-                {/* 현금&안정성 */}
-                <div className="pl-5">
-                  <p className="text-xs text-muted-foreground mb-2">{t("metrics.cashAndStability")}</p>
-                  <p className="text-2xl font-bold text-foreground">{cashRatio.toFixed(1)}%</p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    {language === "ko" ? "현금" : "Cash"} {formatCurrency(totalCash)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("metrics.investmentRatio")} {investmentRatio.toFixed(1)}%
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-3 gap-3">
+            {/* Card 1: 총자산 + 종목수 */}
+            <Card className="border-border/50">
+              <CardContent className="p-5">
+                <p className="text-2xl font-bold text-foreground">{formatCurrency(totalAssets)}</p>
+                <p className="text-sm text-muted-foreground mt-1">{rt.total_stocks || 0}{t("metrics.stocks")}</p>
+              </CardContent>
+            </Card>
+            {/* Card 2: 평가손익 + 수익률 */}
+            <Card className="border-border/50">
+              <CardContent className="p-5">
+                <p className={`text-2xl font-bold ${isRealProfit ? "text-red-400" : "text-blue-400"}`}>
+                  {formatCurrency(rt.total_profit_amount || 0)}
+                </p>
+                <p className={`text-sm font-semibold mt-1 ${isRealProfit ? "text-red-400" : "text-blue-400"}`}>
+                  {formatPercent(rt.total_profit_rate || 0)}
+                </p>
+              </CardContent>
+            </Card>
+            {/* Card 3: 현금비율 */}
+            <Card className="border-border/50">
+              <CardContent className="p-5">
+                <p className="text-2xl font-bold text-foreground">{cashRatio.toFixed(1)}%</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
 
