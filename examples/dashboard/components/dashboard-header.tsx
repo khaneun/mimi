@@ -43,7 +43,7 @@ const MAIN_MENUS = [
   },
   {
     id: "analysis",
-    labelKo: "시장 분석",
+    labelKo: "시황",
     labelEn: "Analysis",
     icon: TrendingUp,
     activeColor: "from-emerald-600 to-teal-600",
@@ -54,7 +54,7 @@ const MAIN_MENUS = [
   },
   {
     id: "admin",
-    labelKo: "관리자",
+    labelKo: "관리",
     labelEn: "Admin",
     icon: ShieldCheck,
     activeColor: "from-violet-600 to-purple-600",
@@ -296,7 +296,7 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
                 `}
               >
                 <Icon className="w-4 h-4" />
-                <span className="hidden sm:inline">{language === "ko" ? menu.labelKo : menu.labelEn}</span>
+                <span>{language === "ko" ? menu.labelKo : menu.labelEn}</span>
                 {/* 활성 하단 강조선 */}
                 {isActive && (
                   <span className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r ${menu.activeColor} rounded-full`} />

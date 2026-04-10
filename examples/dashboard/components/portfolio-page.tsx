@@ -370,7 +370,7 @@ export function PortfolioPage() {
           <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
           {syncing
             ? (language === "ko" ? "KIS 조회 중..." : "Fetching...")
-            : (language === "ko" ? "KIS 잔고 새로고침" : "Refresh from KIS")}
+            : (language === "ko" ? "새로고침" : "Refresh")}
         </Button>
       </div>
 
