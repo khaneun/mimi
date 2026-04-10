@@ -104,7 +104,7 @@ function getActiveMainMenu(tab: TabType): MainMenuId {
 // ──────────────────────────────────────────────────────────────
 
 export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = "KR", onMarketChange }: DashboardHeaderProps) {
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
 
   const activeMainMenuId = getActiveMainMenu(activeTab)
   const activeMainMenu = MAIN_MENUS.find(m => m.id === activeMainMenuId)!
