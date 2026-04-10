@@ -1,4 +1,5 @@
 #!/bin/bash
-cd /Users/jacob119/dev/tools/prism-alpha
+cd "$(dirname "$0")/.."
 source .venv/bin/activate
-python3 pipeline/news_crawler.py
+export PYTHONPATH="$(pwd)"
+python3 -m pipeline.news_crawler

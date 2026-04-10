@@ -3,10 +3,11 @@
 # 사용: ./scripts/daily_run.sh [macro|stocks|all]
 # all 모드: 매크로분석 + 종목분석 + HTML생성 + 아카이브 + 대시보드 갱신(시세/뉴스/관심종목)
 
-WORK_DIR="/Users/jacob119/dev/tools/prism-alpha"
+WORK_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 LOG_DIR="${WORK_DIR}/logs"
 LOG_FILE="${LOG_DIR}/pipeline_$(date +%Y-%m-%d).log"
 VENV="${WORK_DIR}/.venv/bin/activate"
+export PYTHONPATH="${WORK_DIR}"
 
 mkdir -p "${LOG_DIR}"
 

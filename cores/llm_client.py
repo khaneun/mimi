@@ -41,14 +41,14 @@ class LLMClient:
                 [self.claude_path, "-p", prompt, "--output-format", "text"],
                 capture_output=True,
                 text=True,
-                timeout=120,
+                timeout=600,
             )
             if result.returncode != 0:
                 logger.error(f"claude CLI 실행 실패 (rc={result.returncode}): {result.stderr}")
                 return ""
             return result.stdout.strip()
         except subprocess.TimeoutExpired:
-            logger.error("claude CLI 타임아웃 (120초)")
+            logger.error("claude CLI 타임아웃 (600초)")
             return ""
         except FileNotFoundError:
             logger.error(f"claude CLI를 찾을 수 없습니다: {self.claude_path}")

@@ -2,7 +2,7 @@ streamlit>=1.10.0
 pandas~=2.2.3
 numpy~=2.2.3
 # mcp-agent>=0.2.6  # TODO: upstream PR #648 머지 후 복원
-mcp-agent @ git+https://github.com/jacob119/mcp-agent.git@feature/skip-reasoning-effort-with-tools-gpt54
+mcp-agent>=0.2.6  # 공식 PyPI 버전으로 대체 (커스텀 포크 레포 삭제됨)
 requests~=2.32.3
 aiohttp~=3.11.13
 python-dateutil~=2.9.0.post0

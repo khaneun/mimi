@@ -3,7 +3,7 @@
 # 대시보드에서 fetch하여 표시
 
 CLAUDE="${HOME}/.local/bin/claude"
-OUTPUT_DIR="/Users/jacob119/dev/tools/prism-alpha/examples/dashboard/public"
+OUTPUT_DIR="$(cd "$(dirname "$0")/.." && pwd)/examples/dashboard/public"
 
 # 현재 모델
 MODEL=$("$CLAUDE" -p "/model" --output-format text 2>/dev/null | head -1 || echo "claude-sonnet-4-6")

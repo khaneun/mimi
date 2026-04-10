@@ -14,7 +14,7 @@
 # ================================================================
 
 set -e
-WORK_DIR="/Users/jacob119/dev/tools/prism-alpha"
+WORK_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 LOG_DIR="${WORK_DIR}/logs"
 LOG_FILE="${LOG_DIR}/harness_$(date +%Y-%m-%d).log"
 CLAUDE="${HOME}/.local/bin/claude"
@@ -44,6 +44,7 @@ log "=== Phase 0: DATA SNAPSHOT ==="
 
 SNAPSHOT="${STATE_DIR}/snapshot.json"
 VENV="${WORK_DIR}/.venv/bin/activate"
+export PYTHONPATH="${WORK_DIR}"
 
 cd "${WORK_DIR}" && source "${VENV}" 2>/dev/null
 python3 "${WORK_DIR}/scripts/collect_snapshot.py" 2>&1 | tee -a "${LOG_FILE}"

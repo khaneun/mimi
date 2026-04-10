@@ -1,6 +1,7 @@
 #!/bin/bash
-cd /Users/jacob119/dev/tools/prism-alpha
+cd "$(dirname "$0")/.."
 source .venv/bin/activate
+export PYTHONPATH="$(pwd)"
 
 # 환경변수 로드
 export $(grep -v '^#' .env | xargs) 2>/dev/null
