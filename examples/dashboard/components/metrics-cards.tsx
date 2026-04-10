@@ -1,6 +1,6 @@
 "use client"
 
-import { TrendingUp, TrendingDown, Wallet, DollarSign, PiggyBank, Zap, Clock } from "lucide-react"
+import { TrendingUp, TrendingDown, Wallet, DollarSign, PiggyBank, Zap, Clock, Loader2 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useLanguage } from "@/components/language-provider"
 import { formatCurrency as formatCurrencyUtil } from "@/lib/currency"
@@ -23,6 +23,7 @@ interface MetricsCardsProps {
   tradingHistoryWinCount?: number
   tradingHistoryLossCount?: number
   market?: Market
+  kisLoading?: boolean
 }
 
 export function MetricsCards({
@@ -37,7 +38,8 @@ export function MetricsCards({
   tradingHistoryWinRate = 0,
   tradingHistoryWinCount = 0,
   tradingHistoryLossCount = 0,
-  market = "KR"
+  market = "KR",
+  kisLoading = false
 }: MetricsCardsProps) {
   const { language, t } = useLanguage()
 
@@ -175,7 +177,15 @@ export function MetricsCards({
             ) : null}
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-4">
+          {kisLoading && (
+            <div className="absolute inset-0 z-10 bg-background/60 backdrop-blur-[2px] rounded-lg flex items-center justify-center">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-xs">{language === "ko" ? "KIS 조회 중..." : "Fetching..."}</span>
+              </div>
+            </div>
+          )}
           {realMetrics.map((metric, index) => {
             const Icon = metric.icon
             return (
@@ -184,7 +194,7 @@ export function MetricsCards({
                 className="relative overflow-hidden border-border/50 hover:border-border transition-all duration-300 hover:shadow-lg"
               >
                 <div className={`absolute inset-0 bg-gradient-to-br ${metric.gradient} opacity-50`} />
-                <CardContent className="relative p-6">
+                <CardContent className="relative p-4">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div className="p-2 rounded-lg bg-background/80 backdrop-blur-sm">
@@ -233,7 +243,7 @@ export function MetricsCards({
                 className="relative overflow-hidden border-border/50 hover:border-border transition-all duration-300 hover:shadow-lg"
               >
                 <div className={`absolute inset-0 bg-gradient-to-br ${metric.gradient} opacity-50`} />
-                <CardContent className="relative p-6">
+                <CardContent className="relative p-4">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div className="p-2 rounded-lg bg-background/80 backdrop-blur-sm">

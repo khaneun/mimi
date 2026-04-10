@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef, Suspense } from "react"
+import { useState, useEffect, useRef, Suspense, ElementType } from "react"
+import { Brain, History, Eye, BarChart3, Lightbulb, Newspaper, FileBarChart, Wallet, Bot, Play, DollarSign, Settings as SettingsIcon } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { OperatingCostsCard } from "@/components/operating-costs-card"
@@ -63,6 +64,7 @@ function DashboardContent() {
   const prevDataHash = useRef<string>("")
   const [kisPortfolio, setKisPortfolio] = useState<{ summary: any; stocks: any[] } | null>(null)
   const [kisMode, setKisMode] = useState<string>("paper")
+  const [kisLoading, setKisLoading] = useState<boolean>(false)
 
   // URL에서 탭 파라미터 읽기
   const tabParam = searchParams.get("tab") as TabType | null
@@ -163,6 +165,7 @@ function DashboardContent() {
     const handler = async (e: Event) => {
       const newMode = (e as CustomEvent).detail.mode as string
       setKisMode(newMode)   // ① 즉시 반영
+      setKisLoading(true)   // ② 로딩 시작 (기존 데이터 유지)
       try {
         const res = await fetch("/api/portfolio", {
           method: "POST",
@@ -173,15 +176,54 @@ function DashboardContent() {
         if (data.success && data.data) {
           applyPortfolioData(data.data)
         } else {
-          fetch("/api/portfolio?" + Date.now()).then(r => r.json()).then(applyPortfolioData).catch(() => {})
+          await fetch("/api/portfolio?" + Date.now()).then(r => r.json()).then(applyPortfolioData).catch(() => {})
         }
       } catch {
-        fetch("/api/portfolio?" + Date.now()).then(r => r.json()).then(applyPortfolioData).catch(() => {})
+        await fetch("/api/portfolio?" + Date.now()).then(r => r.json()).then(applyPortfolioData).catch(() => {})
+      } finally {
+        setKisLoading(false) // ③ 로딩 완료
       }
     }
     window.addEventListener("kis-mode-changed", handler)
     return () => window.removeEventListener("kis-mode-changed", handler)
   }, [])
+
+  // 하위 메뉴 페이지 헤더 데이터
+  const PAGE_HEADERS: Record<string, { icon: ElementType; labelKo: string; labelEn: string; descKo: string; descEn: string }> = {
+    "dashboard":    { icon: BarChart3,    labelKo: "보유 현황",       labelEn: "Holdings Overview", descKo: "보유 종목 현황 및 투자 요약",           descEn: "Holdings status and investment summary" },
+    "ai-decisions": { icon: Brain,        labelKo: "AI 보유 분석",    labelEn: "AI Analysis",       descKo: "AI 분석 기반 보유 종목 판단 내역",       descEn: "AI-based holding decisions" },
+    "trading":      { icon: History,      labelKo: "거래 내역",       labelEn: "Trade History",     descKo: "매매 완료 내역 및 수익 분석",            descEn: "Completed trades and performance" },
+    "watchlist":    { icon: Eye,          labelKo: "관심 종목",       labelEn: "Watchlist",         descKo: "관심 종목 모니터링",                    descEn: "Monitor and track watchlist stocks" },
+    "insights":     { icon: Lightbulb,    labelKo: "매매 인사이트",   labelEn: "Trading Insights",  descKo: "매매 패턴 및 트리거 신뢰도 분석",        descEn: "Trading patterns and trigger analysis" },
+    "news":         { icon: Newspaper,    labelKo: "실시간 뉴스키워드", labelEn: "Live News",        descKo: "실시간 뉴스 키워드 트렌드",              descEn: "Real-time news keyword trends" },
+    "jeoningu-lab": { icon: FileBarChart, labelKo: "리포트",          labelEn: "Reports",           descKo: "AI 분석 리포트 아카이브",               descEn: "AI analysis reports archive" },
+    "portfolio":    { icon: Wallet,       labelKo: "포트폴리오 관리", labelEn: "Portfolio",         descKo: "KIS 계좌 포트폴리오 관리",              descEn: "Manage KIS account portfolio" },
+    "agents":       { icon: Bot,          labelKo: "AI 에이전트 현황", labelEn: "AI Agents",        descKo: "AI 에이전트 팀 현황 및 프롬프트",        descEn: "AI agent team and prompts" },
+    "execution":    { icon: Play,         labelKo: "파이프라인 실행", labelEn: "Pipeline",          descKo: "분석 파이프라인 실행 및 모니터링",        descEn: "Run and monitor analysis pipeline" },
+    "costs":        { icon: DollarSign,   labelKo: "비용 현황",       labelEn: "Costs",             descKo: "프로젝트 운영 비용",                    descEn: "Project operating costs" },
+    "settings":     { icon: SettingsIcon, labelKo: "설정",            labelEn: "Settings",          descKo: "투자 모드 및 시스템 설정",              descEn: "Investment mode and system settings" },
+  }
+
+  const PageHeaderBlock = ({ tabId }: { tabId: string }) => {
+    const hdr = PAGE_HEADERS[tabId]
+    if (!hdr) return null
+    const Icon = hdr.icon
+    return (
+      <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50">
+          <Icon className="w-4 h-4 text-muted-foreground" />
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-foreground leading-tight">
+            {language === "ko" ? hdr.labelKo : hdr.labelEn}
+          </h2>
+          <p className="text-xs text-muted-foreground/70">
+            {language === "ko" ? hdr.descKo : hdr.descEn}
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   const handleStockClick = (stock: Holding, isReal: boolean) => {
     setSelectedStock(stock)
@@ -237,6 +279,7 @@ function DashboardContent() {
       <main className="container mx-auto px-4 py-6 max-w-[1600px]">
         {activeTab === "dashboard" && (
           <div className="space-y-6">
+            <PageHeaderBlock tabId="dashboard" />
             {/* 실시간 시장 지표 배너 */}
             {data.realtime && (
               <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
@@ -313,6 +356,7 @@ function DashboardContent() {
                 data.trading_history?.filter(t => t.profit_rate <= 0).length || 0
               }
               market={market}
+              kisLoading={kisLoading}
             />
 
             {/* 투자 현황 배너 — KIS 우선, fallback: dashboard_data */}
@@ -395,31 +439,79 @@ function DashboardContent() {
           </div>
         )}
 
-        {activeTab === "ai-decisions" && <AIDecisionsPage data={data} market={market} />}
+        {activeTab === "ai-decisions" && (
+          <div className="space-y-4">
+            <PageHeaderBlock tabId="ai-decisions" />
+            <AIDecisionsPage data={data} market={market} />
+          </div>
+        )}
 
-        {activeTab === "trading" && <TradingHistoryPage history={data.trading_history ?? []} summary={data.summary} prismPerformance={data.prism_performance ?? []} marketCondition={data.market_condition ?? []} market={market} />}
+        {activeTab === "trading" && (
+          <div className="space-y-4">
+            <PageHeaderBlock tabId="trading" />
+            <TradingHistoryPage history={data.trading_history ?? []} summary={data.summary} prismPerformance={data.prism_performance ?? []} marketCondition={data.market_condition ?? []} market={market} />
+          </div>
+        )}
 
-        {activeTab === "watchlist" && <WatchlistPage watchlist={data.watchlist ?? []} market={market} />}
+        {activeTab === "watchlist" && (
+          <div className="space-y-4">
+            <PageHeaderBlock tabId="watchlist" />
+            <WatchlistPage watchlist={data.watchlist ?? []} market={market} />
+          </div>
+        )}
 
-        {activeTab === "insights" && <TradingInsightsPage data={data.trading_insights ?? {}} market={market} />}
+        {activeTab === "insights" && (
+          <div className="space-y-4">
+            <PageHeaderBlock tabId="insights" />
+            <TradingInsightsPage data={data.trading_insights ?? {}} market={market} />
+          </div>
+        )}
 
-        {activeTab === "portfolio" && <PortfolioPage />}
+        {activeTab === "portfolio" && (
+          <div className="space-y-4">
+            <PageHeaderBlock tabId="portfolio" />
+            <PortfolioPage />
+          </div>
+        )}
 
-        {activeTab === "news" && <NewsPage />}
+        {activeTab === "news" && (
+          <div className="space-y-4">
+            <PageHeaderBlock tabId="news" />
+            <NewsPage />
+          </div>
+        )}
 
-        {activeTab === "jeoningu-lab" && <ReportsPage />}
+        {activeTab === "jeoningu-lab" && (
+          <div className="space-y-4">
+            <PageHeaderBlock tabId="jeoningu-lab" />
+            <ReportsPage />
+          </div>
+        )}
 
-        {activeTab === "agents" && <AgentsPage />}
+        {activeTab === "agents" && (
+          <div className="space-y-4">
+            <PageHeaderBlock tabId="agents" />
+            <AgentsPage />
+          </div>
+        )}
 
-        {activeTab === "execution" && <ExecutionPage />}
+        {activeTab === "execution" && (
+          <div className="space-y-4">
+            <PageHeaderBlock tabId="execution" />
+            <ExecutionPage />
+          </div>
+        )}
 
-        {activeTab === "settings" && <SettingsPage />}
+        {activeTab === "settings" && (
+          <div className="space-y-4">
+            <PageHeaderBlock tabId="settings" />
+            <SettingsPage />
+          </div>
+        )}
 
         {activeTab === "costs" && (
           <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-medium text-muted-foreground">{language === "ko" ? "프로젝트 운영 비용" : "Operating Costs"}</span>
-            </div>
+            <PageHeaderBlock tabId="costs" />
             <OperatingCostsCard costs={data?.operating_costs ?? {}} />
           </div>
         )}

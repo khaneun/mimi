@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Plus, Pencil, Trash2, Wallet, ArrowUpDown, ArrowUp, ArrowDown, Search, RefreshCw, Building2, TrendingUp, TrendingDown, Coins, AlertCircle } from "lucide-react"
+import { Plus, Pencil, Trash2, Wallet, ArrowUpDown, ArrowUp, ArrowDown, Search, RefreshCw, TrendingUp, TrendingDown, Coins, AlertCircle } from "lucide-react"
 import { getNaverChartUrl } from "@/lib/naver-chart"
 import { MiniCandle } from "@/components/mini-candle"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -364,43 +364,24 @@ export function PortfolioPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600">
-            <Building2 className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold">
-              {language === "ko" ? "포트폴리오 관리" : "Portfolio Management"}
-            </h2>
-            <p className="text-sm text-muted-foreground flex items-center gap-2">
-              <span>한국투자증권</span>
-              {account.mode_label && (
-                <Badge variant="outline" className={`text-[10px] ${account.mode_label === "실전투자" ? "border-emerald-500/40 text-emerald-400" : "border-blue-500/40 text-blue-400"}`}>
-                  {account.mode_label}
-                </Badge>
-              )}
-              {portfolioData.synced_at && (
-                <span className="text-[10px] text-muted-foreground/70">
-                  · {new Date(portfolioData.synced_at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} 기준
-                </span>
-              )}
-            </p>
-          </div>
-        </div>
-        {/* KIS 새로고침 버튼 */}
-        <Button
-          onClick={syncFromKIS}
-          disabled={syncing}
-          variant="outline"
-          size="sm"
-          className="gap-2"
-        >
+      {/* KIS 계좌 상태 + 새로고침 */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <p className="text-sm text-muted-foreground flex items-center gap-2">
+          <span>한국투자증권</span>
+          {account.mode_label && (
+            <Badge variant="outline" className={`text-[10px] ${account.mode_label === "실전투자" ? "border-emerald-500/40 text-emerald-400" : "border-blue-500/40 text-blue-400"}`}>
+              {account.mode_label}
+            </Badge>
+          )}
+          {portfolioData.synced_at && (
+            <span className="text-[10px] text-muted-foreground/70">
+              · {new Date(portfolioData.synced_at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} 기준
+            </span>
+          )}
+        </p>
+        <Button onClick={syncFromKIS} disabled={syncing} variant="outline" size="sm" className="gap-2">
           <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
-          {syncing
-            ? (language === "ko" ? "KIS 조회 중..." : "Fetching...")
-            : (language === "ko" ? "새로고침" : "Refresh")}
+          {syncing ? (language === "ko" ? "KIS 조회 중..." : "Fetching...") : (language === "ko" ? "새로고침" : "Refresh")}
         </Button>
       </div>
 
@@ -413,19 +394,37 @@ export function PortfolioPage() {
         </div>
       )}
 
-      {/* KIS 계좌 요약 (API에서 가져온 경우) */}
+      {/* KIS 계좌 요약 (실전/모의 모두 표시) */}
       {account.summary && Object.keys(account.summary).length > 0 && (() => {
         const s = account.summary!
         const totalEval = s.total_eval_amount ?? 0
         const profit = s.total_profit_amount ?? 0
         const profitRate = s.total_profit_rate ?? 0
         const deposit = s.deposit ?? 0
+        const isPaper = portfolioData.kis_mode === "paper"
         const isProfit = profit >= 0
+        const bgClass = isPaper
+          ? "bg-blue-500/5 border-blue-500/20"
+          : isProfit ? "bg-emerald-500/5 border-emerald-500/20" : "bg-red-500/5 border-red-500/20"
+        const profitColorClass = isPaper
+          ? (isProfit ? "text-blue-400" : "text-blue-300")
+          : (isProfit ? "text-emerald-400" : "text-red-400")
+        const titleText = isPaper
+          ? (language === "ko" ? "KIS 모의투자 계좌 현황" : "KIS Paper Account")
+          : (language === "ko" ? "KIS 계좌 실시간 현황" : "KIS Live Account")
         return (
-          <div className={`rounded-xl px-4 py-3 border ${isProfit ? "bg-emerald-500/5 border-emerald-500/20" : "bg-red-500/5 border-red-500/20"}`}>
+          <div className={`rounded-xl px-4 py-3 border ${bgClass}`}>
             <div className="flex items-center gap-1.5 mb-2">
-              {isProfit ? <TrendingUp className="w-4 h-4 text-emerald-400" /> : <TrendingDown className="w-4 h-4 text-red-400" />}
-              <span className="text-sm font-semibold">KIS 계좌 실시간 현황</span>
+              {isPaper
+                ? <Wallet className="w-4 h-4 text-blue-400" />
+                : isProfit ? <TrendingUp className="w-4 h-4 text-emerald-400" /> : <TrendingDown className="w-4 h-4 text-red-400" />
+              }
+              <span className="text-sm font-semibold">{titleText}</span>
+              {isPaper && (
+                <Badge variant="outline" className="text-[10px] border-blue-500/40 text-blue-400 ml-1">
+                  {language === "ko" ? "모의투자" : "Paper"}
+                </Badge>
+              )}
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
               <div>
@@ -434,7 +433,7 @@ export function PortfolioPage() {
               </div>
               <div>
                 <p className="text-[11px] text-muted-foreground mb-0.5">{language === "ko" ? "평가손익" : "P&L"}</p>
-                <p className={`font-bold ${isProfit ? "text-emerald-400" : "text-red-400"}`}>
+                <p className={`font-bold ${profitColorClass}`}>
                   {profit >= 0 ? "+" : ""}{profit.toLocaleString()}<span className="text-xs ml-1">({profitRate >= 0 ? "+" : ""}{profitRate.toFixed(2)}%)</span>
                 </p>
               </div>
