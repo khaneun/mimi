@@ -71,6 +71,7 @@ export function HoldingsTable({ holdings, onStockClick, title = "보유 종목",
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent border-border/50">
+                <TableHead className="font-semibold w-16">{language === "ko" ? "판단" : "Decision"}</TableHead>
                 <TableHead className="font-semibold">{t("table.stockName")}</TableHead>
                 <TableHead className="font-semibold">{t("table.sector")}</TableHead>
                 <TableHead className="text-right font-semibold">{t("table.profitRate")}</TableHead>
@@ -88,6 +89,18 @@ export function HoldingsTable({ holdings, onStockClick, title = "보유 종목",
                     className="cursor-pointer hover:bg-muted/50 transition-colors border-border/30"
                     onClick={() => onStockClick(holding)}
                   >
+                    <TableCell>
+                      {strategy ? (
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${STRATEGY_COLORS[strategy] ?? "bg-gray-500/15 text-gray-400 border-gray-500/30"}`}
+                        >
+                          {strategy}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div>
                         <div className="flex items-center gap-1.5">
@@ -120,26 +133,19 @@ export function HoldingsTable({ holdings, onStockClick, title = "보유 종목",
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <Badge variant="outline" className="text-xs">{sector}</Badge>
-                        {strategy && (
-                          <Badge
-                            variant="outline"
-                            className={`text-xs ${STRATEGY_COLORS[strategy] ?? "bg-gray-500/15 text-gray-400 border-gray-500/30"}`}
-                          >
-                            {strategy}
-                          </Badge>
-                        )}
-                      </div>
+                      <Badge variant="outline" className="text-xs">{sector}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        {(holding.profit_rate || 0) >= 0 ? (
-                          <TrendingUp className="w-3 h-3 text-success" />
-                        ) : (
-                          <TrendingDown className="w-3 h-3 text-destructive" />
-                        )}
-                        <span className={`font-semibold ${(holding.profit_rate || 0) >= 0 ? "text-success" : "text-destructive"}`}>
+                        {(holding.profit_rate || 0) > 0 ? (
+                          <TrendingUp className="w-3 h-3 text-red-400" />
+                        ) : (holding.profit_rate || 0) < 0 ? (
+                          <TrendingDown className="w-3 h-3 text-blue-400" />
+                        ) : null}
+                        <span className={`font-semibold ${
+                          (holding.profit_rate || 0) > 0 ? "text-red-400" :
+                          (holding.profit_rate || 0) < 0 ? "text-blue-400" : "text-gray-400"
+                        }`}>
                           {formatPercent(holding.profit_rate)}
                         </span>
                       </div>

@@ -630,7 +630,7 @@ export function TradingHistoryPage({ history, summary, prismPerformance = [], ma
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">{t("trading.profitRate")}</p>
-                    <p className="text-xl font-bold text-success">{formatPercent(bestTrade.profit_rate)}</p>
+                    <p className="text-xl font-bold text-red-400">{formatPercent(bestTrade.profit_rate)}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">{t("trading.holdingPeriod")}</p>
@@ -662,7 +662,7 @@ export function TradingHistoryPage({ history, summary, prismPerformance = [], ma
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">{t("trading.profitRate")}</p>
-                    <p className="text-xl font-bold text-destructive">{formatPercent(worstTrade.profit_rate)}</p>
+                    <p className="text-xl font-bold text-blue-400">{formatPercent(worstTrade.profit_rate)}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">{t("trading.holdingPeriod")}</p>
@@ -704,7 +704,7 @@ export function TradingHistoryPage({ history, summary, prismPerformance = [], ma
                           <p className="text-xs text-muted-foreground">{data.count}{t("trading.tradeCount")}</p>
                         </div>
                       </div>
-                      <p className={`text-lg font-bold ${data.avgProfit >= 0 ? "text-success" : "text-destructive"}`}>
+                      <p className={`text-lg font-bold ${data.avgProfit > 0 ? "text-red-400" : data.avgProfit < 0 ? "text-blue-400" : "text-gray-400"}`}>
                         {formatPercent(data.avgProfit)}
                       </p>
                     </div>
@@ -731,23 +731,23 @@ export function TradingHistoryPage({ history, summary, prismPerformance = [], ma
                           <p className="font-medium text-foreground">{period}</p>
                           <p className="text-xs text-muted-foreground">{data.count}{t("trading.tradeCount")}</p>
                         </div>
-                        <p className={`text-lg font-bold ${data.avgProfit >= 0 ? "text-success" : "text-destructive"}`}>
+                        <p className={`text-lg font-bold ${data.avgProfit > 0 ? "text-red-400" : data.avgProfit < 0 ? "text-blue-400" : "text-gray-400"}`}>
                           {formatPercent(data.avgProfit)}
                         </p>
                       </div>
                       <div className="flex gap-4 text-xs">
                         <div className="flex items-center gap-1">
-                          <span className="text-success">▲</span>
+                          <span className="text-red-400">▲</span>
                           <span className="text-muted-foreground">{t("trading.avgWinShort")}:</span>
-                          <span className="font-medium text-success">
+                          <span className="font-medium text-red-400">
                             {data.winCount > 0 ? formatPercent(data.avgWin) : "-"}
                           </span>
                           <span className="text-muted-foreground">({data.winCount}{t("trading.tradeCountShort")})</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className="text-destructive">▼</span>
+                          <span className="text-blue-400">▼</span>
                           <span className="text-muted-foreground">{t("trading.avgLossShort")}:</span>
-                          <span className="font-medium text-destructive">
+                          <span className="font-medium text-blue-400">
                             {data.lossCount > 0 ? formatPercent(data.avgLoss) : "-"}
                           </span>
                           <span className="text-muted-foreground">({data.lossCount}{t("trading.tradeCountShort")})</span>
@@ -792,7 +792,7 @@ export function TradingHistoryPage({ history, summary, prismPerformance = [], ma
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-muted-foreground mb-1">{t("trading.profitRate")}</p>
-                        <p className={`text-2xl font-bold ${trade.profit_rate >= 0 ? "text-success" : "text-destructive"}`}>
+                        <p className={`text-2xl font-bold ${trade.profit_rate > 0 ? "text-red-400" : trade.profit_rate < 0 ? "text-blue-400" : "text-gray-400"}`}>
                           {formatPercent(trade.profit_rate)}
                         </p>
                       </div>

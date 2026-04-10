@@ -235,18 +235,18 @@ export function PerformanceChart({ data, prismPerformance = [], holdings = [], s
               formatter={(value: number, name: string) => {
                 const labels: Record<string, string> = {
                   market_return: `${title.includes('KOSPI') ? 'KOSPI' : 'KOSDAQ'} 수익률`,
-                  prism_return: "MarketPulse 시뮬레이터",
+                  prism_return: "AI Simulator",
                   real_return: "실전 투자"
                 }
                 return [formatPercent(value), labels[name] || name]
               }}
             />
-            <Legend 
+            <Legend
               wrapperStyle={{ paddingTop: "20px" }}
               formatter={(value: string) => {
                 const labels: Record<string, string> = {
                   market_return: `${title.includes('KOSPI') ? 'KOSPI' : 'KOSDAQ'} 수익률`,
-                  prism_return: "MarketPulse 시뮬레이터",
+                  prism_return: "AI Simulator",
                   real_return: "실전 투자"
                 }
                 return labels[value] || value

@@ -36,7 +36,7 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Tables
     "table.realPortfolio": "투자 현황",
-    "table.simulator": "MarketPulse 시뮬레이터",
+    "table.simulator": "AI Simulator",
     "table.stock": "종목",
     "table.stockName": "종목명",
     "table.sector": "섹터",
@@ -78,7 +78,7 @@ const translations: Record<Language, Record<string, string>> = {
     "metrics.winRate": "승률",
 
     // Metrics Cards - Simulator
-    "metrics.simulator": "MarketPulse 시뮬레이터",
+    "metrics.simulator": "AI Simulator",
     "metrics.simSoldProfit": "시뮬레이터 매도종목 누적수익률",
     "metrics.simAvgHoldingDays": "시뮬레이터 평균 보유기간",
     "metrics.simCurrentProfit": "시뮬레이터 보유종목 누적수익률",
@@ -135,7 +135,7 @@ const translations: Record<Language, Record<string, string>> = {
     "metrics.totalTrades": "총 거래",
 
     // Charts
-    "chart.prismReturn": "MarketPulse 시뮬레이터 (누적 실현)",
+    "chart.prismReturn": "AI Simulator (누적 실현)",
     "chart.returnComparisonKospi": "수익률 비교 (KOSPI 기준)",
     "chart.returnComparisonKosdaq": "수익률 비교 (KOSDAQ 기준)",
     "chart.returnComparisonSP500": "수익률 비교 (S&P 500 기준)",
@@ -522,7 +522,7 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Tables
     "table.realPortfolio": "Portfolio Overview",
-    "table.simulator": "MarketPulse Simulator",
+    "table.simulator": "AI Simulator",
     "table.stock": "Stock",
     "table.stockName": "Stock Name",
     "table.sector": "Sector",
@@ -564,7 +564,7 @@ const translations: Record<Language, Record<string, string>> = {
     "metrics.winRate": "Win Rate",
 
     // Metrics Cards - Simulator
-    "metrics.simulator": "MarketPulse Simulator",
+    "metrics.simulator": "AI Simulator",
     "metrics.simSoldProfit": "Sim Sold Total Return",
     "metrics.simAvgHoldingDays": "Sim Avg Holding Days",
     "metrics.simCurrentProfit": "Sim Current Holdings Return",
@@ -621,7 +621,7 @@ const translations: Record<Language, Record<string, string>> = {
     "metrics.totalTrades": "Total Trades",
 
     // Charts
-    "chart.prismReturn": "MarketPulse Simulator (Realized)",
+    "chart.prismReturn": "AI Simulator (Realized)",
     "chart.returnComparisonKospi": "Return Comparison (KOSPI)",
     "chart.returnComparisonKosdaq": "Return Comparison (KOSDAQ)",
     "chart.returnComparisonSP500": "Return Comparison (S&P 500)",

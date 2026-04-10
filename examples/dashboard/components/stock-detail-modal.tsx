@@ -43,16 +43,21 @@ export function StockDetailModal({ stock, onClose, isRealTrading = false, market
 
   const stockName = stock.company_name || stock.name || t("table.unknown")
   const scenario = stock.scenario
-  
+
+  const getBuyScoreColor = (score: number): string => {
+    if (score >= 80) return "text-red-400"
+    if (score >= 60) return "text-orange-400"
+    if (score >= 40) return "text-yellow-400"
+    if (score >= 20) return "text-green-400"
+    return "text-blue-400"
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto border-border/50 shadow-2xl">
         <CardContent className="p-6">
           {/* 헤더 */}
           <div className="flex items-start gap-3 mb-6">
-            <Button variant="outline" size="icon" onClick={onClose} className="rounded-full border-border bg-muted hover:bg-muted/80 flex-shrink-0 mt-1">
-              <X className="w-5 h-5 text-foreground" />
-            </Button>
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <h2 className="text-2xl font-bold text-foreground">{stockName}</h2>
@@ -62,15 +67,10 @@ export function StockDetailModal({ stock, onClose, isRealTrading = false, market
                     {t("badge.realTrading")}
                   </Badge>
                 ) : (
-                  <>
-                    <Badge variant="default" className="bg-gradient-to-r from-purple-600 to-pink-600">
-                      <Brain className="w-3 h-3 mr-1" />
-                      {t("badge.aiSimulation")}
-                    </Badge>
-                    {scenario?.sector && (
-                      <Badge variant="outline">{scenario.sector}</Badge>
-                    )}
-                  </>
+                  <Badge variant="default" className="bg-gradient-to-r from-purple-600 to-pink-600">
+                    <Brain className="w-3 h-3 mr-1" />
+                    {t("badge.aiSimulation")}
+                  </Badge>
                 )}
               </div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -96,20 +96,35 @@ export function StockDetailModal({ stock, onClose, isRealTrading = false, market
                     {t("badge.koreanInvestment")}
                   </Badge>
                 )}
-                {!isRealTrading && scenario?.investment_period && (
-                  <Badge variant="secondary" className="text-xs">
-                    <Calendar className="w-3 h-3 mr-1" />
-                    {scenario.investment_period}
-                  </Badge>
-                )}
-                {!isRealTrading && scenario?.buy_score && (
-                  <Badge variant="secondary" className="text-xs">
-                    <Zap className="w-3 h-3 mr-1" />
-                    {t("modal.buyScore")} {scenario.buy_score}/10
-                  </Badge>
-                )}
               </div>
+              {/* 시뮬레이터: 매수 점수 크게 표기 + 섹터/투자기간 레이어 */}
+              {!isRealTrading && (scenario?.buy_score || scenario?.sector || scenario?.investment_period) && (
+                <div className="mt-3 p-3 rounded-lg bg-muted/30 border border-border/30 flex items-center gap-4 flex-wrap">
+                  {scenario?.buy_score && (
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">{t("modal.buyScore")}</span>
+                      <span className={`text-4xl font-bold leading-none ${getBuyScoreColor(scenario.buy_score)}`}>
+                        {scenario.buy_score}
+                      </span>
+                      <span className="text-sm text-muted-foreground">/100</span>
+                    </div>
+                  )}
+                  {scenario?.sector && (
+                    <Badge variant="outline" className="text-sm">{scenario.sector}</Badge>
+                  )}
+                  {scenario?.investment_period && (
+                    <Badge variant="secondary" className="text-xs">
+                      <Calendar className="w-3 h-3 mr-1" />
+                      {scenario.investment_period}
+                    </Badge>
+                  )}
+                </div>
+              )}
             </div>
+            <Button variant="outline" size="icon" onClick={onClose} className="rounded-full border-border bg-muted hover:bg-muted/80 flex-shrink-0">
+              <X className="w-5 h-5 text-foreground" />
+            </Button>
           </div>
 
           {/* 현재가 및 수익률 */}
@@ -121,12 +136,15 @@ export function StockDetailModal({ stock, onClose, isRealTrading = false, market
             <div className="p-4 rounded-lg bg-muted/30 border border-border/30">
               <p className="text-sm text-muted-foreground mb-1">{t("modal.profitRate")}</p>
               <div className="flex items-center gap-2">
-                {(stock.profit_rate ?? 0) >= 0 ? (
-                  <TrendingUp className="w-5 h-5 text-success" />
-                ) : (
-                  <TrendingDown className="w-5 h-5 text-destructive" />
-                )}
-                <p className={`text-2xl font-bold ${(stock.profit_rate ?? 0) >= 0 ? "text-success" : "text-destructive"}`}>
+                {(stock.profit_rate ?? 0) > 0 ? (
+                  <TrendingUp className="w-5 h-5 text-red-400" />
+                ) : (stock.profit_rate ?? 0) < 0 ? (
+                  <TrendingDown className="w-5 h-5 text-blue-400" />
+                ) : null}
+                <p className={`text-2xl font-bold ${
+                  (stock.profit_rate ?? 0) > 0 ? "text-red-400" :
+                  (stock.profit_rate ?? 0) < 0 ? "text-blue-400" : "text-gray-400"
+                }`}>
                   {formatPercent(stock.profit_rate ?? 0)}
                 </p>
               </div>
@@ -152,7 +170,10 @@ export function StockDetailModal({ stock, onClose, isRealTrading = false, market
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-border/30">
                   <span className="text-sm text-muted-foreground">{t("modal.evaluationPL")}</span>
-                  <span className={`font-semibold ${(stock.profit ?? 0) >= 0 ? "text-success" : "text-destructive"}`}>
+                  <span className={`font-semibold ${
+                    (stock.profit ?? 0) > 0 ? "text-red-400" :
+                    (stock.profit ?? 0) < 0 ? "text-blue-400" : "text-gray-400"
+                  }`}>
                     {formatCurrency(stock.profit ?? 0)}
                   </span>
                 </div>

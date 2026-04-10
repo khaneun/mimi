@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense, ElementType } from "react"
 import { Brain, History, Eye, BarChart3, Lightbulb, Newspaper, FileBarChart, Wallet, Bot, Play, DollarSign, Settings as SettingsIcon } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
 import { useSearchParams, useRouter } from "next/navigation"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { OperatingCostsCard } from "@/components/operating-costs-card"
@@ -190,7 +191,7 @@ function DashboardContent() {
 
   // 하위 메뉴 페이지 헤더 데이터
   const PAGE_HEADERS: Record<string, { icon: ElementType; labelKo: string; labelEn: string; descKo: string; descEn: string }> = {
-    "dashboard":    { icon: BarChart3,    labelKo: "보유 현황",       labelEn: "Holdings Overview", descKo: "보유 종목 현황 및 투자 요약",           descEn: "Holdings status and investment summary" },
+    "dashboard":    { icon: BarChart3,    labelKo: "Summary",         labelEn: "Summary",           descKo: "보유 종목 현황 및 투자 요약",           descEn: "Holdings status and investment summary" },
     "ai-decisions": { icon: Brain,        labelKo: "AI 보유 분석",    labelEn: "AI Analysis",       descKo: "AI 분석 기반 보유 종목 판단 내역",       descEn: "AI-based holding decisions" },
     "trading":      { icon: History,      labelKo: "거래 내역",       labelEn: "Trade History",     descKo: "매매 완료 내역 및 수익 분석",            descEn: "Completed trades and performance" },
     "watchlist":    { icon: Eye,          labelKo: "관심 종목",       labelEn: "Watchlist",         descKo: "관심 종목 모니터링",                    descEn: "Monitor and track watchlist stocks" },
@@ -209,18 +210,21 @@ function DashboardContent() {
     if (!hdr) return null
     const Icon = hdr.icon
     return (
-      <div className="flex items-center gap-3 mb-2">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50">
-          <Icon className="w-4 h-4 text-muted-foreground" />
+      <div className="mb-4">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50">
+            <Icon className="w-4 h-4 text-muted-foreground" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-foreground leading-tight">
+              {language === "ko" ? hdr.labelKo : hdr.labelEn}
+            </h2>
+            <p className="text-xs text-muted-foreground/70">
+              {language === "ko" ? hdr.descKo : hdr.descEn}
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-base font-semibold text-foreground leading-tight">
-            {language === "ko" ? hdr.labelKo : hdr.labelEn}
-          </h2>
-          <p className="text-xs text-muted-foreground/70">
-            {language === "ko" ? hdr.descKo : hdr.descEn}
-          </p>
-        </div>
+        <Separator />
       </div>
     )
   }
