@@ -103,30 +103,37 @@ export function PortfolioPage() {
   const [formQuantity, setFormQuantity] = useState("")
   const [formAvgPrice, setFormAvgPrice] = useState("")
 
-  const loadPortfolioData = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY)
-    localStorage.removeItem(STORAGE_KEY + "_edited")
+  const loadPortfolioData = useCallback(async () => {
+    // 1) GET으로 캐시 즉시 표시 (빠름)
+    try {
+      const res = await fetch("/api/portfolio?" + Date.now())
+      const data: PortfolioData = await res.json()
+      if (data?.accounts?.length > 0) {
+        setPortfolioData(data)
+      }
+    } catch {}
 
-    fetch("/api/portfolio?" + Date.now())
-      .then((res) => res.json())
-      .then((data: PortfolioData) => {
-        if (data?.accounts?.length > 0) {
-          setPortfolioData(data)
-        } else {
-          return fetch("/portfolio_data.json?" + Date.now())
-            .then((r) => r.json())
-            .then((d: PortfolioData) => setPortfolioData(d))
-        }
+    // 2) POST로 KIS 실시간 갱신 (백그라운드, 캐시 없으면 표시까지 대기)
+    setSyncing(true)
+    setSyncError(null)
+    try {
+      const res = await fetch("/api/portfolio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
       })
-      .catch(() => {
-        fetch("/portfolio_data.json?" + Date.now())
-          .then((res) => res.json())
-          .then((data: PortfolioData) => setPortfolioData(data))
-          .catch((err) => console.error("Failed to load portfolio data:", err))
-      })
+      const data = await res.json()
+      if (data.success && data.data?.accounts?.length > 0) {
+        setPortfolioData(data.data)
+      }
+    } catch (e: any) {
+      setSyncError("KIS 연결 오류: " + e.message)
+    } finally {
+      setSyncing(false)
+    }
   }, [])
 
-  // Load data: /api/portfolio → KIS 실시간 데이터 (없으면 portfolio_data.json 폴백)
+  // 마운트 시 자동 로드 (캐시 즉시 표시 → KIS 실시간 갱신)
   useEffect(() => {
     loadPortfolioData()
   }, [loadPortfolioData])
@@ -637,10 +644,6 @@ export function PortfolioPage() {
                 className="pl-8 h-9 w-40 text-sm"
               />
             </div>
-            <Button onClick={openAddModal} size="sm" className="gap-1">
-              <Plus className="w-4 h-4" />
-              {language === "ko" ? "추가" : "Add"}
-            </Button>
           </div>
         </CardHeader>
         <CardContent>
