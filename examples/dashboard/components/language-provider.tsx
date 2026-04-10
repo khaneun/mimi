@@ -56,9 +56,9 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Metrics Cards - Real Trading
     "metrics.realTrading": "투자 현황",
-    "metrics.realTotalAssets": "실전 총 자산",
-    "metrics.realHoldingsProfit": "실전 보유종목 평가손익",
-    "metrics.realProfitDist": "실전 포트폴리오 손익 분포",
+    "metrics.realTotalAssets": "총 자산",
+    "metrics.realHoldingsProfit": "보유종목 평가손익",
+    "metrics.realProfitDist": "포트폴리오 손익 분포",
     "metrics.startAmount": "시작금액",
     "metrics.deposit": "예수금",
     "metrics.stocks": "개 종목",
@@ -542,9 +542,9 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Metrics Cards - Real Trading
     "metrics.realTrading": "Portfolio Overview",
-    "metrics.realTotalAssets": "Real Total Assets",
-    "metrics.realHoldingsProfit": "Real Holdings P&L",
-    "metrics.realProfitDist": "Real Profit Distribution",
+    "metrics.realTotalAssets": "Total Assets",
+    "metrics.realHoldingsProfit": "Holdings P&L",
+    "metrics.realProfitDist": "Profit Distribution",
     "metrics.startAmount": "Start Amount",
     "metrics.deposit": "Cash",
     "metrics.stocks": " stocks",

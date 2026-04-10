@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Eye, ChevronDown, ChevronUp, FlaskConical, ArrowUpDown, Clock } from "lucide-react"
+import { Eye, ChevronDown, ChevronUp, ArrowUpDown, Clock } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { formatCurrency as formatCurrencyUtil } from "@/lib/currency"
 import { MiniCandle } from "@/components/mini-candle"
@@ -173,12 +173,6 @@ export function WatchlistPage({ watchlist, market = "KR" }: WatchlistPageProps) 
     <div className="space-y-4">
       {/* ===== Section 1: Compact Header ===== */}
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
-          <FlaskConical className="w-5 h-5 text-violet-400" />
-          <h2 className="text-xl font-bold text-foreground">
-            {t("watchlist.title")}
-          </h2>
-        </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Badge variant="outline" className="text-xs">
             {language === "ko" ? "전체" : "Total"} {watchlist.length}

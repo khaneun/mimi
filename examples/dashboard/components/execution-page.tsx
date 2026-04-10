@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/language-provider"
-import { Play, Square, RefreshCw, CheckCircle, XCircle, Clock, Loader2, Terminal } from "lucide-react"
+import { Play, CheckCircle, XCircle, Loader2 } from "lucide-react"
 
 // --- 파이프라인 스크립트 정의 ---
 
@@ -177,31 +177,8 @@ export function ExecutionPage() {
 
   const categories = ["daily", "analysis", "data", "server"] as const
 
-  const runningCount = Object.values(runStates).filter(s => s.status === "running").length
-
   return (
     <div className="space-y-6">
-      {/* Summary bar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Terminal className="w-5 h-5 text-blue-400" />
-          {runningCount > 0 && (
-            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 animate-pulse">
-              {runningCount}{language === "ko" ? "개 실행 중" : " running"}
-            </Badge>
-          )}
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setRunStates({})}
-          className="text-xs text-muted-foreground"
-        >
-          <RefreshCw className="w-3.5 h-3.5 mr-1" />
-          {language === "ko" ? "상태 초기화" : "Reset"}
-        </Button>
-      </div>
-
       {/* Script groups */}
       {categories.map(cat => {
         const scripts = PIPELINE_SCRIPTS.filter(s => s.category === cat)

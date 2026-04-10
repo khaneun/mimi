@@ -61,7 +61,7 @@ function DashboardContent() {
   const [dataError, setDataError] = useState<string | null>(null)
   const [lastFetchTime, setLastFetchTime] = useState<string>("")
   const prevDataHash = useRef<string>("")
-  const [kisPortfolio, setKisPortfolio] = useState<{ summary: any; stocks: any[] } | null>(null)
+  const [kisPortfolio, setKisPortfolio] = useState<{ summary: any; stocks: any[]; mode?: string } | null>(null)
 
   // URL에서 탭 파라미터 읽기
   const tabParam = searchParams.get("tab") as TabType | null
@@ -144,7 +144,11 @@ function DashboardContent() {
       .then(r => r.json())
       .then(d => {
         const account = d?.accounts?.[0]
-        if (account) setKisPortfolio({ summary: account.summary ?? {}, stocks: account.stocks ?? [] })
+        if (account) setKisPortfolio({
+          summary: account.summary ?? {},
+          stocks: account.stocks ?? [],
+          mode: d.kis_mode ?? "paper",
+        })
       })
       .catch(() => {})
   }, [market])
@@ -250,6 +254,7 @@ function DashboardContent() {
             {/* 핵심 지표 카드 */}
             <MetricsCards
               summary={data.summary}
+              kisPortfolio={kisPortfolio}
               realPortfolio={data.real_portfolio || []}
               tradingHistoryCount={data.trading_history?.length || 0}
               tradingHistoryTotalProfit={

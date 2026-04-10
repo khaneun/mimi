@@ -149,8 +149,7 @@ export function TradingInsightsPage({ data, market = "KR" }: TradingInsightsPage
   return (
     <div className="space-y-6">
       {/* Market Filter */}
-      <div className="flex items-center justify-end flex-wrap gap-4">
-        <div></div>
+      <div className="flex items-center justify-start flex-wrap gap-4">
         {/* Filter */}
         <div className="flex items-center gap-2">
           <Globe className="w-4 h-4 text-muted-foreground" />

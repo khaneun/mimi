@@ -1,19 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog"
-import { Landmark, CandlestickChart, Code2, Bot, CheckCircle, XCircle, FileText } from "lucide-react"
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { Landmark, CandlestickChart, Code2, CheckCircle, XCircle, FileText, ChevronDown, Loader2 } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 
 // --- Types ---
@@ -230,99 +228,85 @@ const GROUP_ICON_COLOR: Record<AgentGroup, string> = {
   "Dev Team": "text-purple-400",
 }
 
-const LLM_BADGE_STYLES: Record<LlmRequirement, string> = {
-  "API": "bg-sky-500/15 text-sky-400 border-sky-500/30",
-  "CLI": "bg-sky-500/15 text-sky-400 border-sky-500/30",
-}
-
-function getLlmLabel(_llm: LlmRequirement): string {
-  return "Claude CLI"
-}
-
-// --- Summary cards ---
-
-interface GroupSummary {
-  group: AgentGroup
-  count: number
-  icon: React.ComponentType<{ className?: string }>
-  color: string
-  bgColor: string
-}
-
-function getGroupSummaries(): GroupSummary[] {
-  const groups: AgentGroup[] = ["Investment Alpha", "MarketPulse", "Dev Team"]
-  const icons = [Landmark, CandlestickChart, Code2]
-  const colors = ["text-blue-400", "text-emerald-400", "text-purple-400"]
-  const bgColors = ["bg-blue-500/10", "bg-emerald-500/10", "bg-purple-500/10"]
-
-  return groups.map((group, i) => ({
-    group,
-    count: AGENTS.filter(a => a.group === group).length,
-    icon: icons[i],
-    color: colors[i],
-    bgColor: bgColors[i],
-  }))
+const GROUP_BG: Record<AgentGroup, string> = {
+  "Investment Alpha": "bg-blue-500/10",
+  "MarketPulse": "bg-emerald-500/10",
+  "Dev Team": "bg-purple-500/10",
 }
 
 // --- Component ---
 
 export function AgentsPage() {
   const { language } = useLanguage()
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [promptContent, setPromptContent] = useState("")
-  const [saving, setSaving] = useState(false)
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
+  const [promptContents, setPromptContents] = useState<Record<string, string>>({})
+  const [promptLoading, setPromptLoading] = useState<Record<string, boolean>>({})
+  const [saving, setSaving] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
 
-  const summaries = getGroupSummaries()
   const groups: AgentGroup[] = ["Investment Alpha", "MarketPulse", "Dev Team"]
 
-  const openDialog = async (agent: Agent) => {
-    setSelectedAgent(agent)
-    setPromptContent(language === "ko" ? "프롬프트 로딩 중..." : "Loading prompt...")
-    setDialogOpen(true)
+  const groupSummaries = groups.map(group => ({
+    group,
+    count: AGENTS.filter(a => a.group === group).length,
+    Icon: GROUP_ICON[group],
+    color: GROUP_ICON_COLOR[group],
+    bgColor: GROUP_BG[group],
+  }))
+
+  const loadPrompt = async (agentId: string) => {
+    if (selectedAgent === agentId) {
+      setSelectedAgent(null)
+      return
+    }
+    setSelectedAgent(agentId)
+    if (promptContents[agentId] !== undefined) return
+    setPromptLoading(prev => ({ ...prev, [agentId]: true }))
     try {
-      const res = await fetch(`/api/agents/${agent.id}`)
+      const res = await fetch(`/api/agents/${agentId}`)
       if (res.ok) {
         const data = await res.json()
-        setPromptContent(data.content ?? "")
+        setPromptContents(prev => ({ ...prev, [agentId]: data.content ?? "" }))
       } else {
-        setPromptContent(`[오류] 프롬프트를 불러오지 못했습니다 (HTTP ${res.status})`)
+        setPromptContents(prev => ({
+          ...prev,
+          [agentId]: `[오류] 프롬프트를 불러오지 못했습니다 (HTTP ${res.status})`,
+        }))
       }
     } catch {
-      setPromptContent("[오류] 프롬프트 로드 실패")
+      setPromptContents(prev => ({ ...prev, [agentId]: "[오류] 프롬프트 로드 실패" }))
+    } finally {
+      setPromptLoading(prev => ({ ...prev, [agentId]: false }))
     }
   }
 
-  const handleSave = async () => {
-    if (!selectedAgent) return
-    setSaving(true)
+  const savePrompt = async (agentId: string) => {
+    setSaving(agentId)
     try {
-      const res = await fetch(`/api/agents/${selectedAgent.id}`, {
+      const res = await fetch(`/api/agents/${agentId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: promptContent }),
+        body: JSON.stringify({ content: promptContents[agentId] }),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       setToast({
         message: language === "ko" ? "저장되었습니다." : "Saved successfully.",
         type: "success",
       })
-      setDialogOpen(false)
     } catch {
       setToast({
         message: language === "ko" ? "저장에 실패했습니다." : "Failed to save.",
         type: "error",
       })
     } finally {
-      setSaving(false)
+      setSaving(null)
       setTimeout(() => setToast(null), 3000)
     }
   }
 
   return (
     <div className="space-y-6">
-      {/* Toast notification */}
+      {/* Toast */}
       {toast && (
         <div
           className={`fixed top-4 right-4 z-[100] flex items-center gap-2 px-4 py-3 rounded-lg border shadow-lg transition-all ${
@@ -340,192 +324,155 @@ export function AgentsPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <Bot className="w-5 h-5 text-primary" />
-        <h2 className="text-xl font-bold text-foreground">
-          {language === "ko" ? "AI 에이전트 팀" : "AI Agent Team"}
-        </h2>
-        <Badge variant="secondary" className="text-xs">
-          {AGENTS.length} {language === "ko" ? "명" : "agents"}
-        </Badge>
-      </div>
-
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {summaries.map((s) => {
-          const Icon = s.icon
-          return (
-            <Card key={s.group} className="border-border/50 bg-card/50 backdrop-blur">
-              <CardContent className="flex items-center gap-4 py-4">
-                <div className={`w-10 h-10 rounded-lg ${s.bgColor} flex items-center justify-center`}>
-                  <Icon className={`w-5 h-5 ${s.color}`} />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{s.group}</p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {s.count}
-                    <span className="text-sm font-normal text-muted-foreground ml-1">
-                      {language === "ko" ? "명" : "agents"}
-                    </span>
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
+        {groupSummaries.map(({ group, count, Icon, color, bgColor }) => (
+          <Card key={group} className="border-border/50 bg-card/50 backdrop-blur">
+            <CardContent className="flex items-center gap-4 py-4">
+              <div className={`w-10 h-10 rounded-lg ${bgColor} flex items-center justify-center`}>
+                <Icon className={`w-5 h-5 ${color}`} />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">{group}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {count}
+                  <span className="text-sm font-normal text-muted-foreground ml-1">
+                    {language === "ko" ? "명" : "agents"}
+                  </span>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Agent Groups */}
-      {groups.map((group) => {
-        const groupAgents = AGENTS.filter(a => a.group === group)
-        const GroupIcon = GROUP_ICON[group]
-        return (
-          <div key={group} className="space-y-3">
-            {/* Group Header */}
-            <div className="flex items-center gap-2">
-              <GroupIcon className={`w-4 h-4 ${GROUP_ICON_COLOR[group]}`} />
-              <h3 className="text-lg font-semibold text-foreground">{group}</h3>
-              <span className="text-sm text-muted-foreground">({groupAgents.length})</span>
-            </div>
-
-            {/* Agent Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {groupAgents.map((agent) => (
-                <Card
-                  key={agent.id}
-                  className="border-border/50 bg-card/50 backdrop-blur hover:border-border transition-colors cursor-pointer group"
-                  onClick={() => openDialog(agent)}
-                >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                        {agent.name}
-                      </CardTitle>
-                      <div className="flex items-center gap-1.5">
-                        {/* Status icon */}
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            agent.status === "active" ? "bg-green-500" : "bg-gray-500"
-                          }`}
-                          title={agent.status === "active"
-                            ? (language === "ko" ? "활성" : "Active")
-                            : (language === "ko" ? "비활성" : "Inactive")}
-                        />
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {/* Description */}
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {language === "ko" ? agent.description : agent.descriptionEn}
-                    </p>
-                    {/* Badges */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Badge
-                        variant="outline"
-                        className={`text-[10px] ${GROUP_BADGE_STYLES[agent.group]}`}
-                      >
-                        {agent.group}
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className={`text-[10px] ${LLM_BADGE_STYLES[agent.llm]}`}
-                      >
-                        {getLlmLabel(agent.llm)}
-                        {agent.llm === "CLI" && (
-                          <span className="ml-0.5">
-                            {language === "ko" ? " 전용" : " only"}
-                          </span>
-                        )}
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )
-      })}
-
-      {/* Prompt Edit Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          {selectedAgent && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Bot className="w-5 h-5" />
-                  {selectedAgent.name}
-                </DialogTitle>
-                <DialogDescription className="space-y-2">
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge
-                      variant="outline"
-                      className={`text-xs ${GROUP_BADGE_STYLES[selectedAgent.group]}`}
-                    >
-                      {selectedAgent.group}
-                    </Badge>
-                    <Badge
-                      variant="outline"
-                      className={`text-xs ${LLM_BADGE_STYLES[selectedAgent.llm]}`}
-                    >
-                      {getLlmLabel(selectedAgent.llm)}
-                      {selectedAgent.llm === "CLI" && (
-                        <span className="ml-0.5">
-                          {language === "ko" ? " 전용" : " only"}
-                        </span>
-                      )}
-                    </Badge>
+      {/* Agent Groups — Accordion */}
+      <Accordion type="multiple" defaultValue={["Investment Alpha"]} className="space-y-3">
+        {groups.map(group => {
+          const groupAgents = AGENTS.filter(a => a.group === group)
+          const GroupIcon = GROUP_ICON[group]
+          return (
+            <AccordionItem
+              key={group}
+              value={group}
+              className="border border-border/50 rounded-lg bg-card/30 overflow-hidden"
+            >
+              <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/30">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-md ${GROUP_BG[group]} flex items-center justify-center shrink-0`}>
+                    <GroupIcon className={`w-4 h-4 ${GROUP_ICON_COLOR[group]}`} />
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {language === "ko" ? selectedAgent.description : selectedAgent.descriptionEn}
-                  </p>
-                </DialogDescription>
-              </DialogHeader>
+                  <span className="font-semibold text-foreground">{group}</span>
+                  <Badge variant="outline" className={`text-xs ${GROUP_BADGE_STYLES[group]}`}>
+                    {groupAgents.length} {language === "ko" ? "명" : "agents"}
+                  </Badge>
+                </div>
+              </AccordionTrigger>
 
-              {/* Prompt file path */}
-              <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg px-3 py-2 border border-border/30">
-                <FileText className="w-3.5 h-3.5 shrink-0" />
-                <span className="font-mono truncate">
-                  {language === "ko" ? "프롬프트 파일: " : "Prompt file: "}
-                  {selectedAgent.promptPath}
-                </span>
-              </div>
+              <AccordionContent className="px-4 pb-4 pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {groupAgents.map(agent => {
+                    const isOpen = selectedAgent === agent.id
+                    return (
+                      <div key={agent.id} className="space-y-2">
+                        {/* Agent Card */}
+                        <Card
+                          className={`border-border/50 bg-card/50 cursor-pointer hover:border-border transition-colors ${
+                            isOpen ? "border-primary/50 bg-primary/5" : ""
+                          }`}
+                          onClick={() => loadPrompt(agent.id)}
+                        >
+                          <CardContent className="p-4 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className={`w-2 h-2 rounded-full ${
+                                    agent.status === "active" ? "bg-green-500" : "bg-gray-500"
+                                  }`}
+                                />
+                                <span className="text-sm font-semibold text-foreground">
+                                  {agent.name}
+                                </span>
+                              </div>
+                              <ChevronDown
+                                className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${
+                                  isOpen ? "rotate-180" : ""
+                                }`}
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              {language === "ko" ? agent.description : agent.descriptionEn}
+                            </p>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge variant="outline" className={`text-[10px] ${GROUP_BADGE_STYLES[agent.group]}`}>
+                                {agent.group}
+                              </Badge>
+                              <Badge variant="outline" className="text-[10px] bg-sky-500/15 text-sky-400 border-sky-500/30">
+                                Claude CLI
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        </Card>
 
-              {/* Prompt textarea */}
-              <Textarea
-                value={promptContent}
-                onChange={(e) => setPromptContent(e.target.value)}
-                rows={20}
-                className="font-mono text-xs resize-y"
-                placeholder={
-                  language === "ko"
-                    ? "프롬프트 내용을 입력하세요..."
-                    : "Enter prompt content..."
-                }
-              />
+                        {/* Inline Prompt Panel */}
+                        {isOpen && (
+                          <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-3">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground bg-background/50 rounded px-2 py-1.5">
+                              <FileText className="w-3.5 h-3.5 shrink-0" />
+                              <span className="font-mono truncate">{agent.promptPath}</span>
+                            </div>
 
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setDialogOpen(false)}
-                >
-                  {language === "ko" ? "취소" : "Cancel"}
-                </Button>
-                <Button
-                  onClick={handleSave}
-                  disabled={saving}
-                >
-                  {saving
-                    ? (language === "ko" ? "저장 중..." : "Saving...")
-                    : (language === "ko" ? "저장" : "Save")}
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+                            {promptLoading[agent.id] ? (
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground py-6 justify-center">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>{language === "ko" ? "로딩 중..." : "Loading..."}</span>
+                              </div>
+                            ) : (
+                              <>
+                                <Textarea
+                                  value={promptContents[agent.id] ?? ""}
+                                  onChange={e =>
+                                    setPromptContents(prev => ({
+                                      ...prev,
+                                      [agent.id]: e.target.value,
+                                    }))
+                                  }
+                                  rows={12}
+                                  className="font-mono text-xs resize-y"
+                                />
+                                <div className="flex justify-end gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-xs"
+                                    onClick={() => setSelectedAgent(null)}
+                                  >
+                                    {language === "ko" ? "닫기" : "Close"}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    className="text-xs"
+                                    onClick={() => savePrompt(agent.id)}
+                                    disabled={saving === agent.id}
+                                  >
+                                    {saving === agent.id
+                                      ? (language === "ko" ? "저장 중..." : "Saving...")
+                                      : (language === "ko" ? "저장" : "Save")}
+                                  </Button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )
+        })}
+      </Accordion>
     </div>
   )
 }

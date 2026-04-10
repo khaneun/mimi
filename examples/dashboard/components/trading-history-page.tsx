@@ -310,20 +310,6 @@ export function TradingHistoryPage({ history, summary, prismPerformance = [], ma
 
   return (
     <div className="space-y-6">
-      {/* 헤더 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <History className="w-5 h-5 text-blue-400" />
-            <h2 className="text-xl font-bold text-foreground">{t("trading.title")}</h2>
-          </div>
-          <p className="text-sm text-muted-foreground">{t("trading.description")}</p>
-        </div>
-        <Badge variant="outline" className="text-sm">
-          {t("trading.totalTrades")} {total_trades || 0}{t("trading.tradeCount")}
-        </Badge>
-      </div>
-
       {/* 통계 카드 - 3x2 그리드 */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <Card className="border-border/50">

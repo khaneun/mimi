@@ -8,6 +8,7 @@ import type { Summary, Market } from "@/types/dashboard"
 
 interface MetricsCardsProps {
   summary: Summary
+  kisPortfolio?: { summary: any; stocks: any[]; mode?: string } | null
   realPortfolio?: Array<{
     profit_rate: number
     name?: string
@@ -25,6 +26,7 @@ interface MetricsCardsProps {
 
 export function MetricsCards({
   summary,
+  kisPortfolio,
   realPortfolio = [],
   tradingHistoryCount = 0,
   tradingHistoryTotalProfit = 0,
@@ -50,9 +52,13 @@ export function MetricsCards({
   const seasonInfo = getSeasonInfo(market)
   const daysElapsed = getDaysElapsed(market)
 
+  // KIS 데이터 우선 사용, 없으면 dashboard_data fallback
+  const rt = kisPortfolio?.summary ?? summary.real_trading
+  const kisMode = kisPortfolio?.mode
+
   // 총 자산 계산 (평가금액 + 예수금)
-  const totalAssets = (summary.real_trading.total_eval_amount || 0) +
-                      (summary.real_trading.available_amount || 0)
+  const totalAssets = (rt.total_eval_amount || 0) +
+                      (rt.available_amount || 0)
 
   // Season 시작 금액
   const seasonStartAmount = seasonInfo.startAmount
@@ -66,7 +72,7 @@ export function MetricsCards({
   const sectionTextColor = isUSMarket ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"
 
   // 현금 비율 계산 (total_cash 사용: D+2 포함 총 현금, fallback으로 deposit)
-  const totalCash = summary.real_trading.total_cash || summary.real_trading.deposit || 0
+  const totalCash = rt.total_cash || rt.deposit || 0
   const cashRatio = totalAssets > 0 ? (totalCash / totalAssets) * 100 : 0
   const investmentRatio = 100 - cashRatio
 
@@ -75,9 +81,9 @@ export function MetricsCards({
       label: t("metrics.realTotalAssets"),
       value: formatCurrency(totalAssets),
       change: `${t("metrics.startAmount")} ${formatCurrency(seasonStartAmount)} (${formatPercent(totalAssetsReturn)})`,
-      changeValue: summary.real_trading.available_amount > 0
-        ? `${t("metrics.deposit")} ${formatCurrency(summary.real_trading.available_amount)} | ${summary.real_trading.total_stocks || 0}${t("metrics.stocks")}`
-        : `${t("metrics.fullyInvested")} | ${summary.real_trading.total_stocks || 0}${t("metrics.stocks")}`,
+      changeValue: rt.available_amount > 0
+        ? `${t("metrics.deposit")} ${formatCurrency(rt.available_amount)} | ${rt.total_stocks || 0}${t("metrics.stocks")}`
+        : `${t("metrics.fullyInvested")} | ${rt.total_stocks || 0}${t("metrics.stocks")}`,
       description: t("metrics.assetsDesc"),
       isPositive: true,
       icon: Wallet,
@@ -85,14 +91,14 @@ export function MetricsCards({
     },
     {
       label: t("metrics.realHoldingsProfit"),
-      value: formatCurrency(summary.real_trading.total_profit_amount || 0),
-      change: formatPercent(summary.real_trading.total_profit_rate || 0),
+      value: formatCurrency(rt.total_profit_amount || 0),
+      change: formatPercent(rt.total_profit_rate || 0),
       changeValue: t("metrics.holdingsProfitDesc"),
       description: t("metrics.excludeRealized"),
-      isPositive: (summary.real_trading.total_profit_amount || 0) >= 0,
-      icon: (summary.real_trading.total_profit_amount || 0) >= 0 ? TrendingUp : TrendingDown,
+      isPositive: (rt.total_profit_amount || 0) >= 0,
+      icon: (rt.total_profit_amount || 0) >= 0 ? TrendingUp : TrendingDown,
       gradient:
-        (summary.real_trading.total_profit_amount || 0) >= 0
+        (rt.total_profit_amount || 0) >= 0
           ? "from-success/20 to-success/5"
           : "from-destructive/20 to-destructive/5",
     },
@@ -100,7 +106,7 @@ export function MetricsCards({
       label: t("metrics.cashAndStability"),
       value: formatCurrency(totalCash),
       change: `${t("metrics.cashRatio")} ${cashRatio.toFixed(1)}%`,
-      changeValue: `${t("metrics.investmentRatio")} ${investmentRatio.toFixed(1)}% | ${summary.real_trading.total_stocks || 0}${t("metrics.stocks")}`,
+      changeValue: `${t("metrics.investmentRatio")} ${investmentRatio.toFixed(1)}% | ${rt.total_stocks || 0}${t("metrics.stocks")}`,
       description: t("metrics.cashStabilityDesc"),
       isPositive: cashRatio >= 10,
       icon: PiggyBank,
@@ -162,8 +168,16 @@ export function MetricsCards({
             <div className={`h-1 w-8 rounded-full bg-gradient-to-r ${sectionGradient}`} />
             <h2 className="text-sm font-semibold text-muted-foreground">
               {isUSMarket ? (language === "ko" ? "미국 실전투자" : "US Real Trading") : t("metrics.realTrading")}
-              {" "}({seasonInfo.seasonName})
             </h2>
+            {kisMode === "paper" ? (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                {language === "ko" ? "모의투자" : "Paper"}
+              </span>
+            ) : kisMode === "real" ? (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                {language === "ko" ? "실전투자" : "Live"}
+              </span>
+            ) : null}
           </div>
           <div className="flex items-center gap-2">
             <span className={`text-xs font-semibold ${sectionTextColor}`}>
