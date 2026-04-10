@@ -18,17 +18,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DASHBOARD_PATH = BASE_DIR / "examples" / "dashboard" / "public" / "dashboard_data.json"
 PORTFOLIO_PATH = BASE_DIR / "examples" / "dashboard" / "public" / "portfolio_data.json"
 
-# 주요 티커-종목명 매핑 (검증용)
-KNOWN_TICKERS = {
-    "000660": "SK하이닉스",
-    "005930": "삼성전자",
-    "035420": "네이버",
-    "035720": "카카오",
-    "005380": "현대차",
-    "012330": "현대모비스",
-    "034020": "두산에너빌리티",
-    "064350": "현대로템",
-}
+def _load_known_tickers() -> dict:
+    """WATCH_TICKERS 또는 SNAPSHOT_TICKERS 환경변수에서 알려진 티커 로드"""
+    result = {}
+    for env_key in ("WATCH_TICKERS", "SNAPSHOT_TICKERS"):
+        raw = os.getenv(env_key, "")
+        for item in raw.split(","):
+            item = item.strip()
+            if ":" in item:
+                code, name = item.split(":", 1)
+                result[code.strip()] = name.strip()
+    return result
+
+
+# 주요 티커-종목명 매핑 (검증용) — 환경변수에서 동적 로드
+KNOWN_TICKERS = _load_known_tickers()
 
 # 종목 코드: 6자리 숫자 또는 ETF/원자재 코드 (영문+숫자 조합)
 CODE_PATTERN = re.compile(r"^(\d{6}|[A-Z0-9]{4,6}|[A-Za-z0-9]{6})$")
@@ -195,8 +199,11 @@ def validate_price_accuracy(data: dict) -> list[str]:
         end = datetime.now().strftime('%Y%m%d')
         start = (datetime.now() - timedelta(days=7)).strftime('%Y%m%d')
 
-        # 주요 3종목만 샘플 체크 (전체 체크 시 너무 느림)
-        samples = [("000660", "SK하이닉스"), ("005930", "삼성전자"), ("035420", "네이버")]
+        # 환경변수에서 샘플 종목 로드 (최대 3개)
+        known = _load_known_tickers()
+        samples = [(code, name) for code, name in list(known.items())[:3]]
+        if not samples:
+            return errors  # 설정된 종목 없으면 스킵
         holdings_map = {h["ticker"]: h["current_price"] for h in data.get("holdings", [])}
 
         for code, name in samples:

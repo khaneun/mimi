@@ -174,7 +174,19 @@ def load_portfolio_stocks() -> list[tuple[str, str]]:
                     seen.add(code)
         return stocks
     except Exception:
-        return [("000660", "SK하이닉스"), ("005930", "삼성전자"), ("035420", "네이버")]
+        # .env WATCH_TICKERS 폴백 (형식: 000660:SK하이닉스,005930:삼성전자)
+        import os
+        raw = os.getenv("WATCH_TICKERS", "")
+        if raw:
+            result = []
+            for item in raw.split(","):
+                item = item.strip()
+                if ":" in item:
+                    code, name = item.split(":", 1)
+                    result.append((code.strip(), name.strip()))
+            if result:
+                return result
+        return []
 
 
 # CLI 실행

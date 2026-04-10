@@ -250,8 +250,21 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-    code = sys.argv[1] if len(sys.argv) > 1 else "000660"
-    name = sys.argv[2] if len(sys.argv) > 2 else "SK하이닉스"
+    import os
+    from dotenv import load_dotenv
+    load_dotenv()
+    default_ticker = os.getenv("DEFAULT_TICKER", "")
+    default_name = ""
+    if default_ticker and ":" in default_ticker:
+        default_ticker, default_name = default_ticker.split(":", 1)
+
+    code = sys.argv[1] if len(sys.argv) > 1 else default_ticker
+    name = sys.argv[2] if len(sys.argv) > 2 else default_name
+
+    if not code:
+        print("사용법: python -m pipeline.stock_pipeline <종목코드> [종목명]")
+        print("또는 .env에 DEFAULT_TICKER=000660:SK하이닉스 설정")
+        sys.exit(1)
 
     result = asyncio.run(analyze_stock(code, name))
     print(f"\n리포트 길이: {len(result)}자")

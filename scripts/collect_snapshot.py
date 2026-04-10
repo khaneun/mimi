@@ -9,8 +9,22 @@ import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
+from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+load_dotenv(Path(__file__).parent.parent / ".env")
+
+
+def _parse_snapshot_tickers() -> dict[str, str]:
+    """SNAPSHOT_TICKERS 환경변수 파싱 (형식: '000660:SK하이닉스,005930:삼성전자')"""
+    raw = os.getenv("SNAPSHOT_TICKERS", "")
+    result = {}
+    for item in raw.split(","):
+        item = item.strip()
+        if ":" in item:
+            code, name = item.split(":", 1)
+            result[name.strip()] = code.strip()
+    return result
 
 SNAPSHOT_PATH = Path(__file__).parent.parent / "reports" / ".harness_state" / "snapshot.json"
 DASHBOARD_PATH = Path(__file__).parent.parent / "examples" / "dashboard" / "public" / "dashboard_data.json"
@@ -46,16 +60,11 @@ def collect_pykrx():
         except Exception as e:
             print(f"  ⚠️ {name}: {e}")
 
-    # 주요 종목/ETF
-    tickers = {
-        "SK하이닉스": "000660", "삼성전자": "005930", "네이버": "035420",
-        "현대차": "005380", "현대모비스": "012330", "두산에너빌리티": "034020",
-        "현대로템": "064350", "카카오": "035720", "GS": "078930",
-        "GST": "083450", "케이씨텍": "029460", "한국전력": "015760",
-        "TIGER S&P500": "360750", "TIGER 지주회사": "307520",
-        "PLUS K방산": "449450", "TIGER 달러단기채권": "329750",
-        "TIGER 200중공업": "139230", "ACE KRX금현물": "411060",
-    }
+    # 주요 종목/ETF — SNAPSHOT_TICKERS 환경변수에서 로드
+    tickers = _parse_snapshot_tickers()
+    if not tickers:
+        print("  ⚠️ SNAPSHOT_TICKERS 환경변수 미설정 — 종목 스냅샷 스킵")
+        print("  .env에 SNAPSHOT_TICKERS=000660:SK하이닉스,005930:삼성전자 형식으로 설정하세요.")
     stocks = {}
     for name, code in tickers.items():
         try:

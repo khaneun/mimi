@@ -1,15 +1,21 @@
 """
 MarketPulse 실시간 시세 서버
 한투 REST API로 현재가 조회 → 대시보드 JSON 갱신
+
+KIS API 없이도 실행 가능 (KIS_ENABLED=false 시 실시간 시세 스킵)
 """
 import asyncio
 import json
 import logging
+import os
 import time
 import requests
 import yaml
 from pathlib import Path
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -17,27 +23,70 @@ logger = logging.getLogger(__name__)
 CONFIG_PATH = Path(__file__).parent.parent / "trading" / "config" / "kis_devlp.yaml"
 DASHBOARD_JSON = Path(__file__).parent.parent / "examples" / "dashboard" / "public" / "dashboard_data.json"
 
-# 관심 종목
-WATCH_TICKERS = [
-    "000660",  # SK하이닉스
-    "005930",  # 삼성전자
-    "035420",  # 네이버
-    "012450",  # 한화에어로
-    "064350",  # 현대로템
-    "079550",  # LIG넥스원
-]
+# KIS API 활성화 여부 (환경변수 또는 config 파일 존재 여부로 판단)
+KIS_ENABLED = os.getenv("KIS_ENABLED", "auto").lower()
+if KIS_ENABLED == "auto":
+    KIS_ENABLED = CONFIG_PATH.exists() or bool(os.getenv("KIS_APP_KEY"))
+
+
+def _parse_watch_tickers() -> list[str]:
+    """WATCH_TICKERS 환경변수 파싱 (형식: '000660:SK하이닉스,005930:삼성전자' 또는 '000660,005930')"""
+    raw = os.getenv("WATCH_TICKERS", "")
+    if not raw:
+        return []
+    tickers = []
+    for item in raw.split(","):
+        item = item.strip()
+        if ":" in item:
+            tickers.append(item.split(":")[0].strip())
+        elif item:
+            tickers.append(item)
+    return tickers
+
+
+WATCH_TICKERS = _parse_watch_tickers()
 
 
 class KISClient:
-    """한국투자증권 REST API 클라이언트"""
+    """한국투자증권 REST API 클라이언트
+
+    인증 정보 우선순위:
+      1. 환경변수 KIS_APP_KEY / KIS_APP_SECRET / KIS_MODE
+      2. trading/config/kis_devlp.yaml
+    """
 
     def __init__(self):
-        with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
-            config = yaml.safe_load(f)
+        # 환경변수 우선, 없으면 yaml fallback
+        env_key = os.getenv("KIS_APP_KEY")
+        env_sec = os.getenv("KIS_APP_SECRET")
+        kis_mode = os.getenv("KIS_MODE", "paper").lower()  # paper(모의) or real(실전)
 
-        self.app_key = config['my_app']
-        self.app_secret = config['my_sec']
-        self.base_url = config['prod']
+        if env_key and env_sec:
+            self.app_key = env_key
+            self.app_secret = env_sec
+            self.base_url = (
+                "https://openapivts.koreainvestment.com:29443"
+                if kis_mode == "paper"
+                else "https://openapi.koreainvestment.com:9443"
+            )
+            logger.info(f"KIS 인증: 환경변수 사용 (mode={kis_mode})")
+        elif CONFIG_PATH.exists():
+            with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
+            mode_key = 'paper_app' if kis_mode == "paper" else 'my_app'
+            mode_sec = 'paper_sec' if kis_mode == "paper" else 'my_sec'
+            self.app_key = config.get(mode_key) or config.get('my_app', '')
+            self.app_secret = config.get(mode_sec) or config.get('my_sec', '')
+            self.base_url = config.get('vps' if kis_mode == "paper" else 'prod',
+                                       'https://openapi.koreainvestment.com:9443')
+            logger.info(f"KIS 인증: kis_devlp.yaml 사용 (mode={kis_mode})")
+        else:
+            raise RuntimeError(
+                "KIS API 인증 정보 없음. "
+                "환경변수 KIS_APP_KEY/KIS_APP_SECRET을 설정하거나 "
+                "trading/config/kis_devlp.yaml을 생성하세요."
+            )
+
         self.token = None
         self.token_expires = 0
         self.token_file = Path(__file__).parent.parent / ".kis_token.json"
@@ -454,10 +503,21 @@ def update_dashboard(client: KISClient):
 
 
 def run_realtime(interval_sec: int = 60):
-    """주기적 실시간 갱신"""
-    client = KISClient()
-    logger.info(f"MarketPulse 실시간 서버 시작 (갱신 주기: {interval_sec}초)")
+    """주기적 실시간 갱신 (KIS_ENABLED=false 시 스킵)"""
+    if not KIS_ENABLED:
+        logger.warning(
+            "KIS API 비활성화 상태 — 실시간 시세 갱신 스킵. "
+            "KIS_APP_KEY/KIS_APP_SECRET 또는 kis_devlp.yaml 설정 후 재시작하세요."
+        )
+        return
 
+    try:
+        client = KISClient()
+    except RuntimeError as e:
+        logger.error(f"KISClient 초기화 실패: {e}")
+        return
+
+    logger.info(f"MarketPulse 실시간 서버 시작 (갱신 주기: {interval_sec}초)")
     while True:
         try:
             update_dashboard(client)
@@ -470,8 +530,14 @@ if __name__ == "__main__":
     import sys
     mode = sys.argv[1] if len(sys.argv) > 1 else "loop"
     if mode == "once":
-        client = KISClient()
-        update_dashboard(client)
+        if not KIS_ENABLED:
+            logger.warning("KIS_ENABLED=false — 실시간 시세 기능 비활성화")
+        else:
+            try:
+                client = KISClient()
+                update_dashboard(client)
+            except RuntimeError as e:
+                logger.error(str(e))
     else:
         interval = int(mode) if mode.isdigit() else 60
         run_realtime(interval)
