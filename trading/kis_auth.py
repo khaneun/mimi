@@ -1035,6 +1035,25 @@ def _atomic_write(file_path_str: str, data: bytes) -> bool:
 
 
 # Check token validity time and reissue if expired
+def _mask_secret(s: str, visible: int = 4) -> str:
+    """시크릿 값을 앞 N자리만 노출하고 나머지 마스킹"""
+    if not s or len(s) <= visible:
+        return "****"
+    return s[:visible] + "****"
+
+
+def _sanitize_headers_for_log(headers: dict) -> dict:
+    """로깅용 헤더 — 민감 필드 마스킹"""
+    SENSITIVE_KEYS = {"authorization", "appkey", "appsecret", "secretkey", "approval_key"}
+    safe = {}
+    for k, v in headers.items():
+        if k.lower() in SENSITIVE_KEYS and isinstance(v, str):
+            safe[k] = _mask_secret(v)
+        else:
+            safe[k] = v
+    return safe
+
+
 def _getBaseHeader():
     if _autoReAuth:
         reAuth()
@@ -1260,11 +1279,8 @@ def auth(
         account_key=account_key,
     )
 
-    # Update base headers
-    if _TRENV is not None:
-        _base_headers["authorization"] = f"Bearer {my_token}"
-        _base_headers["appkey"] = _TRENV.my_app
-        _base_headers["appsecret"] = _TRENV.my_sec
+    # Note: credentials are injected dynamically in _getBaseHeader() per request.
+    # Do NOT store appkey/appsecret/token in the global _base_headers dict.
 
     global _last_auth_time
     _last_auth_time = datetime.now()
@@ -1370,9 +1386,13 @@ class APIResp:
         return self._err_message
 
     def printAll(self):
+        SENSITIVE_RESP = {"authorization", "appkey", "appsecret", "secretkey", "approval_key"}
         print("<Header>")
         for x in self.getHeader()._fields:
-            print(f"\t-{x}: {getattr(self.getHeader(), x)}")
+            val = getattr(self.getHeader(), x)
+            if x.lower() in SENSITIVE_RESP and isinstance(val, str):
+                val = _mask_secret(val)
+            print(f"\t-{x}: {val}")
         print("<Body>")
         for x in self.getBody()._fields:
             print(f"\t-{x}: {getattr(self.getBody(), x)}")
@@ -1472,7 +1492,7 @@ def _url_fetch(
     if _DEBUG:
         print("< Sending Info >")
         print(f"URL: {url}, TR: {tr_id}")
-        print(f"<header>\n{headers}")
+        print(f"<header>\n{_sanitize_headers_for_log(headers)}")
         print(f"<body>\n{params}")
 
     if postFlag:
@@ -1517,18 +1537,25 @@ def auth_ws(svr="prod", product=DEFAULT_PRODUCT_CODE, account_name=None, account
     elif svr == "vps":
         ak1 = "paper_app"
         ak2 = "paper_sec"
+    else:
+        raise ValueError(f"Invalid server mode for auth_ws: {svr}")
+
+    # Validate credentials before making API call
+    is_valid, err_msg = validate_credentials(_cfg[ak1], svr)
+    if not is_valid:
+        raise RuntimeError(f"WebSocket auth credential validation failed: {err_msg}")
 
     p["appkey"] = _cfg[ak1]
     p["secretkey"] = _cfg[ak2]
 
     url = f"{_cfg[svr]}/oauth2/Approval"
-    res = requests.post(url, data=json.dumps(p), headers=_getBaseHeader())  # Token issuance
+    res = requests.post(url, data=json.dumps(p), headers=_getBaseHeader())
     rescode = res.status_code
-    if rescode == 200:  # Token issued successfully
+    if rescode == 200:
         approval_key = _getResultObject(res.json()).approval_key
     else:
-        print("Get Approval token fail!\nYou have to restart your app!!!")
-        return
+        logging.error(f"WebSocket approval token request failed (status={rescode})")
+        raise RuntimeError(f"WebSocket approval token request failed (status={rescode})")
 
     changeTREnv(None, svr, product, account_name=account_name, account_index=account_index, account_key=account_key)
 
@@ -1561,7 +1588,7 @@ def data_fetch(tr_id, tr_type, params, appendHeaders=None) -> dict:
     if _DEBUG:
         print("< Sending Info >")
         print(f"TR: {tr_id}")
-        print(f"<header>\n{headers}")
+        print(f"<header>\n{_sanitize_headers_for_log(headers)}")
 
     inp = {
         "tr_id": tr_id,
