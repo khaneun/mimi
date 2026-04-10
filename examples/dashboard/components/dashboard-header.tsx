@@ -1,22 +1,16 @@
 "use client"
 
 import {
-  Moon, Sun, Github, Send, Languages,
   LayoutDashboard, Brain, History, Eye,
   TrendingUp, Lightbulb, Newspaper, FileBarChart,
   ShieldCheck, Wallet, Bot, Play, Settings,
   BarChart3, DollarSign,
 } from "lucide-react"
 import { MarketTickerBar } from "@/components/market-ticker-bar"
-import { useTheme } from "next-themes"
 import { useLanguage } from "@/components/language-provider"
-import { Button } from "@/components/ui/button"
-import {
-  Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
-} from "@/components/ui/tooltip"
 import type { Market } from "@/types/dashboard"
 
-type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings" | "costs"
+type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "gainers" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings" | "costs"
 
 interface DashboardHeaderProps {
   activeTab: TabType
@@ -50,7 +44,7 @@ const MAIN_MENUS = [
     borderColor: "border-emerald-500",
     textColor: "text-emerald-400",
     bgColor: "bg-emerald-500/10",
-    tabs: ["insights", "news", "jeoningu-lab"] as TabType[],
+    tabs: ["insights", "gainers", "news", "jeoningu-lab"] as TabType[],
   },
   {
     id: "admin",
@@ -88,6 +82,7 @@ const SUBMENUS: Record<string, { tab: TabType; labelKo: string; labelEn: string;
   ],
   "analysis": [
     { tab: "insights",     labelKo: "매매 인사이트",    labelEn: "Trading Insights", icon: Lightbulb },
+    { tab: "gainers",      labelKo: "급등주",           labelEn: "Top Gainers",      icon: TrendingUp },
     { tab: "news",         labelKo: "실시간 뉴스키워드", labelEn: "Live News",        icon: Newspaper },
     { tab: "jeoningu-lab", labelKo: "리포트",          labelEn: "Reports",          icon: FileBarChart },
   ],
@@ -109,8 +104,7 @@ function getActiveMainMenu(tab: TabType): MainMenuId {
 // ──────────────────────────────────────────────────────────────
 
 export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = "KR", onMarketChange }: DashboardHeaderProps) {
-  const { theme, setTheme } = useTheme()
-  const { language, setLanguage, t } = useLanguage()
+  const { language } = useLanguage()
 
   const activeMainMenuId = getActiveMainMenu(activeTab)
   const activeMainMenu = MAIN_MENUS.find(m => m.id === activeMainMenuId)!
@@ -166,7 +160,7 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             </div>
             <div>
               <h1 className="text-lg font-bold bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 bg-clip-text text-transparent leading-none">
-                Mimi
+                Mimmy
               </h1>
               <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
                 <span className="relative flex h-1.5 w-1.5">
@@ -178,7 +172,7 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             </div>
           </div>
 
-          {/* Market Selector */}
+          {/* Daily / Night Selector */}
           {onMarketChange && (
             <div className="hidden sm:flex items-center">
               <div className="flex bg-muted/50 rounded-xl p-1 gap-1">
@@ -186,94 +180,50 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
                   onClick={() => onMarketChange("KR")}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
                     market === "KR"
-                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
+                      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
-                  <span>🇰🇷</span>
-                  <span>{language === "ko" ? "한국주식" : "Korea"}</span>
+                  <span>☀️</span>
+                  <span>Daily</span>
                 </button>
                 <button
                   onClick={() => onMarketChange("US")}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
                     market === "US"
-                      ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25"
+                      ? "bg-gradient-to-r from-indigo-600 to-violet-700 text-white shadow-lg shadow-indigo-500/25"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
-                  <span>🇺🇸</span>
-                  <span>{language === "ko" ? "미국주식" : "US"}</span>
+                  <span>🌙</span>
+                  <span>Night</span>
                 </button>
               </div>
             </div>
           )}
 
-          {/* Utilities */}
-          <div className="flex items-center gap-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" asChild className="rounded-full h-8 w-8">
-                    <a href="https://github.com/jacob119/market-pulse" target="_blank" rel="noopener noreferrer">
-                      <Github className="h-4 w-4" />
-                    </a>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent><p className="text-xs">{t("header.tooltip.github")}</p></TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" asChild className="rounded-full h-8 w-8">
-                    <a href="https://t.me/stock_ai_agent" target="_blank" rel="noopener noreferrer">
-                      <Send className="h-4 w-4" />
-                    </a>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent><p className="text-xs">{t("header.tooltip.telegram")}</p></TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <button
-              onClick={() => setLanguage(language === "ko" ? "en" : "ko")}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors font-medium text-xs"
-            >
-              <Languages className="h-3.5 w-3.5" />
-              <span className={language === "ko" ? "text-muted-foreground" : "text-foreground font-semibold"}>EN</span>
-              <span className="text-muted-foreground/50">/</span>
-              <span className={language === "ko" ? "text-foreground font-semibold" : "text-muted-foreground"}>한</span>
-            </button>
-            <Button
-              variant="ghost" size="icon"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="rounded-full h-8 w-8"
-            >
-              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            </Button>
-          </div>
         </div>
 
-        {/* Mobile Market Selector */}
+        {/* Mobile Daily / Night Selector */}
         {onMarketChange && (
           <div className="sm:hidden flex gap-1 pb-2">
             <button
               onClick={() => onMarketChange("KR")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg font-semibold text-xs transition-all ${
-                market === "KR" ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white" : "text-muted-foreground bg-muted/50"
+                market === "KR" ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white" : "text-muted-foreground bg-muted/50"
               }`}
             >
-              <span>🇰🇷</span>
-              <span>{language === "ko" ? "한국주식" : "Korea"}</span>
+              <span>☀️</span>
+              <span>Daily</span>
             </button>
             <button
               onClick={() => onMarketChange("US")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg font-semibold text-xs transition-all ${
-                market === "US" ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white" : "text-muted-foreground bg-muted/50"
+                market === "US" ? "bg-gradient-to-r from-indigo-600 to-violet-700 text-white" : "text-muted-foreground bg-muted/50"
               }`}
             >
-              <span>🇺🇸</span>
-              <span>{language === "ko" ? "미국주식" : "US"}</span>
+              <span>🌙</span>
+              <span>Night</span>
             </button>
           </div>
         )}

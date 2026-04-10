@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback, Suspense, ElementType } from "react"
-import { Brain, History, Eye, BarChart3, Lightbulb, Newspaper, FileBarChart, Wallet, Bot, Play, DollarSign, Settings as SettingsIcon, RefreshCw } from "lucide-react"
+import { Brain, History, Eye, BarChart3, Lightbulb, Newspaper, FileBarChart, Wallet, Bot, Play, DollarSign, Settings as SettingsIcon, RefreshCw, TrendingUp } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { useSearchParams, useRouter } from "next/navigation"
@@ -28,8 +28,8 @@ import { TriggerReliabilityBadge } from "@/components/trigger-reliability-badge"
 import { formatCurrency } from "@/lib/currency"
 import type { DashboardData, Holding, Market } from "@/types/dashboard"
 
-type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings" | "costs"
-const VALID_TABS: TabType[] = ["dashboard", "ai-decisions", "trading", "watchlist", "insights", "portfolio", "news", "jeoningu-lab", "agents", "execution", "settings", "costs"]
+type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "gainers" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings" | "costs"
+const VALID_TABS: TabType[] = ["dashboard", "ai-decisions", "trading", "watchlist", "insights", "gainers", "portfolio", "news", "jeoningu-lab", "agents", "execution", "settings", "costs"]
 
 // Get data file path based on market and language
 function getDataFilePath(market: Market, language: string): string {
@@ -236,6 +236,7 @@ function DashboardContent() {
     "execution":    { icon: Play,         labelKo: "스크립트",       labelEn: "Scripts",           descKo: "분석 파이프라인 실행 및 모니터링",        descEn: "Run and monitor analysis pipeline" },
     "costs":        { icon: DollarSign,   labelKo: "비용 현황",       labelEn: "Costs",             descKo: "프로젝트 운영 비용",                    descEn: "Project operating costs" },
     "settings":     { icon: SettingsIcon, labelKo: "설정",            labelEn: "Settings",          descKo: "투자 모드 및 시스템 설정",              descEn: "Investment mode and system settings" },
+    "gainers":      { icon: TrendingUp,  labelKo: "급등주",           labelEn: "Top Gainers",       descKo: "당일 급등주 TOP 5",                     descEn: "Top gainers today" },
   }
 
   const PageHeaderBlock = ({ tabId, onRefresh }: { tabId: string; onRefresh?: () => void }) => {
@@ -324,49 +325,49 @@ function DashboardContent() {
         {activeTab === "dashboard" && (
           <div className="space-y-6">
             <PageHeaderBlock tabId="dashboard" onRefresh={handlePageRefresh} />
-            {/* 실시간 시장 지표 배너 */}
-            {data.realtime && (
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
-                {[
-                  { label: 'KOSPI', value: data.realtime.kospi?.value?.toLocaleString(), change: data.realtime.kospi?.change_rate, color: 'blue' },
-                  { label: 'KOSDAQ', value: data.realtime.kosdaq?.value?.toLocaleString(), change: data.realtime.kosdaq?.change_rate, color: 'emerald' },
-                ].filter(m => m.value).map(m => (
-                  <div key={m.label} className="text-center p-2 rounded-lg bg-muted/30 border border-border/20">
-                    <p className="text-[10px] text-muted-foreground">{m.label}</p>
-                    <p className="text-sm font-bold">{m.value}</p>
-                    <p className={`text-[10px] ${(m.change ?? 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>{(m.change ?? 0) >= 0 ? '+' : ''}{m.change?.toFixed(2)}%</p>
+
+            {/* 투자 현황 배너 — KIS 우선, fallback: dashboard_data */}
+            {(() => {
+              const rt = kisPortfolio?.summary ?? data.summary?.real_trading
+              if (!rt) return null
+              const deposit = rt.deposit ?? 0
+              const evalAmount = rt.total_eval_amount ?? 0
+              const profitAmount = rt.total_profit_amount ?? 0
+              const profitRate = rt.total_profit_rate ?? 0
+              const isProfit = profitAmount >= 0
+              return (
+                <div className={`rounded-2xl p-5 border-2 ${
+                  isProfit
+                    ? "bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border-emerald-500/30"
+                    : "bg-gradient-to-r from-red-500/10 to-orange-500/10 border-red-500/30"
+                }`}>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                    {language === "ko" ? "투자 현황" : "Portfolio Status"}
+                    {kisMode === "paper" && (
+                      <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 normal-case">모의</span>
+                    )}
+                    {kisMode === "real" && (
+                      <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 normal-case">실전</span>
+                    )}
+                  </p>
+                  <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                    <span className="text-sm text-muted-foreground">
+                      {language === "ko" ? "예수금" : "Deposit"}{" "}
+                      <span className="text-base font-semibold text-foreground">{formatCurrency(deposit, market, language as "ko" | "en")}</span>
+                    </span>
+                    <span className="text-muted-foreground/40">→</span>
+                    <span className="text-sm text-muted-foreground">
+                      {language === "ko" ? "평가금" : "Valuation"}{" "}
+                      <span className="text-base font-semibold text-foreground">{formatCurrency(evalAmount, market, language as "ko" | "en")}</span>
+                    </span>
+                    <span className={`text-xl font-bold ${isProfit ? "text-red-400" : "text-blue-400"}`}>
+                      {formatCurrency(profitAmount, market, language as "ko" | "en")}
+                      <span className="text-base ml-1">({profitRate >= 0 ? "+" : ""}{(profitRate ?? 0).toFixed(2)}%)</span>
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* 트리거 신뢰도 미니 배지 */}
-            {data.trading_insights?.trigger_reliability && (
-              <TriggerReliabilityBadge
-                data={data.trading_insights.trigger_reliability}
-                onNavigateToInsights={() => handleTabChange("insights")}
-              />
-            )}
-
-            {/* 급등주 TOP 5 */}
-            {data.top_gainers && data.top_gainers.length > 0 && (
-              <div className="bg-gradient-to-r from-red-500/5 to-orange-500/5 border border-red-500/20 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-lg">🔥</span>
-                  <h3 className="text-sm font-bold text-foreground">급등주 TOP 5</h3>
-                  <span className="text-[10px] text-muted-foreground ml-auto">{data.realtime?.updated_at}</span>
                 </div>
-                <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
-                  {data.top_gainers.map((g: any, i: number) => (
-                    <div key={g.code ?? i} className="text-center p-3 rounded-lg bg-card/50 border border-border/20 hover:border-red-500/30 transition-colors">
-                      <p className="text-xs text-muted-foreground truncate">{g.name}</p>
-                      <p className="text-base font-bold text-foreground">{(g.price ?? 0).toLocaleString()}</p>
-                      <p className="text-sm font-semibold text-red-400">▲{g.change_rate}%</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+              )
+            })()}
 
             {/* 핵심 지표 카드 */}
             <MetricsCards
@@ -403,36 +404,6 @@ function DashboardContent() {
               kisLoading={kisLoading}
             />
 
-            {/* 투자 현황 배너 — KIS 우선, fallback: dashboard_data */}
-            {(() => {
-              const rt = kisPortfolio?.summary ?? data.summary?.real_trading
-              if (!rt) return null
-              const deposit = rt.deposit ?? 0
-              const evalAmount = rt.total_eval_amount ?? 0
-              const profitAmount = rt.total_profit_amount ?? 0
-              const profitRate = rt.total_profit_rate ?? 0
-              const isProfit = profitAmount >= 0
-              return (
-                <div className={`rounded-xl px-4 py-3 border ${
-                  isProfit
-                    ? "bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border-emerald-500/20"
-                    : "bg-gradient-to-r from-red-500/10 to-orange-500/10 border-red-500/20"
-                }`}>
-                  <p className="text-sm font-medium text-foreground flex items-center gap-2 flex-wrap">
-                    <span>💰</span>
-                    <span className="font-semibold text-muted-foreground">{language === "ko" ? "투자 현황" : "Portfolio"}</span>
-                    <span>{language === "ko" ? "예수금" : "Deposit"} {formatCurrency(deposit, market, language as "ko" | "en")}</span>
-                    <span className="text-muted-foreground">→</span>
-                    <span>{language === "ko" ? "평가금" : "Valuation"} {formatCurrency(evalAmount, market, language as "ko" | "en")}</span>
-                    <span className="text-muted-foreground">|</span>
-                    <span className={isProfit ? "text-emerald-400 font-bold" : "text-red-400 font-bold"}>
-                      {formatCurrency(profitAmount, market, language as "ko" | "en")} ({profitRate >= 0 ? "+" : ""}{(profitRate ?? 0).toFixed(2)}%)
-                    </span>
-                  </p>
-                </div>
-              )
-            })()}
-
             {/* 투자 현황 종목 테이블 — KIS 우선 */}
             {kisPortfolio && kisPortfolio.stocks.length > 0 && (
               <HoldingsTable
@@ -462,7 +433,7 @@ function DashboardContent() {
               />
             )}
 
-            {/* 프리즘 시뮬레이터 */}
+            {/* AI Simulator */}
             <HoldingsTable
               holdings={data.holdings ?? []}
               onStockClick={(stock) => handleStockClick(stock, false)}
@@ -471,7 +442,15 @@ function DashboardContent() {
               market={market}
             />
 
-            {/* 시장 지수 차트 - 하단 배치 */}
+            {/* 트리거 신뢰도 배지 */}
+            {data.trading_insights?.trigger_reliability && (
+              <TriggerReliabilityBadge
+                data={data.trading_insights.trigger_reliability}
+                onNavigateToInsights={() => handleTabChange("insights")}
+              />
+            )}
+
+            {/* 시장 지수 차트 */}
             <PerformanceChart
               data={data.market_condition ?? []}
               prismPerformance={data.prism_performance ?? []}
@@ -508,6 +487,35 @@ function DashboardContent() {
           <div className="space-y-4">
             <PageHeaderBlock tabId="insights" onRefresh={handlePageRefresh} />
             <TradingInsightsPage data={data.trading_insights ?? {}} market={market} />
+          </div>
+        )}
+
+        {activeTab === "gainers" && (
+          <div className="space-y-4">
+            <PageHeaderBlock tabId="gainers" onRefresh={handlePageRefresh} />
+            {data.top_gainers && data.top_gainers.length > 0 ? (
+              <div className="bg-gradient-to-r from-red-500/5 to-orange-500/5 border border-red-500/20 rounded-2xl p-6">
+                <div className="flex items-center gap-2 mb-5">
+                  <span className="text-2xl">🔥</span>
+                  <h3 className="text-xl font-bold text-foreground">급등주 TOP 5</h3>
+                  <span className="text-xs text-muted-foreground ml-auto">{data.realtime?.updated_at}</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                  {data.top_gainers.map((g: any, i: number) => (
+                    <div key={g.code ?? i} className="text-center p-5 rounded-xl bg-card/60 border border-border/30 hover:border-red-500/40 transition-colors">
+                      <p className="text-xs text-muted-foreground truncate mb-2">{g.name}</p>
+                      <p className="text-xl font-bold text-foreground">{(g.price ?? 0).toLocaleString()}</p>
+                      <p className="text-lg font-bold text-red-400 mt-1">▲{g.change_rate}%</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-16 text-muted-foreground">
+                <p className="text-lg">급등주 데이터가 없습니다.</p>
+                <p className="text-sm mt-1 text-muted-foreground/60">장 중에 데이터가 업데이트됩니다.</p>
+              </div>
+            )}
           </div>
         )}
 
