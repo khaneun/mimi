@@ -3,12 +3,13 @@
 import { TrendingUp, TrendingDown, Wallet, DollarSign, PiggyBank, Zap, Clock } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useLanguage } from "@/components/language-provider"
-import { formatCurrency as formatCurrencyUtil, getSeasonInfo, getDaysElapsed } from "@/lib/currency"
+import { formatCurrency as formatCurrencyUtil } from "@/lib/currency"
 import type { Summary, Market } from "@/types/dashboard"
 
 interface MetricsCardsProps {
   summary: Summary
-  kisPortfolio?: { summary: any; stocks: any[]; mode?: string } | null
+  kisPortfolio?: { summary: any; stocks: any[] } | null
+  kisMode?: string
   realPortfolio?: Array<{
     profit_rate: number
     name?: string
@@ -27,6 +28,7 @@ interface MetricsCardsProps {
 export function MetricsCards({
   summary,
   kisPortfolio,
+  kisMode,
   realPortfolio = [],
   tradingHistoryCount = 0,
   tradingHistoryTotalProfit = 0,
@@ -48,21 +50,12 @@ export function MetricsCards({
     return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`
   }
 
-  // Season info based on market
-  const seasonInfo = getSeasonInfo(market)
-  const daysElapsed = getDaysElapsed(market)
-
   // KIS 데이터 우선 사용, 없으면 dashboard_data fallback
   const rt = kisPortfolio?.summary ?? summary.real_trading
-  const kisMode = kisPortfolio?.mode
 
   // 총 자산 계산 (평가금액 + 예수금)
   const totalAssets = (rt.total_eval_amount || 0) +
                       (rt.available_amount || 0)
-
-  // Season 시작 금액
-  const seasonStartAmount = seasonInfo.startAmount
-  const totalAssetsReturn = totalAssets > 0 ? ((totalAssets - seasonStartAmount) / seasonStartAmount) * 100 : 0
 
   // Market-specific colors
   const isUSMarket = market === "US"
@@ -80,7 +73,9 @@ export function MetricsCards({
     {
       label: t("metrics.realTotalAssets"),
       value: formatCurrency(totalAssets),
-      change: `${t("metrics.startAmount")} ${formatCurrency(seasonStartAmount)} (${formatPercent(totalAssetsReturn)})`,
+      change: rt.total_eval_amount > 0
+        ? `${language === "ko" ? "평가금액" : "Holdings"} ${formatCurrency(rt.total_eval_amount || 0)}`
+        : "",
       changeValue: rt.available_amount > 0
         ? `${t("metrics.deposit")} ${formatCurrency(rt.available_amount)} | ${rt.total_stocks || 0}${t("metrics.stocks")}`
         : `${t("metrics.fullyInvested")} | ${rt.total_stocks || 0}${t("metrics.stocks")}`,
@@ -179,14 +174,6 @@ export function MetricsCards({
               </span>
             ) : null}
           </div>
-          <div className="flex items-center gap-2">
-            <span className={`text-xs font-semibold ${sectionTextColor}`}>
-              {seasonInfo.startDate.replace(/-/g, ".")} {t("metrics.started")}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              ({daysElapsed}{t("metrics.elapsed")})
-            </span>
-          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {realMetrics.map((metric, index) => {
@@ -229,20 +216,12 @@ export function MetricsCards({
 
       {/* Simulator Section */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center mb-3">
           <div className="flex items-center gap-2">
             <div className="h-1 w-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500" />
             <h2 className="text-sm font-semibold text-muted-foreground">
               {isUSMarket ? (language === "ko" ? "미국 시뮬레이터" : "US Simulator") : t("metrics.simulator")}
             </h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">
-              {seasonInfo.startDate.replace(/-/g, ".")} {t("metrics.started")}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              ({daysElapsed}{t("metrics.elapsed")})
-            </span>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

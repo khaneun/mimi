@@ -61,7 +61,8 @@ function DashboardContent() {
   const [dataError, setDataError] = useState<string | null>(null)
   const [lastFetchTime, setLastFetchTime] = useState<string>("")
   const prevDataHash = useRef<string>("")
-  const [kisPortfolio, setKisPortfolio] = useState<{ summary: any; stocks: any[]; mode?: string } | null>(null)
+  const [kisPortfolio, setKisPortfolio] = useState<{ summary: any; stocks: any[] } | null>(null)
+  const [kisMode, setKisMode] = useState<string>("paper")
 
   // URL에서 탭 파라미터 읽기
   const tabParam = searchParams.get("tab") as TabType | null
@@ -137,34 +138,31 @@ function DashboardContent() {
     return () => clearInterval(interval)
   }, [language, market])
 
-  // KIS 포트폴리오 데이터 로드 헬퍼 (GET — 캐시된 JSON 읽기)
-  const fetchKisPortfolio = () => {
-    if (market !== "KR") return
-    fetch("/api/portfolio?" + Date.now())
-      .then(r => r.json())
-      .then(d => {
-        const account = d?.accounts?.[0]
-        if (account) setKisPortfolio({
-          summary: account.summary ?? {},
-          stocks: account.stocks ?? [],
-          mode: d.kis_mode ?? "paper",
-        })
-      })
-      .catch(() => {})
+  // KIS 포트폴리오 데이터 로드 (GET — portfolio_data.json 읽기)
+  const applyPortfolioData = (d: any) => {
+    const account = d?.accounts?.[0]
+    if (account) {
+      setKisPortfolio({ summary: account.summary ?? {}, stocks: account.stocks ?? [] })
+    }
+    if (d?.kis_mode) setKisMode(d.kis_mode)
   }
 
-  // KIS 포트폴리오 초기 로드
+  // 초기: 설정에서 현재 모드 가져오기 + 포트폴리오 로드
   useEffect(() => {
-    fetchKisPortfolio()
+    if (market !== "KR") return
+    // 1) 현재 KIS 모드 즉시 반영
+    fetch("/api/settings").then(r => r.json()).then(d => {
+      if (d?.kis_mode) setKisMode(d.kis_mode)
+    }).catch(() => {})
+    // 2) 캐시된 포트폴리오 로드
+    fetch("/api/portfolio?" + Date.now()).then(r => r.json()).then(applyPortfolioData).catch(() => {})
   }, [market])
 
-  // 투자 모드 변경 시 → 새 계좌로 재동기화 후 UI 갱신
+  // 투자 모드 변경 시: ① 모드 태그 즉시 반영 → ② 새 계좌로 KIS 재동기화
   useEffect(() => {
     const handler = async (e: Event) => {
       const newMode = (e as CustomEvent).detail.mode as string
-      // 모드 태그 즉시 반영
-      setKisPortfolio(prev => prev ? { ...prev, mode: newMode } : prev)
-      // 새 모드 자격증명으로 KIS 재조회 (sync_portfolio.py 실행)
+      setKisMode(newMode)   // ① 즉시 반영
       try {
         const res = await fetch("/api/portfolio", {
           method: "POST",
@@ -172,23 +170,18 @@ function DashboardContent() {
           body: JSON.stringify({ mode: newMode }),
         })
         const data = await res.json()
-        if (data.success && data.data?.accounts?.[0]) {
-          const account = data.data.accounts[0]
-          setKisPortfolio({
-            summary: account.summary ?? {},
-            stocks: account.stocks ?? [],
-            mode: data.data.kis_mode ?? newMode,
-          })
+        if (data.success && data.data) {
+          applyPortfolioData(data.data)
         } else {
-          fetchKisPortfolio()
+          fetch("/api/portfolio?" + Date.now()).then(r => r.json()).then(applyPortfolioData).catch(() => {})
         }
       } catch {
-        fetchKisPortfolio()
+        fetch("/api/portfolio?" + Date.now()).then(r => r.json()).then(applyPortfolioData).catch(() => {})
       }
     }
     window.addEventListener("kis-mode-changed", handler)
     return () => window.removeEventListener("kis-mode-changed", handler)
-  }, [market])
+  }, [])
 
   const handleStockClick = (stock: Holding, isReal: boolean) => {
     setSelectedStock(stock)
@@ -292,6 +285,7 @@ function DashboardContent() {
             <MetricsCards
               summary={data.summary}
               kisPortfolio={kisPortfolio}
+              kisMode={kisMode}
               realPortfolio={data.real_portfolio || []}
               tradingHistoryCount={data.trading_history?.length || 0}
               tradingHistoryTotalProfit={
