@@ -242,30 +242,16 @@ function DashboardContent() {
   const PageHeaderBlock = ({ tabId, onRefresh }: { tabId: string; onRefresh?: () => void }) => {
     const hdr = PAGE_HEADERS[tabId]
     if (!hdr) return null
-    const Icon = hdr.icon
     return (
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50">
-              <Icon className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <div>
-              <h2 className="text-base font-semibold text-foreground leading-tight">
-                {language === "ko" ? hdr.labelKo : hdr.labelEn}
-              </h2>
-              <p className="text-xs text-muted-foreground/70">
-                {language === "ko" ? hdr.descKo : hdr.descEn}
-              </p>
-            </div>
-          </div>
-          {onRefresh && (
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onRefresh} title={language === "ko" ? "새로고침" : "Refresh"}>
-              <RefreshCw className="w-4 h-4 text-muted-foreground" />
-            </Button>
-          )}
-        </div>
-        <Separator />
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-xs text-muted-foreground/70">
+          {language === "ko" ? hdr.descKo : hdr.descEn}
+        </p>
+        {onRefresh && (
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onRefresh} title={language === "ko" ? "새로고침" : "Refresh"}>
+            <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />
+          </Button>
+        )}
       </div>
     )
   }
