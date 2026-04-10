@@ -92,12 +92,8 @@ def fetch_portfolio(mode: str) -> dict:
     try:
         from trading.domestic_stock_trading import DomesticStockTrading
 
-        # 키 접두사로 올바른 모드 자동 감지: PSVT* = 모의투자, PS* (비PSVT) = 실전
-        paper_key = os.getenv("KIS_PAPER_APP_KEY", "")
-        if mode in ("paper", "demo"):
-            kis_mode = "demo" if paper_key.startswith("PSVT") else "real"
-        else:
-            kis_mode = "real"
+        # paper → demo, real → real
+        kis_mode = "demo" if mode in ("paper", "demo") else "real"
         logger.info(f"KIS 포트폴리오 조회 시작 (mode={mode}, kis_mode={kis_mode})")
 
         trader = DomesticStockTrading(mode=kis_mode)

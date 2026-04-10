@@ -844,11 +844,13 @@ def validate_credentials(app_key: str, mode: str) -> Tuple[bool, str]:
             "This is the most common cause of 'Error Code: 500' authentication failures."
         )
 
+    # PS* 키가 demo 모드에서도 발급될 수 있으므로 (KIS 발급 기준 변경)
+    # PSVT* 키를 real 모드에서 쓰는 명백한 오류만 차단, PS* in demo는 경고만
     if mode == 'vps' and not is_demo_key and app_key.startswith('PS'):
-        return False, (
-            "CREDENTIAL MISMATCH! Using REAL app key (PS*) in DEMO mode.\n"
-            "Check kis_devlp.yaml - 'paper_app' should be your demo key (PSVT*).\n"
-            "Using real credentials in demo mode may cause unexpected behavior."
+        logging.warning(
+            "Paper/demo account key starts with 'PS' (not 'PSVT'). "
+            "This is valid if KIS issued a PS-format key for your paper trading account. "
+            "Proceeding with demo mode."
         )
 
     return True, ""
