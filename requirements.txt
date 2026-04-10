@@ -7,9 +7,7 @@ requests~=2.32.3
 aiohttp~=3.11.13
 python-dateutil~=2.9.0.post0
 email-validator
-openai~=1.64.0
-anthropic~=0.64.0
-google-genai>=1.0.0  # Gemini API (LLM_PROVIDER=gemini)
+# LLM: Claude Code CLI 전용 — API SDK 불필요
 markdown>=3.3.0
 python-telegram-bot>=20.0
 aiosqlite>=0.17.0

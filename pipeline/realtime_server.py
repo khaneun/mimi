@@ -411,7 +411,8 @@ def update_dashboard(client: KISClient):
                 w['change_rate'] = price_data.get('change_rate', 0)
                 price_cache[w['ticker']] = price_data
             time.sleep(0.2)
-        logger.info(f"  {w['name']}: {w['current_price']:,}원")
+        w_name = w.get('name') or w.get('company_name') or w.get('ticker', '?')
+        logger.info(f"  {w_name}: {w.get('current_price', 0):,}원")
 
     # 포트폴리오 종목 현재가 조회
     portfolio_path = DASHBOARD_JSON.parent / 'portfolio_data.json'

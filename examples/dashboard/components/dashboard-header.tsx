@@ -1,6 +1,6 @@
 "use client"
 
-import { Moon, Sun, TrendingUp, Github, Send, Languages, Newspaper, Wallet, LayoutDashboard, Brain, History, Eye, Lightbulb, FileBarChart } from "lucide-react"
+import { Moon, Sun, TrendingUp, Github, Send, Languages, Newspaper, Wallet, LayoutDashboard, Brain, History, Eye, Lightbulb, FileBarChart, Bot, Play } from "lucide-react"
 import { MarketTickerBar } from "@/components/market-ticker-bar"
 import { useTheme } from "next-themes"
 import { useLanguage } from "@/components/language-provider"
@@ -14,8 +14,8 @@ import {
 import type { Market } from "@/types/dashboard"
 
 interface DashboardHeaderProps {
-  activeTab: "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab"
-  onTabChange: (tab: "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab") => void
+  activeTab: "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution"
+  onTabChange: (tab: "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution") => void
   lastUpdated?: string
   market?: Market
   onMarketChange?: (market: Market) => void
@@ -312,6 +312,22 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             <FileBarChart className="w-4 h-4 mr-1" />
             {language === "ko" ? "리포트" : "Reports"}
           </Button>
+          <Button
+            variant={activeTab === "agents" ? "secondary" : "ghost"}
+            onClick={() => onTabChange("agents")}
+            className="font-medium"
+          >
+            <Bot className="w-4 h-4 mr-1" />
+            {language === "ko" ? "에이전트" : "Agents"}
+          </Button>
+          <Button
+            variant={activeTab === "execution" ? "secondary" : "ghost"}
+            onClick={() => onTabChange("execution")}
+            className="font-medium"
+          >
+            <Play className="w-4 h-4 mr-1" />
+            {language === "ko" ? "실행" : "Execution"}
+          </Button>
         </nav>
 
         {/* Mobile Navigation */}
@@ -387,6 +403,24 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
           >
             <FileBarChart className="w-4 h-4" />
             <span className="hidden sm:inline ml-1">{language === "ko" ? "리포트" : "Reports"}</span>
+          </Button>
+          <Button
+            variant={activeTab === "agents" ? "secondary" : "ghost"}
+            onClick={() => onTabChange("agents")}
+            size="sm"
+            className="font-medium whitespace-nowrap"
+          >
+            <Bot className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">{language === "ko" ? "에이전트" : "Agents"}</span>
+          </Button>
+          <Button
+            variant={activeTab === "execution" ? "secondary" : "ghost"}
+            onClick={() => onTabChange("execution")}
+            size="sm"
+            className="font-medium whitespace-nowrap"
+          >
+            <Play className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">{language === "ko" ? "실행" : "Execution"}</span>
           </Button>
         </nav>
       </div>
