@@ -17,22 +17,22 @@ $SSH "$EC2" "cd $APP_DIR && git pull origin main" || { echo "✗ git pull 실패
 echo "▶ [2/3] 빌드"
 $SSH "$EC2" "cd $DASH_DIR && npm run build" || { echo "✗ 빌드 실패"; exit 1; }
 
-# ── [3/3] 서버 재시작 ───────────────────────────────────────────
+# ── [3/3] 서버 재시작 (npm start 방식) ─────────────────────────
 echo "▶ [3/3] 서버 재시작"
-$SSH "$EC2" "pkill -f 'standalone/server.js' 2>/dev/null; mkdir -p $APP_DIR/logs; sleep 1"
-$SSH "$EC2" "nohup node $DASH_DIR/.next/standalone/server.js >> $LOG_FILE 2>&1 </dev/null &" 2>/dev/null; true
+$SSH "$EC2" "pkill -f 'next-server' 2>/dev/null; pkill -f 'next start' 2>/dev/null; mkdir -p $APP_DIR/logs; sleep 1; echo 'killed'" || true
+$SSH "$EC2" "nohup bash -c 'cd $DASH_DIR && node_modules/.bin/next start -p 3000 >> $LOG_FILE 2>&1' </dev/null &" 2>/dev/null; true
 
-# ── 확인 ────────────────────────────────────────────────────────
+# ── 확인 (next-server 기동 대기) ────────────────────────────────
 echo "▶ 확인 중..."
 $SSH "$EC2" "
-  for i in 1 2 3 4 5; do
-    PID=\$(pgrep -f 'standalone/server.js' | head -1)
+  for i in \$(seq 1 15); do
+    PID=\$(pgrep -f 'next-server' | head -1)
     if [ -n \"\$PID\" ]; then
       STATUS=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/)
       echo \"✅ 배포 완료 — PID: \$PID, HTTP \$STATUS\"
       exit 0
     fi
-    sleep 1
+    sleep 2
   done
   echo '✗ 서버 응답 없음'
   exit 1
