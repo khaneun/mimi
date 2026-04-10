@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Plus, Pencil, Trash2, Wallet, ArrowUpDown, ArrowUp, ArrowDown, Search } from "lucide-react"
+import { Plus, Pencil, Trash2, Wallet, ArrowUpDown, ArrowUp, ArrowDown, Search, RefreshCw, Building2, TrendingUp, TrendingDown, Coins, AlertCircle } from "lucide-react"
 import { getNaverChartUrl } from "@/lib/naver-chart"
 import { MiniCandle } from "@/components/mini-candle"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -86,6 +86,8 @@ const STORAGE_KEY = "portfolio_data_v1"
 export function PortfolioPage() {
   const { language } = useLanguage()
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null)
+  const [syncing, setSyncing] = useState(false)
+  const [syncError, setSyncError] = useState<string | null>(null)
   const [editStock, setEditStock] = useState<{ accountIdx: number; stockIdx: number; stock: Stock } | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<{ accountIdx: number; stockIdx: number } | null>(null)
@@ -167,6 +169,27 @@ export function PortfolioPage() {
       setPriceMap((prev) => ({ ...prev, ...kisMap }))
     }
   }, [portfolioData])
+
+  // KIS API 실시간 동기화
+  const syncFromKIS = useCallback(async () => {
+    setSyncing(true); setSyncError(null)
+    try {
+      const res = await fetch("/api/portfolio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      })
+      const data = await res.json()
+      if (data.success && data.data) {
+        setPortfolioData(data.data)
+      } else {
+        setSyncError(data.error || "KIS 동기화 실패")
+      }
+    } catch (e: any) {
+      setSyncError("KIS 연결 오류: " + e.message)
+    }
+    setSyncing(false)
+  }, [])
 
   // Save to state (CRUD)
   const saveData = useCallback((data: PortfolioData) => {
@@ -312,48 +335,92 @@ export function PortfolioPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600">
-            <Wallet className="w-5 h-5 text-white" />
+            <Building2 className="w-5 h-5 text-white" />
           </div>
           <div>
             <h2 className="text-xl font-bold">
               {language === "ko" ? "포트폴리오 관리" : "Portfolio Management"}
             </h2>
-            <p className="text-sm text-muted-foreground">
-              {language === "ko" ? "계좌별 보유 종목을 관리합니다" : "Manage holdings by account"}
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              <span>한국투자증권</span>
+              {account.mode_label && (
+                <Badge variant="outline" className={`text-[10px] ${account.mode_label === "실전투자" ? "border-emerald-500/40 text-emerald-400" : "border-blue-500/40 text-blue-400"}`}>
+                  {account.mode_label}
+                </Badge>
+              )}
+              {portfolioData.synced_at && (
+                <span className="text-[10px] text-muted-foreground/70">
+                  · {new Date(portfolioData.synced_at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} 기준
+                </span>
+              )}
             </p>
           </div>
         </div>
+        {/* KIS 새로고침 버튼 */}
+        <Button
+          onClick={syncFromKIS}
+          disabled={syncing}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        >
+          <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
+          {syncing
+            ? (language === "ko" ? "KIS 조회 중..." : "Fetching...")
+            : (language === "ko" ? "KIS 잔고 새로고침" : "Refresh from KIS")}
+        </Button>
       </div>
 
-      {/* 계좌 정보 */}
-      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/30">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-sm">한국투자증권</span>
-          {account.mode_label && (
-            <Badge
-              variant="outline"
-              className={account.mode_label === "실전투자"
-                ? "border-emerald-500/40 text-emerald-400 text-[10px]"
-                : "border-blue-500/40 text-blue-400 text-[10px]"
-              }
-            >
-              {account.mode_label}
-            </Badge>
-          )}
+      {/* 동기화 오류 */}
+      {syncError && (
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{syncError}</span>
+          <button onClick={() => setSyncError(null)} className="ml-auto text-red-400/60 hover:text-red-400">✕</button>
         </div>
-        <Badge variant="outline" className="text-[10px] ml-auto">
-          {account.stocks.length}{language === "ko" ? "종목" : " stocks"}
-        </Badge>
-        {portfolioData.synced_at && (
-          <span className="text-[10px] text-muted-foreground">
-            {language === "ko" ? "동기화: " : "Synced: "}
-            {new Date(portfolioData.synced_at).toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-          </span>
-        )}
-      </div>
+      )}
+
+      {/* KIS 계좌 요약 (API에서 가져온 경우) */}
+      {account.summary && Object.keys(account.summary).length > 0 && (() => {
+        const s = account.summary!
+        const totalEval = s.total_eval_amount ?? 0
+        const profit = s.total_profit_amount ?? 0
+        const profitRate = s.total_profit_rate ?? 0
+        const deposit = s.deposit ?? 0
+        const isProfit = profit >= 0
+        return (
+          <div className={`rounded-xl px-4 py-3 border ${isProfit ? "bg-emerald-500/5 border-emerald-500/20" : "bg-red-500/5 border-red-500/20"}`}>
+            <div className="flex items-center gap-1.5 mb-2">
+              {isProfit ? <TrendingUp className="w-4 h-4 text-emerald-400" /> : <TrendingDown className="w-4 h-4 text-red-400" />}
+              <span className="text-sm font-semibold">KIS 계좌 실시간 현황</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+              <div>
+                <p className="text-[11px] text-muted-foreground mb-0.5">{language === "ko" ? "총 평가금" : "Total Value"}</p>
+                <p className="font-bold">{totalEval.toLocaleString()}<span className="text-xs text-muted-foreground ml-1">원</span></p>
+              </div>
+              <div>
+                <p className="text-[11px] text-muted-foreground mb-0.5">{language === "ko" ? "평가손익" : "P&L"}</p>
+                <p className={`font-bold ${isProfit ? "text-emerald-400" : "text-red-400"}`}>
+                  {profit >= 0 ? "+" : ""}{profit.toLocaleString()}<span className="text-xs ml-1">({profitRate >= 0 ? "+" : ""}{profitRate.toFixed(2)}%)</span>
+                </p>
+              </div>
+              <div>
+                <p className="text-[11px] text-muted-foreground mb-0.5">{language === "ko" ? "예수금" : "Cash"}</p>
+                <p className="font-bold">{deposit.toLocaleString()}<span className="text-xs text-muted-foreground ml-1">원</span></p>
+              </div>
+              <div>
+                <p className="text-[11px] text-muted-foreground mb-0.5">{language === "ko" ? "보유 종목" : "Holdings"}</p>
+                <p className="font-bold">{account.stocks.length}<span className="text-xs text-muted-foreground ml-1">{language === "ko" ? "종목" : "stocks"}</span></p>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -386,16 +453,14 @@ export function PortfolioPage() {
             <p className="text-2xl font-bold">{account.stocks.length}<span className="text-sm text-muted-foreground ml-1">{language === "ko" ? "종목" : "stocks"}</span></p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <p className="text-sm text-muted-foreground">{language === "ko" ? "예수금" : "Deposit"}</p>
-            {account.summary?.deposit != null ? (
-              <p className="text-2xl font-bold">{account.summary.deposit.toLocaleString()}<span className="text-sm text-muted-foreground ml-1">{language === "ko" ? "원" : "KRW"}</span></p>
-            ) : (
-              <p className="text-2xl font-bold text-muted-foreground">-</p>
-            )}
-          </CardContent>
-        </Card>
+        {!account.summary?.deposit && (
+          <Card>
+            <CardContent className="pt-4">
+              <p className="text-sm text-muted-foreground">{language === "ko" ? "보유 종목 수" : "Holdings"}</p>
+              <p className="text-2xl font-bold">{account.stocks.length}<span className="text-sm text-muted-foreground ml-1">{language === "ko" ? "종목" : "stocks"}</span></p>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* 섹터별 비중 파이 차트 */}

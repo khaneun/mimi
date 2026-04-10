@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from "react"
 import {
-  Settings, RefreshCw, CheckCircle, AlertCircle, Building2,
-  ToggleLeft, ToggleRight, Bot, LogIn, LogOut, ExternalLink, Copy, Loader2
+  Settings, CheckCircle, AlertCircle, Building2,
+  ToggleLeft, ToggleRight, Bot, LogIn, LogOut,
+  ExternalLink, Copy, Loader2, RefreshCw,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -32,9 +33,7 @@ export function SettingsPage() {
   const [settings, setSettings] = useState<SettingsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [savedMode, setSavedMode] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "done" | "error">("idle")
 
   // Claude CLI 상태
   const [claudeStatus, setClaudeStatus] = useState<ClaudeStatus | null>(null)
@@ -55,9 +54,7 @@ export function SettingsPage() {
     setLoading(true)
     try {
       const res = await fetch("/api/settings")
-      const data = await res.json()
-      setSettings(data)
-      setSavedMode(data.kis_mode)
+      setSettings(await res.json())
     } catch {
       setError("설정을 불러오지 못했습니다.")
     }
@@ -86,14 +83,10 @@ export function SettingsPage() {
         const res = await fetch("/api/claude-login")
         const data = await res.json()
         setClaudeStatus(data)
-        if (data.logged_in) {
-          stopPolling()
-          setLoginUrl(null)
-        }
+        if (data.logged_in) { stopPolling(); setLoginUrl(null) }
       } catch {}
     }, 3000)
-    // 5분 후 자동 중지
-    setTimeout(() => stopPolling(), 300000)
+    setTimeout(stopPolling, 300000)
   }
 
   const stopPolling = () => {
@@ -102,8 +95,7 @@ export function SettingsPage() {
   }
 
   const handleStartLogin = async () => {
-    setError(null)
-    setLoginUrl(null)
+    setError(null); setLoginUrl(null)
     try {
       const res = await fetch("/api/claude-login", {
         method: "POST",
@@ -111,104 +103,58 @@ export function SettingsPage() {
         body: JSON.stringify({ action: "start-login" }),
       })
       const data = await res.json()
-      if (data.url) {
-        setLoginUrl(data.url)
-        startPolling()
-      } else {
-        setError(data.error || "로그인 URL을 가져오지 못했습니다.")
-      }
-    } catch (e) {
-      setError("로그인 시작 실패")
-    }
+      if (data.url) { setLoginUrl(data.url); startPolling() }
+      else setError(data.error || "로그인 URL을 가져오지 못했습니다.")
+    } catch { setError("로그인 시작 실패") }
   }
 
   const handleLogout = async () => {
-    try {
-      await fetch("/api/claude-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "logout" }),
-      })
-      setLoginUrl(null)
-      stopPolling()
-      await fetchClaudeStatus()
-    } catch {}
+    await fetch("/api/claude-login", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "logout" }),
+    })
+    setLoginUrl(null); stopPolling(); fetchClaudeStatus()
   }
 
   const handleCancelLogin = async () => {
     await fetch("/api/claude-login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "cancel-login" }),
     })
-    setLoginUrl(null)
-    stopPolling()
-    await fetchClaudeStatus()
+    setLoginUrl(null); stopPolling(); fetchClaudeStatus()
   }
 
   const handleTest = async () => {
     setTestResult("testing")
     try {
       const res = await fetch("/api/claude-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "test" }),
       })
       const data = await res.json()
       setTestResult(data.success ? "ok" : "fail")
-      setTimeout(() => setTestResult("idle"), 5000)
-    } catch {
-      setTestResult("fail")
-      setTimeout(() => setTestResult("idle"), 5000)
-    }
+    } catch { setTestResult("fail") }
+    setTimeout(() => setTestResult("idle"), 5000)
   }
 
   const handleCopyUrl = async (url: string) => {
     await navigator.clipboard.writeText(url)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    setCopied(true); setTimeout(() => setCopied(false), 2000)
   }
 
   const handleModeChange = async (mode: string) => {
     if (!settings || saving) return
-    setSaving(true)
-    setError(null)
+    setSaving(true); setError(null)
     try {
       const res = await fetch("/api/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ kis_mode: mode }),
       })
       const data = await res.json()
-      if (data.success) {
-        setSettings((prev) => prev ? { ...prev, kis_mode: data.kis_mode } : prev)
-        setSavedMode(data.kis_mode)
-      } else {
-        setError(data.error || "설정 저장 실패")
-      }
-    } catch {
-      setError("설정 저장 중 오류가 발생했습니다.")
-    }
+      if (data.success) setSettings(prev => prev ? { ...prev, kis_mode: data.kis_mode } : prev)
+      else setError(data.error || "설정 저장 실패")
+    } catch { setError("설정 저장 중 오류가 발생했습니다.") }
     setSaving(false)
-  }
-
-  const handlePortfolioSync = async () => {
-    setSyncStatus("syncing")
-    try {
-      const res = await fetch("/api/portfolio", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: settings?.kis_mode }),
-      })
-      const data = await res.json()
-      setSyncStatus(data.success ? "done" : "error")
-      if (!data.success) setError(data.error || "동기화 실패")
-      setTimeout(() => setSyncStatus("idle"), 3000)
-    } catch {
-      setSyncStatus("error")
-      setError("포트폴리오 동기화 중 오류가 발생했습니다.")
-      setTimeout(() => setSyncStatus("idle"), 5000)
-    }
   }
 
   if (loading) {
@@ -242,11 +188,11 @@ export function SettingsPage() {
         <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
-          <button onClick={() => setError(null)} className="ml-auto text-red-400/60 hover:text-red-400">✕</button>
+          <button onClick={() => setError(null)} className="ml-auto">✕</button>
         </div>
       )}
 
-      {/* ─── Claude CLI 로그인 ─── */}
+      {/* ── Claude CLI 로그인 ── */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -255,7 +201,7 @@ export function SettingsPage() {
           </div>
           <CardDescription>
             {language === "ko"
-              ? "AI 에이전트 실행에 필요한 Claude Code CLI 로그인 상태를 관리합니다"
+              ? "AI 에이전트 실행에 필요한 Claude Code CLI 로그인을 관리합니다"
               : "Manage Claude Code CLI login required for AI agent execution"}
           </CardDescription>
         </CardHeader>
@@ -265,7 +211,7 @@ export function SettingsPage() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Claude CLI</span>
               {claudeStatus?.bin_path && (
-                <span className="text-[10px] text-muted-foreground font-mono">{claudeStatus.bin_path}</span>
+                <span className="text-[10px] text-muted-foreground font-mono hidden sm:inline">{claudeStatus.bin_path}</span>
               )}
             </div>
             <div className="flex items-center gap-2">
@@ -275,18 +221,15 @@ export function SettingsPage() {
                 <Badge variant="outline" className="border-red-500/40 text-red-400 text-[11px]">미설치</Badge>
               ) : claudeStatus?.logged_in ? (
                 <Badge variant="outline" className="border-emerald-500/40 text-emerald-400 text-[11px]">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  로그인됨
+                  <CheckCircle className="w-3 h-3 mr-1" />로그인됨
                 </Badge>
               ) : loginPolling ? (
                 <Badge variant="outline" className="border-amber-500/40 text-amber-400 text-[11px]">
-                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                  인증 대기중
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />인증 대기중
                 </Badge>
               ) : (
                 <Badge variant="outline" className="border-zinc-500/40 text-zinc-400 text-[11px]">
-                  <AlertCircle className="w-3 h-3 mr-1" />
-                  로그인 필요
+                  <AlertCircle className="w-3 h-3 mr-1" />로그인 필요
                 </Badge>
               )}
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={fetchClaudeStatus}>
@@ -295,7 +238,7 @@ export function SettingsPage() {
             </div>
           </div>
 
-          {/* 로그인 URL 표시 */}
+          {/* 로그인 URL */}
           {loginUrl && (
             <div className="space-y-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
               <div className="flex items-center gap-2">
@@ -306,40 +249,24 @@ export function SettingsPage() {
               </div>
               <p className="text-xs text-muted-foreground">
                 {language === "ko"
-                  ? "아래 URL을 브라우저에서 열고 Claude 계정으로 로그인하세요. 완료되면 자동으로 상태가 업데이트됩니다."
-                  : "Open the URL below in your browser and sign in with your Claude account. Status will update automatically."}
+                  ? "아래 URL을 브라우저에서 열고 Claude 계정으로 로그인하세요. 완료 시 자동으로 상태가 업데이트됩니다."
+                  : "Open the URL below and sign in with your Claude account."}
               </p>
-              <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border/30">
-                <span className="text-xs font-mono text-foreground break-all flex-1 leading-relaxed">
-                  {loginUrl}
-                </span>
+              <div className="p-2 rounded-lg bg-muted/50 border border-border/30">
+                <span className="text-xs font-mono text-foreground break-all leading-relaxed">{loginUrl}</span>
               </div>
               <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  className="gap-1.5 flex-1"
-                  onClick={() => handleCopyUrl(loginUrl)}
-                >
+                <Button size="sm" className="gap-1.5 flex-1" onClick={() => handleCopyUrl(loginUrl)}>
                   <Copy className="w-3.5 h-3.5" />
                   {copied ? "복사됨!" : (language === "ko" ? "URL 복사" : "Copy URL")}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1.5"
-                  asChild
-                >
+                <Button size="sm" variant="outline" className="gap-1.5" asChild>
                   <a href={loginUrl} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="w-3.5 h-3.5" />
                     {language === "ko" ? "열기" : "Open"}
                   </a>
                 </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleCancelLogin}
-                  className="text-muted-foreground"
-                >
+                <Button size="sm" variant="ghost" onClick={handleCancelLogin} className="text-muted-foreground">
                   {language === "ko" ? "취소" : "Cancel"}
                 </Button>
               </div>
@@ -349,24 +276,14 @@ export function SettingsPage() {
           {/* 액션 버튼 */}
           <div className="flex flex-wrap gap-2">
             {!claudeStatus?.logged_in && !loginUrl && (
-              <Button
-                onClick={handleStartLogin}
-                className="gap-2"
-                disabled={loginPolling}
-              >
+              <Button onClick={handleStartLogin} className="gap-2" disabled={loginPolling}>
                 <LogIn className="w-4 h-4" />
                 {language === "ko" ? "Claude 로그인" : "Sign in to Claude"}
               </Button>
             )}
-
             {claudeStatus?.logged_in && (
               <>
-                <Button
-                  onClick={handleTest}
-                  variant="outline"
-                  className="gap-2"
-                  disabled={testResult === "testing"}
-                >
+                <Button onClick={handleTest} variant="outline" className="gap-2" disabled={testResult === "testing"}>
                   {testResult === "testing" ? (
                     <><Loader2 className="w-4 h-4 animate-spin" />{language === "ko" ? "테스트 중..." : "Testing..."}</>
                   ) : testResult === "ok" ? (
@@ -377,27 +294,22 @@ export function SettingsPage() {
                     <><Bot className="w-4 h-4" />{language === "ko" ? "동작 테스트" : "Test CLI"}</>
                   )}
                 </Button>
-                <Button
-                  onClick={handleLogout}
-                  variant="ghost"
-                  className="gap-2 text-muted-foreground"
-                >
+                <Button onClick={handleLogout} variant="ghost" className="gap-2 text-muted-foreground">
                   <LogOut className="w-4 h-4" />
                   {language === "ko" ? "로그아웃" : "Logout"}
                 </Button>
               </>
             )}
           </div>
-
           <p className="text-xs text-muted-foreground">
             {language === "ko"
-              ? "* Claude Code CLI는 claude.ai 계정으로 로그인합니다. API 키가 필요 없습니다."
-              : "* Claude Code CLI signs in with your claude.ai account. No API key required."}
+              ? "* claude.ai 계정으로 로그인합니다. API 키가 필요 없습니다."
+              : "* Signs in with your claude.ai account. No API key required."}
           </p>
         </CardContent>
       </Card>
 
-      {/* ─── KIS 계좌 설정 ─── */}
+      {/* ── KIS 계좌 모드 ── */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -409,11 +321,10 @@ export function SettingsPage() {
           <CardDescription>
             {language === "ko"
               ? "모의투자(연습) 또는 실전투자 모드를 선택합니다"
-              : "Choose between paper trading (practice) or live trading mode"}
+              : "Choose paper trading or live trading mode"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* 모드 토글 */}
           <div className="grid grid-cols-2 gap-3">
             {(settings?.available_modes || []).map((m) => {
               const isActive = settings?.kis_mode === m.value
@@ -425,9 +336,7 @@ export function SettingsPage() {
                   className={`
                     relative flex flex-col items-start gap-1 p-4 rounded-xl border-2 transition-all duration-200
                     ${isActive
-                      ? m.value === "paper"
-                        ? "border-blue-500 bg-blue-500/10"
-                        : "border-emerald-500 bg-emerald-500/10"
+                      ? m.value === "paper" ? "border-blue-500 bg-blue-500/10" : "border-emerald-500 bg-emerald-500/10"
                       : "border-border/50 bg-muted/30 hover:border-border hover:bg-muted/50"
                     }
                     ${saving ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
@@ -453,10 +362,7 @@ export function SettingsPage() {
                     {m.description}
                   </p>
                   {isActive && (
-                    <Badge
-                      variant="secondary"
-                      className={`text-[10px] mt-1 ${m.value === "paper" ? "bg-blue-500/20 text-blue-300" : "bg-emerald-500/20 text-emerald-300"}`}
-                    >
+                    <Badge variant="secondary" className={`text-[10px] mt-1 ${m.value === "paper" ? "bg-blue-500/20 text-blue-300" : "bg-emerald-500/20 text-emerald-300"}`}>
                       {language === "ko" ? "현재 모드" : "Active"}
                     </Badge>
                   )}
@@ -467,89 +373,36 @@ export function SettingsPage() {
 
           <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/30">
             <span className="text-sm text-muted-foreground">{language === "ko" ? "현재 설정" : "Current"}</span>
-            <Badge
-              variant="outline"
-              className={settings?.kis_mode === "real"
-                ? "border-emerald-500/40 text-emerald-400"
-                : "border-blue-500/40 text-blue-400"
-              }
-            >
+            <Badge variant="outline" className={settings?.kis_mode === "real" ? "border-emerald-500/40 text-emerald-400" : "border-blue-500/40 text-blue-400"}>
               한국투자증권 · {settings?.kis_mode === "real" ? "실전투자" : "모의투자"}
             </Badge>
           </div>
-
           {saving && (
             <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <Loader2 className="w-3 h-3 animate-spin inline" />
-              {language === "ko" ? "설정 저장 중..." : "Saving..."}
+              <Loader2 className="w-3 h-3 animate-spin" />{language === "ko" ? "저장 중..." : "Saving..."}
             </p>
           )}
         </CardContent>
       </Card>
 
-      {/* ─── 포트폴리오 동기화 ─── */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <RefreshCw className="w-5 h-5 text-primary" />
-            <CardTitle className="text-base">
-              {language === "ko" ? "포트폴리오 동기화" : "Portfolio Sync"}
-            </CardTitle>
-          </div>
-          <CardDescription>
-            {language === "ko"
-              ? "한국투자증권 API에서 실시간 잔고를 가져옵니다"
-              : "Fetch live balance from KIS API"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <Button
-            onClick={handlePortfolioSync}
-            disabled={syncStatus === "syncing"}
-            variant={syncStatus === "done" ? "outline" : "default"}
-            className="gap-2"
-          >
-            {syncStatus === "syncing" ? (
-              <><RefreshCw className="w-4 h-4 animate-spin" />{language === "ko" ? "동기화 중..." : "Syncing..."}</>
-            ) : syncStatus === "done" ? (
-              <><CheckCircle className="w-4 h-4 text-emerald-400" />{language === "ko" ? "동기화 완료" : "Synced"}</>
-            ) : syncStatus === "error" ? (
-              <><AlertCircle className="w-4 h-4 text-red-400" />{language === "ko" ? "동기화 실패" : "Failed"}</>
-            ) : (
-              <><RefreshCw className="w-4 h-4" />{language === "ko" ? "지금 동기화" : "Sync Now"}</>
-            )}
-          </Button>
-          <p className="text-xs text-muted-foreground">
-            {language === "ko"
-              ? "* KIS API 키가 설정된 경우에만 동작합니다. 장 운영 시간(09:00~15:30)에 사용하세요."
-              : "* Works only when KIS API is configured. Use during market hours (09:00~15:30)."}
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* ─── 시스템 정보 ─── */}
+      {/* ── 시스템 정보 ── */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{language === "ko" ? "시스템 정보" : "System Info"}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">LLM</span>
-              <Badge variant="outline" className="text-[11px]">Claude Code CLI</Badge>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{language === "ko" ? "시장 데이터" : "Market Data"}</span>
-              <Badge variant="outline" className="text-[11px]">pykrx · KIS API</Badge>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{language === "ko" ? "알림" : "Notifications"}</span>
-              <Badge variant="outline" className="text-[11px]">Telegram</Badge>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{language === "ko" ? "스케줄러" : "Scheduler"}</span>
-              <Badge variant="outline" className="text-[11px]">crontab · 21:00 KST</Badge>
-            </div>
+            {[
+              ["LLM", "Claude Code CLI"],
+              [language === "ko" ? "시장 데이터" : "Market Data", "pykrx · KIS API"],
+              [language === "ko" ? "알림" : "Notifications", "Telegram"],
+              [language === "ko" ? "스케줄러" : "Scheduler", "crontab · 21:00 KST"],
+            ].map(([label, value]) => (
+              <div key={label} className="flex justify-between">
+                <span className="text-muted-foreground">{label}</span>
+                <Badge variant="outline" className="text-[11px]">{value}</Badge>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
