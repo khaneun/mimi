@@ -9,10 +9,13 @@ import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from dotenv import load_dotenv
-
 sys.path.insert(0, str(Path(__file__).parent.parent))
-load_dotenv(Path(__file__).parent.parent / ".env")
+try:
+    from utils.load_secrets import load_env
+    load_env()
+except Exception:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).parent.parent / ".env")
 
 
 def _parse_snapshot_tickers() -> dict[str, str]:

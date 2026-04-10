@@ -8,14 +8,21 @@ import asyncio
 import json
 import logging
 import os
+import sys
 import time
 import requests
 import yaml
 from pathlib import Path
 from datetime import datetime
-from dotenv import load_dotenv
 
-load_dotenv()
+# 환경변수 로드: AWS Secrets Manager(EC2) → .env(로컬) 순으로 시도
+sys.path.insert(0, str(Path(__file__).parent.parent))
+try:
+    from utils.load_secrets import load_env
+    load_env()
+except Exception:
+    from dotenv import load_dotenv
+    load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

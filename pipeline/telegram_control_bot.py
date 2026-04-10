@@ -30,11 +30,15 @@ from datetime import datetime
 from pathlib import Path
 
 import requests
-from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-load_dotenv()
+try:
+    from utils.load_secrets import load_env
+    load_env()
+except Exception:
+    from dotenv import load_dotenv
+    load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
