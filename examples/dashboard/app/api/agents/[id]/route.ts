@@ -86,8 +86,9 @@ export async function GET(
     const content = readFileSync(filePath, "utf-8")
     return NextResponse.json({ content, path: relPath })
   } catch (err) {
+    console.error(`[agents] Failed to read ${id}:`, (err as Error).message)
     return NextResponse.json(
-      { error: `Failed to read agent file: ${(err as Error).message}` },
+      { error: "Failed to read agent file" },
       { status: 500 }
     )
   }
@@ -132,10 +133,17 @@ export async function PUT(
     )
   }
 
+  // 콘텐츠 크기 제한 (100KB)
+  if (body.content.length > 100_000) {
+    return NextResponse.json(
+      { error: "Content too large (max 100KB)" },
+      { status: 400 }
+    )
+  }
+
   const filePath = path.join(PROJECT_ROOT, relPath)
 
   try {
-    // 디렉토리가 없으면 생성
     const dir = path.dirname(filePath)
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true })
@@ -144,8 +152,9 @@ export async function PUT(
     writeFileSync(filePath, body.content, "utf-8")
     return NextResponse.json({ success: true })
   } catch (err) {
+    console.error(`[agents] Failed to write ${id}:`, (err as Error).message)
     return NextResponse.json(
-      { error: `Failed to write agent file: ${(err as Error).message}` },
+      { error: "Failed to write agent file" },
       { status: 500 }
     )
   }

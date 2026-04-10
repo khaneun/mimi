@@ -1,18 +1,19 @@
 import { NextResponse } from "next/server"
-import { exec } from "child_process"
+import { execFile } from "child_process"
 import { promisify } from "util"
 import path from "path"
 import fs from "fs"
 
-const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
+
+// 허용된 모드 화이트리스트
+const ALLOWED_MODES = new Set(["paper", "real"])
 
 function getWorkDir(): string {
   if (process.env.WORK_DIR) return process.env.WORK_DIR
   const cwd = process.cwd()
-  // examples/dashboard에서 실행 시 상위 2단계
   const rel = path.resolve(cwd, "../..")
   if (fs.existsSync(path.join(rel, "trading"))) return rel
-  // EC2 fallback
   const ec2 = "/home/ec2-user/mimi"
   if (fs.existsSync(ec2)) return ec2
   return cwd
@@ -45,10 +46,19 @@ export async function POST(request: Request) {
     mode = body?.mode
   } catch {}
 
+  // 모드 화이트리스트 검증
+  if (mode && !ALLOWED_MODES.has(mode)) {
+    return NextResponse.json({ error: "Invalid mode. Allowed: paper, real" }, { status: 400 })
+  }
+
   const workDir = getWorkDir()
-  // venv Python 우선 사용 (EC2/로컬 모두 대응)
+
   function getPythonBin(): string {
-    if (process.env.PYTHON_BIN) return process.env.PYTHON_BIN
+    if (process.env.PYTHON_BIN) {
+      const bin = process.env.PYTHON_BIN
+      if (!/^[a-zA-Z0-9._/\-]+$/.test(bin)) return "python3"
+      return bin
+    }
     const venvPaths = [
       path.join(workDir, ".venv", "bin", "python3"),
       "/home/ec2-user/mimi/.venv/bin/python3",
@@ -58,21 +68,28 @@ export async function POST(request: Request) {
     }
     return "python3"
   }
+
   const pythonBin = getPythonBin()
   const script = path.join(workDir, "scripts", "sync_portfolio.py")
 
   if (!fs.existsSync(script)) {
-    return NextResponse.json({ error: "sync_portfolio.py not found" }, { status: 500 })
+    return NextResponse.json({ error: "sync script not found" }, { status: 500 })
   }
 
-  const modeArg = mode ? `--mode ${mode}` : ""
-  const cmd = `cd "${workDir}" && ${pythonBin} scripts/sync_portfolio.py ${modeArg}`
+  // execFile (shell=false) — 커맨드 인젝션 방지
+  const args = [script]
+  if (mode) {
+    args.push("--mode", mode)
+  }
 
   try {
-    const { stdout, stderr } = await execAsync(cmd, { timeout: 30000 })
+    const { stdout, stderr } = await execFileAsync(pythonBin, args, {
+      timeout: 30000,
+      cwd: workDir,
+      env: { ...process.env, PYTHONPATH: workDir },
+    })
     if (stderr) console.error("[portfolio sync]", stderr)
 
-    // 동기화 후 최신 데이터 반환
     const jsonPath = getPortfolioJson()
     if (fs.existsSync(jsonPath)) {
       const raw = fs.readFileSync(jsonPath, "utf-8")
@@ -81,6 +98,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, data: null })
   } catch (e: any) {
     console.error("[portfolio sync error]", e.message)
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 })
+    return NextResponse.json({ success: false, error: "Portfolio sync failed" }, { status: 500 })
   }
 }

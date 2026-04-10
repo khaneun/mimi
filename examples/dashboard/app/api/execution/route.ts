@@ -77,9 +77,10 @@ export async function POST(req: NextRequest) {
       env: { ...process.env, PYTHONPATH: PROJECT_ROOT },
     })
     child.unref()
-    return NextResponse.json({ success: true, pid: child.pid, message: `실행 시작 (PID: ${child.pid})` })
+    return NextResponse.json({ success: true, message: "실행 시작" })
   } catch (e: any) {
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 })
+    console.error("[execution] spawn error:", e.message)
+    return NextResponse.json({ success: false, error: "Script execution failed" }, { status: 500 })
   }
 }
 
@@ -96,8 +97,9 @@ export async function GET(_req: NextRequest) {
     const items = Array.isArray(data) ? data : []
     return NextResponse.json({ items })
   } catch (err) {
+    console.error("[execution] Failed to read log:", (err as Error).message)
     return NextResponse.json(
-      { error: `Failed to read execution log: ${(err as Error).message}` },
+      { error: "Failed to read execution log" },
       { status: 500 }
     )
   }

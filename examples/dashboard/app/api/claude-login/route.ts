@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import { exec, spawn } from "child_process"
 import { promisify } from "util"
-import path from "path"
 import fs from "fs"
 
 const execAsync = promisify(exec)
@@ -19,7 +18,6 @@ function getClaudeBin(): string {
   return "claude"
 }
 
-// 진행중인 로그인 프로세스 저장 (서버 메모리, 재시작 시 초기화)
 let loginProcess: ReturnType<typeof spawn> | null = null
 let loginUrl: string | null = null
 let loginStatus: "idle" | "pending" | "error" = "idle"
@@ -28,22 +26,18 @@ let loginStatus: "idle" | "pending" | "error" = "idle"
 export async function GET() {
   const claude = getClaudeBin()
 
-  // claude binary 존재 확인
   if (!fs.existsSync(claude) && claude !== "claude") {
     return NextResponse.json({
       installed: false,
       logged_in: false,
       message: "Claude CLI가 설치되지 않았습니다",
-      bin_path: claude,
     })
   }
 
   try {
-    // claude auth status --json
     const { stdout, stderr } = await execAsync(`${claude} auth status 2>&1 || true`, { timeout: 10000 })
     const output = (stdout + stderr).trim()
 
-    // JSON 파싱 시도
     try {
       const jsonMatch = output.match(/\{[\s\S]*\}/)
       if (jsonMatch) {
@@ -56,29 +50,24 @@ export async function GET() {
           provider: statusJson.apiProvider || "unknown",
           login_pending: loginStatus === "pending",
           login_url: loginStatus === "pending" ? loginUrl : null,
-          bin_path: claude,
         })
       }
     } catch {}
 
-    // 텍스트에서 상태 추론
     const loggedIn = output.includes("Logged in") || output.includes("loggedIn: true")
     return NextResponse.json({
       installed: true,
       logged_in: loggedIn,
       login_pending: loginStatus === "pending",
       login_url: loginStatus === "pending" ? loginUrl : null,
-      raw_output: output.slice(0, 200),
-      bin_path: claude,
     })
   } catch (e: any) {
+    console.error("[claude-login] status check error:", e.message)
     return NextResponse.json({
       installed: true,
       logged_in: false,
-      error: e.message,
       login_pending: loginStatus === "pending",
       login_url: loginStatus === "pending" ? loginUrl : null,
-      bin_path: claude,
     })
   }
 }
@@ -89,13 +78,17 @@ export async function POST(request: Request) {
   const { action } = body
   const claude = getClaudeBin()
 
+  // 액션 화이트리스트 검증
+  const ALLOWED_ACTIONS = new Set(["start-login", "cancel-login", "logout", "test"])
+  if (!action || !ALLOWED_ACTIONS.has(action)) {
+    return NextResponse.json({ error: "Unknown action" }, { status: 400 })
+  }
+
   if (action === "start-login") {
-    // 이미 진행중이면 현재 URL 반환
     if (loginStatus === "pending" && loginUrl) {
       return NextResponse.json({ success: true, url: loginUrl, status: "pending" })
     }
 
-    // 기존 프로세스 정리
     if (loginProcess) {
       try { loginProcess.kill() } catch {}
       loginProcess = null
@@ -131,23 +124,19 @@ export async function POST(request: Request) {
 
       proc.on("exit", (code) => {
         loginProcess = null
-        if (code === 0) {
-          loginStatus = "idle"
-          loginUrl = null
-        } else {
-          loginStatus = "error"
-        }
+        loginStatus = code === 0 ? "idle" : "error"
+        if (code === 0) loginUrl = null
       })
 
       proc.on("error", (err) => {
         loginStatus = "error"
+        console.error("[claude-login] spawn error:", err.message)
         if (!resolved) {
           resolved = true
-          resolve(NextResponse.json({ success: false, error: err.message }, { status: 500 }))
+          resolve(NextResponse.json({ success: false, error: "Login process failed" }, { status: 500 }))
         }
       })
 
-      // 10초 내에 URL이 안 나오면 오류
       setTimeout(() => {
         if (!resolved) {
           resolved = true
@@ -155,7 +144,6 @@ export async function POST(request: Request) {
           resolve(NextResponse.json({
             success: false,
             error: "로그인 URL을 가져오지 못했습니다 (10초 타임아웃)",
-            raw: buffer.slice(0, 500),
           }, { status: 500 }))
         }
       }, 10000)
@@ -174,10 +162,11 @@ export async function POST(request: Request) {
 
   if (action === "logout") {
     try {
-      const { stdout, stderr } = await execAsync(`${claude} auth logout 2>&1`, { timeout: 10000 })
-      return NextResponse.json({ success: true, output: (stdout + stderr).trim() })
+      await execAsync(`${claude} auth logout 2>&1`, { timeout: 10000 })
+      return NextResponse.json({ success: true })
     } catch (e: any) {
-      return NextResponse.json({ success: false, error: e.message }, { status: 500 })
+      console.error("[claude-login] logout error:", e.message)
+      return NextResponse.json({ success: false, error: "Logout failed" }, { status: 500 })
     }
   }
 
@@ -189,9 +178,10 @@ export async function POST(request: Request) {
       )
       const output = (stdout + stderr).trim()
       const ok = output.includes("CLAUDE_OK")
-      return NextResponse.json({ success: ok, output: output.slice(0, 200) })
+      return NextResponse.json({ success: ok })
     } catch (e: any) {
-      return NextResponse.json({ success: false, error: e.message })
+      console.error("[claude-login] test error:", e.message)
+      return NextResponse.json({ success: false, error: "Test failed" })
     }
   }
 

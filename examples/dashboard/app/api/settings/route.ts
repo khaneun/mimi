@@ -71,6 +71,7 @@ export async function POST(request: Request) {
       kis_mode: kis_mode || process.env.KIS_MODE || "paper",
     })
   } catch (e: any) {
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 })
+    console.error("[settings] Failed to update:", e.message)
+    return NextResponse.json({ success: false, error: "Settings update failed" }, { status: 500 })
   }
 }

@@ -5,6 +5,70 @@
 
 ---
 
+## v1.3.1 (2026-04-10)
+
+보안 취약점 전면 점검 및 수정 (CRITICAL 5건, HIGH 7건, MEDIUM 10건).
+
+---
+
+### CRITICAL — Command Injection 제거
+
+- `POST /api/portfolio`: `exec()` (shell=true) → `execFile()` (shell=false)로 교체
+- `mode` 파라미터 화이트리스트 검증 (`paper` | `real` 만 허용)
+- 공격 벡터: `{"mode": "paper; rm -rf /"}` 같은 셸 인젝션 완전 차단
+
+---
+
+### CRITICAL — Path Traversal 차단
+
+- `GET /api/reports/[...slug]`: slug 세그먼트에 `..`, `.`, `\`, null byte 차단
+- `path.resolve()` 후 `REPORTS_DIR` prefix 검증으로 디렉토리 탈출 방지
+- 공격 벡터: `/api/reports/../../etc/passwd.html` 차단
+
+---
+
+### CRITICAL — Reflected XSS 수정
+
+- Reports 404 페이지: `filePath` 변수 `escHtml()` 이스케이프 적용
+- Markdown → HTML 변환기: 모든 캡처 그룹(헤더/볼드/이탤릭/테이블/리스트)에 HTML 이스케이프 적용
+- 공격 벡터: `/api/reports/<script>alert(1)</script>` 차단
+
+---
+
+### HIGH — 정보 노출 제거
+
+- 전체 API 라우트(6개): `e.message` 직접 반환 → 일반화된 에러 메시지로 교체
+- `claude-login`: `raw_output`, `bin_path` 응답에서 제거
+- `execution`: `child.pid` 응답에서 제거 (PID 노출 방지)
+- `PYTHON_BIN` 환경변수: 경로 형식 정규식 검증 추가
+
+---
+
+### HIGH — 계좌번호 마스킹
+
+- `sync_portfolio.py`: `account_key` (예: `prod:67921008:01`) → `prod:6792****:01`
+- 공개 JSON (`portfolio_data.json`)에 실 계좌번호 노출 차단
+
+---
+
+### MEDIUM — Security Headers 추가
+
+- `next.config.mjs`에 전역 보안 헤더 설정:
+  - `X-Content-Type-Options: nosniff`
+  - `X-Frame-Options: DENY` (clickjacking 방지)
+  - `Referrer-Policy: strict-origin-when-cross-origin`
+  - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+- Reports 라우트: `Content-Security-Policy: script-src 'none'` (저장 XSS 방지)
+
+---
+
+### MEDIUM — 기타 수정
+
+- `agents PUT`: 콘텐츠 크기 제한 (100KB) — 디스크 DoS 방지
+- `validate_data.py`: `import os` 누락 수정 (런타임 NameError 해결)
+
+---
+
 ## v1.3.0 (2026-04-10)
 
 v1.2.0 이후 대시보드 UX 개선 및 주식 테이블 간소화.

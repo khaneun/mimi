@@ -2,73 +2,81 @@ import { NextRequest, NextResponse } from "next/server"
 import { readFileSync, existsSync } from "fs"
 import path from "path"
 
-// 환경변수 > 상대경로 우선순위로 reports 디렉토리 탐색
 function findReportsDir(): string {
   if (process.env.REPORTS_DIR) return process.env.REPORTS_DIR
   const candidates = [
-    path.resolve(process.cwd(), "../../reports"),          // cwd = examples/dashboard
-    path.resolve(process.cwd(), "../../../reports"),        // cwd = examples/dashboard/.next
-    path.resolve(__dirname, "../../../../../../reports"),   // __dirname = .next/server/...
+    path.resolve(process.cwd(), "../../reports"),
+    path.resolve(process.cwd(), "../../../reports"),
+    path.resolve(__dirname, "../../../../../../reports"),
     path.resolve(__dirname, "../../../../../../../reports"),
-    "/home/ec2-user/mimi/reports",                          // EC2 절대경로 fallback
+    "/home/ec2-user/mimi/reports",
   ]
   for (const p of candidates) {
     if (existsSync(p)) return p
   }
   return candidates[0]
 }
-const REPORTS_DIR = findReportsDir()
+const REPORTS_DIR = path.resolve(findReportsDir())
 
-/** 마크다운을 간단한 HTML로 변환 (외부 라이브러리 불필요) */
+function escHtml(s: string) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+}
+
+/** 마크다운을 간단한 HTML로 변환 — 모든 텍스트를 escHtml 처리 */
 function mdToHtml(md: string): string {
   let html = md
-    // 코드 블록 (```lang ... ```)
+    // 코드 블록
     .replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) =>
-      `<pre><code class="language-${lang}">${escHtml(code.trimEnd())}</code></pre>`
+      `<pre><code class="language-${escHtml(lang)}">${escHtml(code.trimEnd())}</code></pre>`
     )
     // 인라인 코드
     .replace(/`([^`]+)`/g, (_, c) => `<code>${escHtml(c)}</code>`)
-    // 헤더 (h1~h6)
-    .replace(/^#{6}\s(.+)$/gm, "<h6>$1</h6>")
-    .replace(/^#{5}\s(.+)$/gm, "<h5>$1</h5>")
-    .replace(/^#{4}\s(.+)$/gm, "<h4>$1</h4>")
-    .replace(/^#{3}\s(.+)$/gm, "<h3>$1</h3>")
-    .replace(/^#{2}\s(.+)$/gm, "<h2>$1</h2>")
-    .replace(/^#{1}\s(.+)$/gm, "<h1>$1</h1>")
+    // 헤더 (h1~h6) — 캡처 그룹도 이스케이프
+    .replace(/^#{6}\s(.+)$/gm, (_, t) => `<h6>${escHtml(t)}</h6>`)
+    .replace(/^#{5}\s(.+)$/gm, (_, t) => `<h5>${escHtml(t)}</h5>`)
+    .replace(/^#{4}\s(.+)$/gm, (_, t) => `<h4>${escHtml(t)}</h4>`)
+    .replace(/^#{3}\s(.+)$/gm, (_, t) => `<h3>${escHtml(t)}</h3>`)
+    .replace(/^#{2}\s(.+)$/gm, (_, t) => `<h2>${escHtml(t)}</h2>`)
+    .replace(/^#{1}\s(.+)$/gm, (_, t) => `<h1>${escHtml(t)}</h1>`)
     // 수평선
     .replace(/^---$/gm, "<hr>")
-    // 굵게 / 기울임
-    .replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    // 굵게/기울임
+    .replace(/\*\*\*(.+?)\*\*\*/g, (_, t) => `<strong><em>${escHtml(t)}</em></strong>`)
+    .replace(/\*\*(.+?)\*\*/g, (_, t) => `<strong>${escHtml(t)}</strong>`)
+    .replace(/\*(.+?)\*/g, (_, t) => `<em>${escHtml(t)}</em>`)
     // 테이블
     .replace(/(\|.+\|\n)((?:\|[-: ]+)+\|\n)((?:\|.+\|\n?)*)/g, (match, header, _sep, rows) => {
-      const th = header.split("|").slice(1, -1).map((c: string) => `<th>${c.trim()}</th>`).join("")
+      const th = header.split("|").slice(1, -1).map((c: string) => `<th>${escHtml(c.trim())}</th>`).join("")
       const trs = rows.trim().split("\n").map((row: string) =>
-        "<tr>" + row.split("|").slice(1, -1).map((c: string) => `<td>${c.trim()}</td>`).join("") + "</tr>"
+        "<tr>" + row.split("|").slice(1, -1).map((c: string) => `<td>${escHtml(c.trim())}</td>`).join("") + "</tr>"
       ).join("\n")
       return `<table><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table>`
     })
-    // 목록 (- item)
-    .replace(/^- (.+)$/gm, "<li>$1</li>")
+    // 목록
+    .replace(/^- (.+)$/gm, (_, t) => `<li>${escHtml(t)}</li>`)
     .replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`)
-    // 번호 목록
-    .replace(/^\d+\. (.+)$/gm, "<li>$1</li>")
-    // 단락 (빈 줄로 구분)
+    .replace(/^\d+\. (.+)$/gm, (_, t) => `<li>${escHtml(t)}</li>`)
+    // 단락
     .split(/\n{2,}/)
     .map((block) => {
       if (/^<(h[1-6]|ul|ol|li|table|pre|hr)/.test(block.trim())) return block
       const trimmed = block.trim()
       if (!trimmed) return ""
-      return `<p>${trimmed.replace(/\n/g, "<br>")}</p>`
+      return `<p>${escHtml(trimmed).replace(/\n/g, "<br>")}</p>`
     })
     .join("\n")
 
   return html
 }
 
-function escHtml(s: string) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+/** slug 세그먼트의 path traversal 방지 검증 */
+function validateSlug(segments: string[]): boolean {
+  for (const seg of segments) {
+    if (seg === ".." || seg === "." || seg.includes("\\") || seg.includes("\0")) return false
+    // 숨김 파일/디렉토리 차단
+    if (seg.startsWith(".")) return false
+  }
+  return true
 }
 
 export async function GET(
@@ -76,24 +84,38 @@ export async function GET(
   { params }: { params: { slug: string[] } }
 ) {
   const slug = params.slug ?? []
-  // /reports/macro/macro_economy_report.html → macro/macro_economy_report
+
+  // Path traversal 차단
+  if (!validateSlug(slug)) {
+    return NextResponse.json({ error: "Invalid path" }, { status: 400 })
+  }
+
   const filePath = slug.join("/").replace(/\.html?$/, "")
 
+  // 최종 경로가 REPORTS_DIR 내에 있는지 검증
+  const resolvedHtml = path.resolve(REPORTS_DIR, filePath + ".html")
+  const resolvedMd = path.resolve(REPORTS_DIR, filePath + ".md")
+  if (!resolvedHtml.startsWith(REPORTS_DIR) || !resolvedMd.startsWith(REPORTS_DIR)) {
+    return NextResponse.json({ error: "Invalid path" }, { status: 400 })
+  }
+
   // 1. HTML 파일 먼저 탐색
-  const htmlPath = path.join(REPORTS_DIR, filePath + ".html")
-  if (existsSync(htmlPath)) {
-    const content = readFileSync(htmlPath, "utf-8")
+  if (existsSync(resolvedHtml)) {
+    const content = readFileSync(resolvedHtml, "utf-8")
     return new NextResponse(content, {
-      headers: { "Content-Type": "text/html; charset=utf-8" },
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Security-Policy": "default-src 'self'; style-src 'unsafe-inline'; script-src 'none'",
+        "X-Content-Type-Options": "nosniff",
+      },
     })
   }
 
   // 2. 마크다운 파일 탐색 후 변환
-  const mdPath = path.join(REPORTS_DIR, filePath + ".md")
-  if (existsSync(mdPath)) {
-    const md = readFileSync(mdPath, "utf-8")
+  if (existsSync(resolvedMd)) {
+    const md = readFileSync(resolvedMd, "utf-8")
     const body = mdToHtml(md)
-    const title = slug[slug.length - 1]?.replace(/_/g, " ") ?? "리포트"
+    const title = escHtml(slug[slug.length - 1]?.replace(/_/g, " ") ?? "리포트")
     const html = `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -125,18 +147,22 @@ ${body}
 </body>
 </html>`
     return new NextResponse(html, {
-      headers: { "Content-Type": "text/html; charset=utf-8" },
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Security-Policy": "default-src 'self'; style-src 'unsafe-inline'; script-src 'none'",
+        "X-Content-Type-Options": "nosniff",
+      },
     })
   }
 
-  // 3. 파일 없음
+  // 3. 파일 없음 — filePath 이스케이프하여 XSS 방지
   return new NextResponse(
     `<html><body style="background:#0f1117;color:#e2e8f0;font-family:sans-serif;padding:2rem">
       <h2>리포트를 찾을 수 없습니다</h2>
-      <p style="color:#94a3b8">경로: ${filePath}</p>
+      <p style="color:#94a3b8">경로: ${escHtml(filePath)}</p>
       <p style="color:#94a3b8">파이프라인 실행 후 리포트가 생성됩니다.</p>
       <p><code>./scripts/daily_run.sh all</code></p>
     </body></html>`,
-    { status: 404, headers: { "Content-Type": "text/html; charset=utf-8" } }
+    { status: 404, headers: { "Content-Type": "text/html; charset=utf-8", "X-Content-Type-Options": "nosniff" } }
   )
 }

@@ -117,9 +117,16 @@ def fetch_portfolio(mode: str) -> dict:
                 "sector": get_sector(code, name),
             })
 
-        account_number = trader.account_key if hasattr(trader, "account_key") else ""
+        # 계좌번호 마스킹 (앞 4자리만 표시)
+        raw_account = trader.account_key if hasattr(trader, "account_key") else ""
+        if raw_account and len(raw_account) >= 4:
+            parts = raw_account.split(":")
+            masked = [p[:4] + "****" if len(p) >= 4 else "****" for p in parts]
+            account_number = ":".join(masked)
+        else:
+            account_number = "****"
         mode_label = "모의투자" if mode in ("paper", "demo") else "실전투자"
-        account_name = f"한국투자증권"
+        account_name = "한국투자증권"
 
         return {
             "success": True,
@@ -132,11 +139,11 @@ def fetch_portfolio(mode: str) -> dict:
         }
 
     except Exception as e:
-        logger.error(f"KIS 포트폴리오 조회 실패: {e}")
+        logger.error(f"KIS 포트폴리오 조회 실패: {type(e).__name__}")
         return {
             "success": False,
             "mode": mode,
-            "error": str(e),
+            "error": "포트폴리오 조회 실패",
             "stocks": [],
             "summary": {},
         }
