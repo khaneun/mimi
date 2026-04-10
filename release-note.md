@@ -5,6 +5,69 @@
 
 ---
 
+## v1.2.0 (2026-04-10)
+
+v1.1.0 이후 대시보드 UI 개편 및 KIS 포트폴리오 실시간 연동 완성.
+
+---
+
+### 대시보드 네비게이션 전면 개편
+
+- **4단계 메인 메뉴 구조** 도입: 종합 대시보드 / 시황 / 관리 / 설정
+- 각 메인 메뉴 하위에 서브 메뉴 구성
+
+| 메인 메뉴 | 서브 메뉴 |
+|----------|----------|
+| 종합 대시보드 | 시장 현황 · AI 보유 분석 · 거래 내역 · 관심 종목 |
+| 시황 | 매매 인사이트 · 실시간 뉴스키워드 · 리포트 |
+| 관리 | 포트폴리오 관리 · AI 에이전트 현황 · 파이프라인 실행 |
+| 설정 | Claude CLI 로그인 · KIS 모드 전환 |
+
+- 메인 메뉴 아이콘 옆 텍스트 항상 표시 (모바일에서도 노출)
+- 메인 메뉴 색상 테마 구분: 파란색(대시보드) · 에메랄드(시황) · 보라(관리) · 슬레이트(설정)
+
+---
+
+### Claude CLI 웹 로그인 (Settings)
+
+SSH 접속 없이 대시보드 설정 페이지에서 Claude Code CLI 인증 가능.
+
+- `GET /api/claude-login`: 설치 여부 및 로그인 상태 조회
+- `POST /api/claude-login` (`start-login`): `claude auth login` 실행 → OAuth URL 추출 반환
+- 브라우저에서 URL 클릭 → 로그인 완료 후 자동 감지
+- `POST /api/claude-login` (`logout` / `test`): 로그아웃 및 동작 확인
+
+---
+
+### KIS 포트폴리오 실시간 연동
+
+포트폴리오 관리 탭에서 한국투자증권 계좌 잔고를 실시간 조회.
+
+- `scripts/sync_portfolio.py` 신규: KIS API → `portfolio_data.json` 동기화
+- `GET /api/portfolio`: 최신 `portfolio_data.json` 반환
+- `POST /api/portfolio`: sync 스크립트 실행 후 갱신 데이터 반환
+- 포트폴리오 페이지 KIS 요약 배너: 총 투자금 · 총 평가금 · 예수금 · 보유 종목수
+- 섹터 자동 분류 (종목코드 기반 + 이름 추론)
+- `GET /api/settings`: KIS 모드(paper/real) 조회 · `POST`: 모드 전환
+
+---
+
+### KIS 모의투자 키 호환성 수정
+
+- KIS에서 발급한 모의투자 App Key가 `PS*` 접두사인 경우 demo 모드 차단 오류 수정
+- `trading/kis_auth.py` `validate_credentials()`: `PS*` in demo → 오류 아닌 경고로 완화
+- 모의투자 계좌 50181784 (`PScnzK...` 키) demo 모드 접속 정상화
+- `sync_portfolio.py`: KIS API 연속 호출 rate limit 방지 (0.5초 딜레이)
+- API route: venv Python 우선 사용 (`.venv/bin/python3` 자동 감지)
+
+---
+
+### 기타 개선
+
+- 포트폴리오 페이지 새로고침 버튼 레이블 간소화 (`KIS 잔고 새로고침` → `새로고침`)
+
+---
+
 ## v1.1.0 (2026-04-10)
 
 v1.0.0 이후 인프라·설정 전면 개편. 다중 LLM 지원, KIS 설정 분리, AWS 보안 강화, EC2 자동 배포 기반을 확립했습니다.

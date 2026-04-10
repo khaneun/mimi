@@ -46,7 +46,19 @@ export async function POST(request: Request) {
   } catch {}
 
   const workDir = getWorkDir()
-  const pythonBin = process.env.PYTHON_BIN || "python3"
+  // venv Python 우선 사용 (EC2/로컬 모두 대응)
+  function getPythonBin(): string {
+    if (process.env.PYTHON_BIN) return process.env.PYTHON_BIN
+    const venvPaths = [
+      path.join(workDir, ".venv", "bin", "python3"),
+      "/home/ec2-user/mimi/.venv/bin/python3",
+    ]
+    for (const p of venvPaths) {
+      if (fs.existsSync(p)) return p
+    }
+    return "python3"
+  }
+  const pythonBin = getPythonBin()
   const script = path.join(workDir, "scripts", "sync_portfolio.py")
 
   if (!fs.existsSync(script)) {

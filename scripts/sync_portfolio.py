@@ -98,6 +98,7 @@ def fetch_portfolio(mode: str) -> dict:
 
         trader = DomesticStockTrading(mode=kis_mode)
         holdings = trader.get_portfolio()
+        import time; time.sleep(0.5)  # rate limit 방지
         summary = trader.get_account_summary()
 
         stocks = []
