@@ -11,6 +11,7 @@ mkdir -p "${LOG_DIR}"
 
 PID_DASHBOARD="${LOG_DIR}/dashboard.pid"
 PID_REALTIME="${LOG_DIR}/realtime.pid"
+PID_BOT="${LOG_DIR}/bot.pid"
 
 # ── AWS Secrets Manager 로드 ──────────────────────────────────────────
 echo ">>> 시크릿 로드 중..."
@@ -54,6 +55,18 @@ start_realtime() {
     echo "  로그: ${LOG_DIR}/realtime.log"
 }
 
+start_bot() {
+    echo ">>> 텔레그램 봇 시작..."
+    cd "${WORK_DIR}"
+    pkill -f telegram_control_bot 2>/dev/null || true
+    sleep 1
+    nohup "${PYTHON}" -m pipeline.telegram_control_bot \
+        > "${LOG_DIR}/telegram_bot.log" 2>&1 &
+    echo $! > "${PID_BOT}"
+    echo "  PID: $(cat ${PID_BOT})"
+    echo "  로그: ${LOG_DIR}/telegram_bot.log"
+}
+
 stop_service() {
     local pidfile="$1"
     local name="$2"
@@ -72,7 +85,7 @@ stop_service() {
 
 show_status() {
     echo "=== Mimi Trader 상태 ==="
-    for entry in "대시보드:${PID_DASHBOARD}" "실시간서버:${PID_REALTIME}"; do
+    for entry in "대시보드:${PID_DASHBOARD}" "실시간서버:${PID_REALTIME}" "텔레그램봇:${PID_BOT}"; do
         name="${entry%%:*}"
         pidfile="${entry#*:}"
         if [ -f "${pidfile}" ]; then
@@ -95,6 +108,7 @@ case "${CMD}" in
     realtime)  start_realtime ;;
     all)
         start_realtime
+        start_bot
         start_dashboard
         echo ""
         show_status
@@ -110,9 +124,11 @@ case "${CMD}" in
         "${PYTHON}" "${WORK_DIR}/utils/notify_startup.py" "${PUBLIC_IP}" 2>&1 || \
             echo "  (텔레그램 알림 실패 — 서비스는 정상 실행중)"
         ;;
+    bot)    start_bot ;;
     stop)
         stop_service "${PID_DASHBOARD}" "대시보드"
         stop_service "${PID_REALTIME}"  "실시간서버"
+        stop_service "${PID_BOT}"       "텔레그램봇"
         ;;
     status) show_status ;;
     *)
