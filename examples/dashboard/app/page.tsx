@@ -65,7 +65,10 @@ function DashboardContent() {
   const [lastFetchTime, setLastFetchTime] = useState<string>("")
   const prevDataHash = useRef<string>("")
   const [kisPortfolio, setKisPortfolio] = useState<{ summary: any; stocks: any[] } | null>(null)
-  const [kisMode, setKisMode] = useState<string>("paper")
+  const [kisMode, setKisMode] = useState<string>(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("kis_mode") || "paper"
+    return "paper"
+  })
   const [kisLoading, setKisLoading] = useState<boolean>(false)
   const [refreshKey, setRefreshKey] = useState(0)
 
@@ -154,15 +157,40 @@ function DashboardContent() {
     if (d?.kis_mode) setKisMode(d.kis_mode)
   }
 
-  // 초기: 설정에서 현재 모드 가져오기 + 포트폴리오 로드
+  // 초기: settings → 모드 확정 → portfolio POST(sync)
   useEffect(() => {
     if (market !== "KR") return
-    // 1) 현재 KIS 모드 즉시 반영
-    fetch("/api/settings").then(r => r.json()).then(d => {
-      if (d?.kis_mode) setKisMode(d.kis_mode)
-    }).catch(() => {})
-    // 2) 캐시된 포트폴리오 로드
-    fetch("/api/portfolio?" + Date.now()).then(r => r.json()).then(applyPortfolioData).catch(() => {})
+    ;(async () => {
+      // 1) 서버 설정으로 모드 확정 (없으면 localStorage 값 유지)
+      let mode = (typeof window !== "undefined" ? localStorage.getItem("kis_mode") : null) || "paper"
+      try {
+        const s = await fetch("/api/settings").then(r => r.json())
+        if (s?.kis_mode) {
+          mode = s.kis_mode
+          setKisMode(mode)
+          if (typeof window !== "undefined") localStorage.setItem("kis_mode", mode)
+        }
+      } catch {}
+      // 2) 확정된 모드로 KIS sync
+      setKisLoading(true)
+      try {
+        const res = await fetch("/api/portfolio", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode }),
+        })
+        const d = await res.json()
+        if (d.success && d.data) {
+          applyPortfolioData(d.data)
+        } else {
+          await fetch("/api/portfolio?" + Date.now()).then(r => r.json()).then(applyPortfolioData).catch(() => {})
+        }
+      } catch {
+        await fetch("/api/portfolio?" + Date.now()).then(r => r.json()).then(applyPortfolioData).catch(() => {})
+      } finally {
+        setKisLoading(false)
+      }
+    })()
   }, [market])
 
   // 투자 모드 변경 시: ① 모드 태그 즉시 반영 → ② 새 계좌로 KIS 재동기화
@@ -170,7 +198,8 @@ function DashboardContent() {
     const handler = async (e: Event) => {
       const newMode = (e as CustomEvent).detail.mode as string
       setKisMode(newMode)   // ① 즉시 반영
-      setKisLoading(true)   // ② 로딩 시작 (기존 데이터 유지)
+      if (typeof window !== "undefined") localStorage.setItem("kis_mode", newMode)  // ② localStorage 영속
+      setKisLoading(true)   // ③ 로딩 시작 (기존 데이터 유지)
       try {
         const res = await fetch("/api/portfolio", {
           method: "POST",

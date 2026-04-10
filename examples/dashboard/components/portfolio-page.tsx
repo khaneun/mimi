@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Plus, Pencil, Trash2, Wallet, ArrowUpDown, ArrowUp, ArrowDown, Search, RefreshCw, TrendingUp, TrendingDown, Coins, AlertCircle } from "lucide-react"
+import { Plus, Pencil, Trash2, Wallet, ArrowUpDown, ArrowUp, ArrowDown, Search, TrendingUp, TrendingDown, Coins, AlertCircle } from "lucide-react"
 import { getNaverChartUrl } from "@/lib/naver-chart"
 import { MiniCandle } from "@/components/mini-candle"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -364,8 +364,8 @@ export function PortfolioPage() {
 
   return (
     <div className="space-y-6">
-      {/* KIS 계좌 상태 + 새로고침 */}
-      <div className="flex items-center justify-between flex-wrap gap-2">
+      {/* KIS 계좌 상태 */}
+      <div className="flex items-center flex-wrap gap-2">
         <p className="text-sm text-muted-foreground flex items-center gap-2">
           <span>한국투자증권</span>
           {account.mode_label && (
@@ -379,10 +379,6 @@ export function PortfolioPage() {
             </span>
           )}
         </p>
-        <Button onClick={syncFromKIS} disabled={syncing} variant="outline" size="sm" className="gap-2">
-          <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
-          {syncing ? (language === "ko" ? "KIS 조회 중..." : "Fetching...") : (language === "ko" ? "새로고침" : "Refresh")}
-        </Button>
       </div>
 
       {/* 동기화 오류 */}
