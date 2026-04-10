@@ -24,6 +24,7 @@ interface MetricsCardsProps {
   tradingHistoryLossCount?: number
   market?: Market
   kisLoading?: boolean
+  showRealTrading?: boolean
 }
 
 export function MetricsCards({
@@ -39,7 +40,8 @@ export function MetricsCards({
   tradingHistoryWinCount = 0,
   tradingHistoryLossCount = 0,
   market = "KR",
-  kisLoading = false
+  kisLoading = false,
+  showRealTrading = true,
 }: MetricsCardsProps) {
   const { language, t } = useLanguage()
 
@@ -72,7 +74,7 @@ export function MetricsCards({
   return (
     <div className="space-y-5">
       {/* Real Trading Section */}
-      <div>
+      {showRealTrading && <div>
         <div className="flex items-center gap-2 mb-3">
           <h2 className="text-base font-bold text-foreground">
             {isUSMarket ? (language === "ko" ? "미국 실전투자" : "US Real Trading") : t("metrics.realTrading")}
@@ -126,7 +128,7 @@ export function MetricsCards({
             </Card>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Simulator Section */}
       <div>

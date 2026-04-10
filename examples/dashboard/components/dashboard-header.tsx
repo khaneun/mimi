@@ -10,7 +10,7 @@ import { MarketTickerBar } from "@/components/market-ticker-bar"
 import { useLanguage } from "@/components/language-provider"
 import type { Market } from "@/types/dashboard"
 
-type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "gainers" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings" | "costs"
+type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "gainers" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings" | "costs"
 
 interface DashboardHeaderProps {
   activeTab: TabType
@@ -55,7 +55,7 @@ const MAIN_MENUS = [
     borderColor: "border-violet-500",
     textColor: "text-violet-400",
     bgColor: "bg-violet-500/10",
-    tabs: ["portfolio", "agents", "execution", "costs"] as TabType[],
+    tabs: ["agents", "execution", "costs"] as TabType[],
   },
   {
     id: "settings",
@@ -81,13 +81,12 @@ const SUBMENUS: Record<string, { tab: TabType; labelKo: string; labelEn: string;
     { tab: "watchlist",    labelKo: "관심 종목",   labelEn: "Watchlist",      icon: Eye },
   ],
   "analysis": [
+    { tab: "gainers",      labelKo: "일반",             labelEn: "General",          icon: TrendingUp },
     { tab: "insights",     labelKo: "매매 인사이트",    labelEn: "Trading Insights", icon: Lightbulb },
-    { tab: "gainers",      labelKo: "급등주",           labelEn: "Top Gainers",      icon: TrendingUp },
     { tab: "news",         labelKo: "실시간 뉴스키워드", labelEn: "Live News",        icon: Newspaper },
     { tab: "jeoningu-lab", labelKo: "리포트",          labelEn: "Reports",          icon: FileBarChart },
   ],
   "admin": [
-    { tab: "portfolio",  labelKo: "포트폴리오 관리",   labelEn: "Portfolio",       icon: Wallet },
     { tab: "agents",     labelKo: "AI 에이전트 현황",  labelEn: "AI Agents",       icon: Bot },
     { tab: "execution",  labelKo: "스크립트",          labelEn: "Scripts",         icon: Play },
     { tab: "costs",      labelKo: "비용 현황",         labelEn: "Costs",           icon: DollarSign },

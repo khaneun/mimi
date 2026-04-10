@@ -12,9 +12,10 @@ interface PerformanceChartProps {
   holdings?: Holding[]
   summary?: Summary
   market?: Market
+  showIndex?: boolean
 }
 
-export function PerformanceChart({ data, prismPerformance = [], holdings = [], summary, market = "KR" }: PerformanceChartProps) {
+export function PerformanceChart({ data, prismPerformance = [], holdings = [], summary, market = "KR", showIndex = true }: PerformanceChartProps) {
   const { t, language } = useLanguage()
   const isUSMarket = market === "US"
   const seasonInfo = getSeasonInfo(market)
@@ -316,14 +317,13 @@ export function PerformanceChart({ data, prismPerformance = [], holdings = [], s
         />
       </div>
 
-      {/* 기존 지수 차트 */}
-      <IndexCharts data={sortedData} market={market} />
+      {showIndex && <IndexCharts data={sortedData} market={market} />}
     </div>
   )
 }
 
 // 기존 KOSPI/KOSDAQ 지수 차트를 별도 컴포넌트로 분리
-function IndexCharts({ data, market = "KR" }: { data: MarketCondition[], market?: Market }) {
+export function IndexCharts({ data, market = "KR" }: { data: MarketCondition[], market?: Market }) {
   const { t, language } = useLanguage()
   const isUSMarket = market === "US"
 

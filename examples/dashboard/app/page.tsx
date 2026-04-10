@@ -9,7 +9,7 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { OperatingCostsCard } from "@/components/operating-costs-card"
 import { MetricsCards } from "@/components/metrics-cards"
 import { HoldingsTable } from "@/components/holdings-table"
-import { PerformanceChart } from "@/components/performance-chart"
+import { PerformanceChart, IndexCharts } from "@/components/performance-chart"
 import { AIDecisionsPage } from "@/components/ai-decisions-page"
 import { TradingHistoryPage } from "@/components/trading-history-page"
 import { WatchlistPage } from "@/components/watchlist-page"
@@ -28,8 +28,8 @@ import { TriggerReliabilityBadge } from "@/components/trigger-reliability-badge"
 import { formatCurrency } from "@/lib/currency"
 import type { DashboardData, Holding, Market } from "@/types/dashboard"
 
-type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "gainers" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings" | "costs"
-const VALID_TABS: TabType[] = ["dashboard", "ai-decisions", "trading", "watchlist", "insights", "gainers", "portfolio", "news", "jeoningu-lab", "agents", "execution", "settings", "costs"]
+type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "gainers" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings" | "costs"
+const VALID_TABS: TabType[] = ["dashboard", "ai-decisions", "trading", "watchlist", "insights", "gainers", "news", "jeoningu-lab", "agents", "execution", "settings", "costs"]
 
 // Get data file path based on market and language
 function getDataFilePath(market: Market, language: string): string {
@@ -71,6 +71,7 @@ function DashboardContent() {
   })
   const [kisLoading, setKisLoading] = useState<boolean>(false)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [summaryTab, setSummaryTab] = useState<"general" | "ai">("general")
 
   // URL에서 탭 파라미터 읽기
   const tabParam = searchParams.get("tab") as TabType | null
@@ -231,12 +232,11 @@ function DashboardContent() {
     "insights":     { icon: Lightbulb,    labelKo: "매매 인사이트",   labelEn: "Trading Insights",  descKo: "매매 패턴 및 트리거 신뢰도 분석",        descEn: "Trading patterns and trigger analysis" },
     "news":         { icon: Newspaper,    labelKo: "실시간 뉴스키워드", labelEn: "Live News",        descKo: "실시간 뉴스 키워드 트렌드",              descEn: "Real-time news keyword trends" },
     "jeoningu-lab": { icon: FileBarChart, labelKo: "리포트",          labelEn: "Reports",           descKo: "AI 분석 리포트 아카이브",               descEn: "AI analysis reports archive" },
-    "portfolio":    { icon: Wallet,       labelKo: "포트폴리오 관리", labelEn: "Portfolio",         descKo: "KIS 계좌 포트폴리오 관리",              descEn: "Manage KIS account portfolio" },
     "agents":       { icon: Bot,          labelKo: "AI 에이전트 현황", labelEn: "AI Agents",        descKo: "AI 에이전트 팀 현황 및 프롬프트",        descEn: "AI agent team and prompts" },
     "execution":    { icon: Play,         labelKo: "스크립트",       labelEn: "Scripts",           descKo: "분석 파이프라인 실행 및 모니터링",        descEn: "Run and monitor analysis pipeline" },
     "costs":        { icon: DollarSign,   labelKo: "비용 현황",       labelEn: "Costs",             descKo: "프로젝트 운영 비용",                    descEn: "Project operating costs" },
     "settings":     { icon: SettingsIcon, labelKo: "설정",            labelEn: "Settings",          descKo: "투자 모드 및 시스템 설정",              descEn: "Investment mode and system settings" },
-    "gainers":      { icon: TrendingUp,  labelKo: "급등주",           labelEn: "Top Gainers",       descKo: "당일 급등주 TOP 5",                     descEn: "Top gainers today" },
+    "gainers":      { icon: TrendingUp,  labelKo: "일반",             labelEn: "General",           descKo: "시장 지수 및 당일 급등주",               descEn: "Market index & top gainers today" },
   }
 
   const PageHeaderBlock = ({ tabId, onRefresh }: { tabId: string; onRefresh?: () => void }) => {
@@ -309,99 +309,106 @@ function DashboardContent() {
 
       <main className="container mx-auto px-4 py-6 max-w-[1600px]">
         {activeTab === "dashboard" && (
-          <div className="space-y-6">
-            <PageHeaderBlock tabId="dashboard" onRefresh={handlePageRefresh} />
+          <div className="space-y-4">
+            {/* 헤더: 설명 + General/AI 탭 + 새로고침 */}
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground/70">
+                {language === "ko" ? PAGE_HEADERS["dashboard"].descKo : PAGE_HEADERS["dashboard"].descEn}
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="flex bg-muted/50 rounded-lg p-0.5 gap-0.5">
+                  <button
+                    onClick={() => setSummaryTab("general")}
+                    className={`px-2.5 py-1 rounded-md font-medium text-xs transition-all duration-200 ${
+                      summaryTab === "general"
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    General
+                  </button>
+                  <button
+                    onClick={() => setSummaryTab("ai")}
+                    className={`px-2.5 py-1 rounded-md font-medium text-xs transition-all duration-200 ${
+                      summaryTab === "ai"
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    AI
+                  </button>
+                </div>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handlePageRefresh} title={language === "ko" ? "새로고침" : "Refresh"}>
+                  <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />
+                </Button>
+              </div>
+            </div>
 
-            {/* 핵심 지표 카드 */}
-            <MetricsCards
-              summary={data.summary}
-              kisPortfolio={kisPortfolio}
-              kisMode={kisMode}
-              realPortfolio={data.real_portfolio || []}
-              tradingHistoryCount={data.trading_history?.length || 0}
-              tradingHistoryTotalProfit={
-                data.trading_history?.reduce((sum, trade) => sum + trade.profit_rate, 0) || 0
-              }
-              tradingHistoryAvgProfit={
-                data.trading_history?.length > 0
-                  ? data.trading_history.reduce((sum, trade) => sum + trade.profit_rate, 0) / data.trading_history.length
-                  : 0
-              }
-              tradingHistoryAvgDays={
-                data.trading_history?.length > 0
-                  ? data.trading_history.reduce((sum, trade) => sum + trade.holding_days, 0) / data.trading_history.length
-                  : 0
-              }
-              tradingHistoryWinRate={
-                data.trading_history?.length > 0
-                  ? (data.trading_history.filter(t => t.profit_rate > 0).length / data.trading_history.length) * 100
-                  : 0
-              }
-              tradingHistoryWinCount={
-                data.trading_history?.filter(t => t.profit_rate > 0).length || 0
-              }
-              tradingHistoryLossCount={
-                data.trading_history?.filter(t => t.profit_rate <= 0).length || 0
-              }
-              market={market}
-              kisLoading={kisLoading}
-            />
-
-            {/* 투자 현황 종목 테이블 — KIS 우선 */}
-            {kisPortfolio && kisPortfolio.stocks.length > 0 && (
-              <HoldingsTable
-                holdings={kisPortfolio.stocks.map((s: any) => ({
-                  ticker: s.code,
-                  name: s.name,
-                  current_price: s.current_price ?? 0,
-                  avg_price: s.avg_price ?? 0,
-                  quantity: s.quantity ?? 0,
-                  profit_rate: s.profit_rate ?? 0,
-                  profit: s.profit_amount ?? 0,
-                  sector: s.sector ?? "기타",
-                }))}
-                onStockClick={(stock) => handleStockClick(stock, true)}
-                title={t("table.realPortfolio")}
-                isRealTrading={true}
-                market={market}
-              />
-            )}
-            {(!kisPortfolio || kisPortfolio.stocks.length === 0) && data.real_portfolio && data.real_portfolio.length > 0 && (
-              <HoldingsTable
-                holdings={data.real_portfolio}
-                onStockClick={(stock) => handleStockClick(stock, true)}
-                title={t("table.realPortfolio")}
-                isRealTrading={true}
-                market={market}
-              />
+            {/* General 탭: 포트폴리오 현황 */}
+            {summaryTab === "general" && (
+              <PortfolioPage key={refreshKey} />
             )}
 
-            {/* AI Simulator */}
-            <HoldingsTable
-              holdings={data.holdings ?? []}
-              onStockClick={(stock) => handleStockClick(stock, false)}
-              title={t("table.simulator")}
-              isRealTrading={false}
-              market={market}
-            />
-
-            {/* 트리거 신뢰도 배지 */}
-            {data.trading_insights?.trigger_reliability && (
-              <TriggerReliabilityBadge
-                data={data.trading_insights.trigger_reliability}
-                onNavigateToInsights={() => handleTabChange("insights")}
-              />
+            {/* AI 탭: AI Simulator + 시뮬레이션 + 수익률 비교 차트 */}
+            {summaryTab === "ai" && (
+              <div className="space-y-6">
+                <MetricsCards
+                  summary={data.summary}
+                  kisPortfolio={kisPortfolio}
+                  kisMode={kisMode}
+                  realPortfolio={data.real_portfolio || []}
+                  tradingHistoryCount={data.trading_history?.length || 0}
+                  tradingHistoryTotalProfit={
+                    data.trading_history?.reduce((sum, trade) => sum + trade.profit_rate, 0) || 0
+                  }
+                  tradingHistoryAvgProfit={
+                    data.trading_history?.length > 0
+                      ? data.trading_history.reduce((sum, trade) => sum + trade.profit_rate, 0) / data.trading_history.length
+                      : 0
+                  }
+                  tradingHistoryAvgDays={
+                    data.trading_history?.length > 0
+                      ? data.trading_history.reduce((sum, trade) => sum + trade.holding_days, 0) / data.trading_history.length
+                      : 0
+                  }
+                  tradingHistoryWinRate={
+                    data.trading_history?.length > 0
+                      ? (data.trading_history.filter(t => t.profit_rate > 0).length / data.trading_history.length) * 100
+                      : 0
+                  }
+                  tradingHistoryWinCount={
+                    data.trading_history?.filter(t => t.profit_rate > 0).length || 0
+                  }
+                  tradingHistoryLossCount={
+                    data.trading_history?.filter(t => t.profit_rate <= 0).length || 0
+                  }
+                  market={market}
+                  kisLoading={kisLoading}
+                  showRealTrading={false}
+                />
+                <HoldingsTable
+                  holdings={data.holdings ?? []}
+                  onStockClick={(stock) => handleStockClick(stock, false)}
+                  title={t("table.simulator")}
+                  isRealTrading={false}
+                  market={market}
+                />
+                {data.trading_insights?.trigger_reliability && (
+                  <TriggerReliabilityBadge
+                    data={data.trading_insights.trigger_reliability}
+                    onNavigateToInsights={() => handleTabChange("insights")}
+                  />
+                )}
+                <PerformanceChart
+                  data={data.market_condition ?? []}
+                  prismPerformance={data.prism_performance ?? []}
+                  holdings={data.holdings ?? []}
+                  summary={data.summary}
+                  market={market}
+                  showIndex={false}
+                />
+              </div>
             )}
-
-            {/* 시장 지수 차트 */}
-            <PerformanceChart
-              data={data.market_condition ?? []}
-              prismPerformance={data.prism_performance ?? []}
-              holdings={data.holdings ?? []}
-              summary={data.summary}
-              market={market}
-            />
-
           </div>
         )}
 
@@ -436,6 +443,8 @@ function DashboardContent() {
         {activeTab === "gainers" && (
           <div className="space-y-4">
             <PageHeaderBlock tabId="gainers" onRefresh={handlePageRefresh} />
+            {/* KOSPI/KOSDAQ 지수 차트 */}
+            <IndexCharts data={data.market_condition ?? []} market={market} />
             {data.top_gainers && data.top_gainers.length > 0 ? (
               <div className="bg-gradient-to-r from-red-500/5 to-orange-500/5 border border-red-500/20 rounded-2xl p-6">
                 <div className="flex items-center gap-2 mb-5">
@@ -459,13 +468,6 @@ function DashboardContent() {
                 <p className="text-sm mt-1 text-muted-foreground/60">장 중에 데이터가 업데이트됩니다.</p>
               </div>
             )}
-          </div>
-        )}
-
-        {activeTab === "portfolio" && (
-          <div className="space-y-4">
-            <PageHeaderBlock tabId="portfolio" onRefresh={handlePageRefresh} />
-            <PortfolioPage key={refreshKey} />
           </div>
         )}
 
