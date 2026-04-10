@@ -53,9 +53,9 @@ const PROJECT_ROOT = findProjectRoot()
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params
+  const { id } = await params
 
   // inline 에이전트: 읽기 전용이지만 GET은 허용 (내용 없음 안내)
   if (INLINE_AGENTS.has(id)) {
@@ -96,9 +96,9 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params
+  const { id } = await params
 
   // inline 에이전트: 수정 불가
   if (INLINE_AGENTS.has(id)) {

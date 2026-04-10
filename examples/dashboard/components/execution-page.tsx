@@ -116,6 +116,7 @@ interface RunState {
   status: "idle" | "running" | "done" | "error"
   message?: string
   startedAt?: number
+  lastRunAt?: string  // "yyyy-mm-dd hh:mm:ss"
 }
 
 // --- Component ---
@@ -156,21 +157,23 @@ export function ExecutionPage() {
         body: JSON.stringify({ script: script.script }),
       })
       const data = await res.json()
+      const lastRunAt = new Date().toISOString().replace("T", " ").substring(0, 19)
       if (res.ok && data.success) {
         setRunStates(prev => ({
           ...prev,
-          [script.id]: { status: "done", message: data.message ?? "실행 완료" },
+          [script.id]: { status: "done", message: data.message ?? "실행 완료", lastRunAt },
         }))
       } else {
         setRunStates(prev => ({
           ...prev,
-          [script.id]: { status: "error", message: data.error ?? `HTTP ${res.status}` },
+          [script.id]: { status: "error", message: data.error ?? `HTTP ${res.status}`, lastRunAt },
         }))
       }
     } catch (e: any) {
+      const lastRunAt = new Date().toISOString().replace("T", " ").substring(0, 19)
       setRunStates(prev => ({
         ...prev,
-        [script.id]: { status: "error", message: e.message },
+        [script.id]: { status: "error", message: e.message, lastRunAt },
       }))
     }
   }
@@ -227,6 +230,11 @@ export function ExecutionPage() {
                           )}
                           {state.status === "done" && state.message && (
                             <p className="text-xs text-emerald-400 mt-1">{state.message}</p>
+                          )}
+                          {state.lastRunAt && (
+                            <p className="text-[10px] text-muted-foreground/50 mt-1.5">
+                              {language === "ko" ? "마지막 실행 시간" : "Last run"} {state.lastRunAt}
+                            </p>
                           )}
                         </div>
                         <Button

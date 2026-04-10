@@ -204,12 +204,24 @@ export function AgentsPage() {
 
                           {/* 이름 + 역할 */}
                           <div className="flex-1 min-w-0">
-                            <span className="text-sm font-semibold text-foreground">
-                              {agent.name}
-                            </span>
-                            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                              {language === "ko" ? agent.roleKo : agent.roleEn}
-                            </p>
+                            {(() => {
+                              const sep = " — "
+                              const koName = agent.roleKo.includes(sep) ? agent.roleKo.split(sep)[0] : agent.roleKo
+                              const enName = agent.roleEn.includes(sep) ? agent.roleEn.split(sep)[0] : agent.roleEn
+                              const koDesc = agent.roleKo.includes(sep) ? agent.roleKo.substring(agent.roleKo.indexOf(sep) + sep.length) : ""
+                              const enDesc = agent.roleEn.includes(sep) ? agent.roleEn.substring(agent.roleEn.indexOf(sep) + sep.length) : ""
+                              return (
+                                <>
+                                  <span className="text-sm font-semibold text-foreground">{koName}</span>
+                                  <p className="text-xs text-muted-foreground/50 mt-0.5">({enName})</p>
+                                  {(language === "ko" ? koDesc : enDesc) && (
+                                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                      {language === "ko" ? koDesc : enDesc}
+                                    </p>
+                                  )}
+                                </>
+                              )
+                            })()}
                           </div>
 
                           {/* 프롬프트 확인 버튼 */}

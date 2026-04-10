@@ -81,7 +81,7 @@ type MainMenuId = (typeof MAIN_MENUS)[number]["id"]
 
 const SUBMENUS: Record<string, { tab: TabType; labelKo: string; labelEn: string; icon: React.ElementType }[]> = {
   "dashboard-group": [
-    { tab: "dashboard",    labelKo: "보유 현황",   labelEn: "Holdings Overview", icon: BarChart3 },
+    { tab: "dashboard",    labelKo: "Summary",      labelEn: "Summary",           icon: BarChart3 },
     { tab: "ai-decisions", labelKo: "AI 보유 분석", labelEn: "AI Analysis",    icon: Brain },
     { tab: "trading",      labelKo: "거래 내역",   labelEn: "Trade History",  icon: History },
     { tab: "watchlist",    labelKo: "관심 종목",   labelEn: "Watchlist",      icon: Eye },
@@ -94,7 +94,7 @@ const SUBMENUS: Record<string, { tab: TabType; labelKo: string; labelEn: string;
   "admin": [
     { tab: "portfolio",  labelKo: "포트폴리오 관리",   labelEn: "Portfolio",       icon: Wallet },
     { tab: "agents",     labelKo: "AI 에이전트 현황",  labelEn: "AI Agents",       icon: Bot },
-    { tab: "execution",  labelKo: "파이프라인 실행",   labelEn: "Pipeline",        icon: Play },
+    { tab: "execution",  labelKo: "스크립트",          labelEn: "Scripts",         icon: Play },
     { tab: "costs",      labelKo: "비용 현황",         labelEn: "Costs",           icon: DollarSign },
   ],
 }
