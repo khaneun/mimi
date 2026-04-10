@@ -4,383 +4,281 @@ import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { useLanguage } from "@/components/language-provider"
-import { Activity, CheckCircle, XCircle, Clock, Loader2 } from "lucide-react"
+import { Play, Square, RefreshCw, CheckCircle, XCircle, Clock, Loader2, Terminal } from "lucide-react"
+
+// --- 파이프라인 스크립트 정의 ---
+
+interface PipelineScript {
+  id: string
+  nameKo: string
+  nameEn: string
+  descKo: string
+  descEn: string
+  script: string
+  category: "daily" | "analysis" | "data" | "server"
+  color: string
+}
+
+const PIPELINE_SCRIPTS: PipelineScript[] = [
+  {
+    id: "daily",
+    nameKo: "일일 통합 파이프라인",
+    nameEn: "Daily Pipeline",
+    descKo: "거시경제 + 종목 분석 + 아카이브 전체 실행 (평일 21:00 자동)",
+    descEn: "Full daily run: macro + stock analysis + archive",
+    script: "pipeline/daily_pipeline.py",
+    category: "daily",
+    color: "bg-violet-500/10 text-violet-400 border-violet-500/30",
+  },
+  {
+    id: "macro",
+    nameKo: "거시경제 분석",
+    nameEn: "Macro Analysis",
+    descKo: "Investment Alpha 6인 — 거시/원자재/주식/부동산/종합/월별",
+    descEn: "Investment Alpha team — macro/commodity/stock/real estate",
+    script: "pipeline/macro_pipeline.py",
+    category: "analysis",
+    color: "bg-blue-500/10 text-blue-400 border-blue-500/30",
+  },
+  {
+    id: "stock",
+    nameKo: "종목 분석",
+    nameEn: "Stock Analysis",
+    descKo: "MarketPulse 에이전트 — 기술/수급/재무/뉴스/시장 분석",
+    descEn: "MarketPulse agents — technical/flow/financial/news/market",
+    script: "pipeline/stock_pipeline.py",
+    category: "analysis",
+    color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+  },
+  {
+    id: "news_crawler",
+    nameKo: "뉴스 크롤링",
+    nameEn: "News Crawler",
+    descKo: "RSS 7개 매체 + YouTube 5채널 수집 및 키워드 분석",
+    descEn: "RSS 7 sources + YouTube 5 channels + keyword analysis",
+    script: "pipeline/news_crawler.py",
+    category: "data",
+    color: "bg-red-500/10 text-red-400 border-red-500/30",
+  },
+  {
+    id: "news_analyzer",
+    nameKo: "뉴스 분석",
+    nameEn: "News Analyzer",
+    descKo: "수집된 뉴스 감정/섹터 분석 및 대시보드 JSON 갱신",
+    descEn: "Sentiment/sector analysis and dashboard JSON update",
+    script: "pipeline/news_analyzer.py",
+    category: "data",
+    color: "bg-orange-500/10 text-orange-400 border-orange-500/30",
+  },
+  {
+    id: "watchlist",
+    nameKo: "관심종목 분석",
+    nameEn: "Watchlist Analysis",
+    descKo: "보유 + 관심 종목 모니터링 및 신호 감지",
+    descEn: "Holdings + watchlist monitoring and signal detection",
+    script: "pipeline/watchlist_analyzer.py",
+    category: "analysis",
+    color: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+  },
+  {
+    id: "archive",
+    nameKo: "리포트 아카이브",
+    nameEn: "Archive Pipeline",
+    descKo: "생성된 리포트 날짜별 아카이브 정리",
+    descEn: "Archive generated reports by date",
+    script: "pipeline/archive_pipeline.py",
+    category: "data",
+    color: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
+  },
+  {
+    id: "realtime",
+    nameKo: "실시간 서버",
+    nameEn: "Realtime Server",
+    descKo: "1분 주기 시세 + 5분 주기 뉴스 갱신 서버 (상시 실행)",
+    descEn: "1-min price refresh + 5-min news update server",
+    script: "pipeline/realtime_server.py",
+    category: "server",
+    color: "bg-pink-500/10 text-pink-400 border-pink-500/30",
+  },
+]
+
+const CATEGORY_LABEL: Record<string, { ko: string; en: string }> = {
+  daily:    { ko: "통합", en: "Daily" },
+  analysis: { ko: "분석", en: "Analysis" },
+  data:     { ko: "데이터", en: "Data" },
+  server:   { ko: "서버", en: "Server" },
+}
 
 // --- Types ---
 
-interface ExecutionItem {
-  id: string
-  pipeline: "macro" | "stock" | "watchlist" | "news" | "harness" | "realtime"
-  agent?: string
-  status: "running" | "completed" | "failed" | "queued"
-  started_at: string
-  completed_at?: string
-  duration_sec?: number
-  result_summary?: string
-  error?: string
-}
-
-// --- Constants ---
-
-const PIPELINE_COLORS: Record<string, string> = {
-  macro: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  stock: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  watchlist: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-  news: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  harness: "bg-red-500/20 text-red-400 border-red-500/30",
-  realtime: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  completed: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  failed: "bg-red-500/20 text-red-400 border-red-500/30",
-  running: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  queued: "bg-gray-500/20 text-gray-400 border-gray-500/30",
-}
-
-const ITEMS_PER_PAGE = 10
-
-// --- Helpers ---
-
-function formatElapsed(sec: number): string {
-  if (sec < 60) return `${Math.floor(sec)}s`
-  if (sec < 3600) return `${Math.floor(sec / 60)}m ${Math.floor(sec % 60)}s`
-  return `${Math.floor(sec / 3600)}h ${Math.floor((sec % 3600) / 60)}m`
-}
-
-function formatDateTime(iso: string): string {
-  try {
-    return iso.replace("T", " ").substring(0, 19)
-  } catch {
-    return iso
-  }
-}
-
-function getElapsedSec(startedAt: string): number {
-  try {
-    const start = new Date(startedAt).getTime()
-    if (isNaN(start)) return 0
-    return Math.max(0, (Date.now() - start) / 1000)
-  } catch {
-    return 0
-  }
+interface RunState {
+  status: "idle" | "running" | "done" | "error"
+  message?: string
+  startedAt?: number
 }
 
 // --- Component ---
 
 export function ExecutionPage() {
   const { language } = useLanguage()
-  const [items, setItems] = useState<ExecutionItem[]>([])
-  const [page, setPage] = useState(1)
-  const [now, setNow] = useState(Date.now())
+  const [runStates, setRunStates] = useState<Record<string, RunState>>({})
+  const [elapsed, setElapsed] = useState<Record<string, number>>({})
 
-  // Fetch data every 60s
+  // 실행 중인 항목의 경과 시간 갱신
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("/api/execution?t=" + Date.now())
-        if (res.ok) {
-          const data = await res.json()
-          setItems(data.items ?? [])
+    const ticker = setInterval(() => {
+      const now = Date.now()
+      const newElapsed: Record<string, number> = {}
+      for (const [id, state] of Object.entries(runStates)) {
+        if (state.status === "running" && state.startedAt) {
+          newElapsed[id] = Math.floor((now - state.startedAt) / 1000)
         }
-      } catch {}
-    }
-    fetchData()
-    const interval = setInterval(fetchData, 60000)
-    return () => clearInterval(interval)
-  }, [])
-
-  // Tick every second for elapsed time on running items
-  useEffect(() => {
-    const ticker = setInterval(() => setNow(Date.now()), 1000)
+      }
+      if (Object.keys(newElapsed).length > 0) {
+        setElapsed(prev => ({ ...prev, ...newElapsed }))
+      }
+    }, 1000)
     return () => clearInterval(ticker)
-  }, [])
+  }, [runStates])
 
-  // Derived data
-  const runningItems = useMemo(
-    () => items.filter((i: ExecutionItem) => i.status === "running"),
-    [items]
-  )
+  const runScript = async (script: PipelineScript) => {
+    setRunStates(prev => ({
+      ...prev,
+      [script.id]: { status: "running", startedAt: Date.now() },
+    }))
+    setElapsed(prev => ({ ...prev, [script.id]: 0 }))
 
-  const historyItems = useMemo(
-    () =>
-      items
-        .filter((i: ExecutionItem) => i.status === "completed" || i.status === "failed")
-        .sort((a: ExecutionItem, b: ExecutionItem) => {
-          const ta = a.completed_at ?? a.started_at
-          const tb = b.completed_at ?? b.started_at
-          return tb.localeCompare(ta)
-        }),
-    [items]
-  )
-
-  // Summary stats
-  const totalCount = items.length
-  const completedCount = items.filter((i: ExecutionItem) => i.status === "completed").length
-  const failedCount = items.filter((i: ExecutionItem) => i.status === "failed").length
-  const completedItems = items.filter(
-    (i: ExecutionItem) => i.status === "completed" && i.duration_sec != null
-  )
-  const avgDuration =
-    completedItems.length > 0
-      ? completedItems.reduce((sum: number, i: ExecutionItem) => sum + (i.duration_sec ?? 0), 0) /
-        completedItems.length
-      : 0
-
-  // Pagination
-  const totalPages = Math.max(1, Math.ceil(historyItems.length / ITEMS_PER_PAGE))
-  const safePage = Math.min(page, totalPages)
-  const pagedItems = historyItems.slice(
-    (safePage - 1) * ITEMS_PER_PAGE,
-    safePage * ITEMS_PER_PAGE
-  )
-
-  const statusLabel = (status: string): string => {
-    if (language === "ko") {
-      if (status === "completed") return "성공"
-      if (status === "failed") return "실패"
-      if (status === "running") return "실행중"
-      if (status === "queued") return "대기"
-    } else {
-      if (status === "completed") return "Completed"
-      if (status === "failed") return "Failed"
-      if (status === "running") return "Running"
-      if (status === "queued") return "Queued"
+    try {
+      const res = await fetch("/api/execution", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ script: script.script }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setRunStates(prev => ({
+          ...prev,
+          [script.id]: { status: "done", message: data.message ?? "실행 완료" },
+        }))
+      } else {
+        setRunStates(prev => ({
+          ...prev,
+          [script.id]: { status: "error", message: data.error ?? `HTTP ${res.status}` },
+        }))
+      }
+    } catch (e: any) {
+      setRunStates(prev => ({
+        ...prev,
+        [script.id]: { status: "error", message: e.message },
+      }))
     }
-    return status
   }
+
+  const categories = ["daily", "analysis", "data", "server"] as const
+
+  const runningCount = Object.values(runStates).filter(s => s.status === "running").length
 
   return (
     <div className="space-y-6">
-      {/* ===== Header ===== */}
-      <div className="flex items-center gap-2">
-        <Activity className="w-5 h-5 text-blue-400" />
-        <h2 className="text-xl font-bold text-foreground">
-          {language === "ko" ? "파이프라인 실행 현황" : "Pipeline Execution"}
-        </h2>
+      {/* Summary bar */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Terminal className="w-5 h-5 text-blue-400" />
+          {runningCount > 0 && (
+            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 animate-pulse">
+              {runningCount}{language === "ko" ? "개 실행 중" : " running"}
+            </Badge>
+          )}
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setRunStates({})}
+          className="text-xs text-muted-foreground"
+        >
+          <RefreshCw className="w-3.5 h-3.5 mr-1" />
+          {language === "ko" ? "상태 초기화" : "Reset"}
+        </Button>
       </div>
 
-      {/* ===== Running Items ===== */}
-      <Card className="border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Loader2 className="w-4 h-4 text-blue-400" />
-            {language === "ko" ? "현재 실행 중" : "Currently Running"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {runningItems.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">
-              {language === "ko"
-                ? "현재 실행 중인 작업이 없습니다"
-                : "No tasks currently running"}
-            </p>
-          ) : (
-            <div className="grid gap-3 md:grid-cols-2">
-              {runningItems.map((item) => {
-                const elapsed = getElapsedSec(item.started_at)
+      {/* Script groups */}
+      {categories.map(cat => {
+        const scripts = PIPELINE_SCRIPTS.filter(s => s.category === cat)
+        return (
+          <div key={cat} className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {language === "ko" ? CATEGORY_LABEL[cat].ko : CATEGORY_LABEL[cat].en}
+              </span>
+              <div className="flex-1 h-px bg-border/30" />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {scripts.map(script => {
+                const state = runStates[script.id] ?? { status: "idle" }
+                const isRunning = state.status === "running"
                 return (
-                  <div
-                    key={item.id}
-                    className="p-4 rounded-lg border border-blue-500/30 bg-blue-500/5"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="relative flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500" />
-                      </span>
-                      <span className="text-sm font-semibold text-blue-400">
-                        {language === "ko" ? "실행중" : "Running"}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <Badge
-                        variant="outline"
-                        className={`text-xs ${PIPELINE_COLORS[item.pipeline] ?? ""}`}
-                      >
-                        {item.pipeline}
-                      </Badge>
-                      {item.agent && (
-                        <span className="text-sm text-foreground font-medium">
-                          {item.agent}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {language === "ko" ? "시작" : "Started"}:{" "}
-                        {formatDateTime(item.started_at)}
-                      </span>
-                      <span className="font-medium text-blue-400">
-                        {language === "ko" ? "경과" : "Elapsed"}:{" "}
-                        {formatElapsed(elapsed)}
-                      </span>
-                    </div>
-                  </div>
+                  <Card key={script.id} className={`border-border/50 bg-card/50 ${isRunning ? "border-blue-500/40" : ""}`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className={`text-[10px] ${script.color}`}>
+                              {language === "ko" ? CATEGORY_LABEL[script.category].ko : CATEGORY_LABEL[script.category].en}
+                            </Badge>
+                            {state.status === "running" && (
+                              <Badge className="text-[10px] bg-blue-500/20 text-blue-400 border-blue-500/30 animate-pulse">
+                                {elapsed[script.id] ?? 0}s
+                              </Badge>
+                            )}
+                            {state.status === "done" && (
+                              <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                            )}
+                            {state.status === "error" && (
+                              <XCircle className="w-3.5 h-3.5 text-red-400" />
+                            )}
+                          </div>
+                          <p className="text-sm font-semibold text-foreground">
+                            {language === "ko" ? script.nameKo : script.nameEn}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                            {language === "ko" ? script.descKo : script.descEn}
+                          </p>
+                          <p className="text-[10px] font-mono text-muted-foreground/60 mt-1">{script.script}</p>
+                          {state.status === "error" && state.message && (
+                            <p className="text-xs text-red-400 mt-1 truncate">{state.message}</p>
+                          )}
+                          {state.status === "done" && state.message && (
+                            <p className="text-xs text-emerald-400 mt-1">{state.message}</p>
+                          )}
+                        </div>
+                        <Button
+                          size="sm"
+                          variant={isRunning ? "secondary" : "outline"}
+                          disabled={isRunning}
+                          onClick={() => runScript(script)}
+                          className="shrink-0 h-8 px-3"
+                        >
+                          {isRunning ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Play className="w-3.5 h-3.5" />
+                          )}
+                          <span className="ml-1.5 text-xs">
+                            {isRunning
+                              ? (language === "ko" ? "실행 중" : "Running")
+                              : (language === "ko" ? "실행" : "Run")}
+                          </span>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 )
               })}
             </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* ===== Summary Cards ===== */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-border/50">
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground mb-1">
-              {language === "ko" ? "전체 실행" : "Total Runs"}
-            </p>
-            <p className="text-2xl font-bold text-foreground">{totalCount}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-emerald-400" />
-              {language === "ko" ? "성공" : "Completed"}
-            </p>
-            <p className="text-2xl font-bold text-emerald-400">{completedCount}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-              <XCircle className="w-3 h-3 text-red-400" />
-              {language === "ko" ? "실패" : "Failed"}
-            </p>
-            <p className="text-2xl font-bold text-red-400">{failedCount}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-              <Clock className="w-3 h-3 text-muted-foreground" />
-              {language === "ko" ? "평균 소요 시간" : "Avg Duration"}
-            </p>
-            <p className="text-2xl font-bold text-foreground">
-              {avgDuration > 0 ? formatElapsed(avgDuration) : "-"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* ===== History Table ===== */}
-      <Card className="border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">
-            {language === "ko" ? "실행 이력" : "Execution History"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {historyItems.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">
-              {language === "ko"
-                ? "실행 이력이 없습니다"
-                : "No execution history"}
-            </p>
-          ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border/50">
-                    <TableHead>
-                      {language === "ko" ? "파이프라인" : "Pipeline"}
-                    </TableHead>
-                    <TableHead>
-                      {language === "ko" ? "에이전트" : "Agent"}
-                    </TableHead>
-                    <TableHead>
-                      {language === "ko" ? "상태" : "Status"}
-                    </TableHead>
-                    <TableHead>
-                      {language === "ko" ? "시작 시간" : "Started"}
-                    </TableHead>
-                    <TableHead>
-                      {language === "ko" ? "소요 시간" : "Duration"}
-                    </TableHead>
-                    <TableHead>
-                      {language === "ko" ? "결과 요약" : "Summary"}
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {pagedItems.map((item) => (
-                    <TableRow key={item.id} className="border-border/30">
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={`text-xs ${PIPELINE_COLORS[item.pipeline] ?? ""}`}
-                        >
-                          {item.pipeline}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-foreground">
-                        {item.agent ?? "-"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={`text-xs ${STATUS_COLORS[item.status] ?? ""}`}
-                        >
-                          {statusLabel(item.status)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {formatDateTime(item.started_at)}
-                      </TableCell>
-                      <TableCell className="text-sm text-foreground">
-                        {item.duration_sec != null
-                          ? formatElapsed(item.duration_sec)
-                          : "-"}
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground max-w-[300px] truncate">
-                        {item.status === "failed" && item.error
-                          ? item.error
-                          : item.result_summary ?? "-"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {/* Pagination */}
-              <div className="flex items-center justify-center gap-4 mt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={safePage <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  {language === "ko" ? "이전" : "Prev"}
-                </Button>
-                <span className="text-sm text-muted-foreground">
-                  {safePage} / {totalPages}{" "}
-                  {language === "ko" ? "페이지" : "page"}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={safePage >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  {language === "ko" ? "다음" : "Next"}
-                </Button>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        )
+      })}
     </div>
   )
 }

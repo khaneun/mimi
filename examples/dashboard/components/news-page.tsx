@@ -218,35 +218,15 @@ export function NewsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Sentiment Summary */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Newspaper className="w-5 h-5 text-red-400" />
-            <h2 className="text-xl font-bold text-foreground">
-              {language === "ko" ? "실시간 뉴스 키워드" : "Live News Keywords"}
-            </h2>
-          </div>
-          <div>
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                {language === "ko" ? "수집" : "Crawled"}: {(data.generated_at ?? "").replace("T", " ").substring(0, 19)}
-              </span>
-              {lastUpdate && (
-                <span className="flex items-center gap-1">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" />
-                  </span>
-                  {language === "ko" ? "갱신" : "Updated"}: {lastUpdate}
-                </span>
-              )}
-            </div>
-          </div>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {language === "ko" ? "수집" : "Crawled"}: {(data.generated_at ?? "").replace("T", " ").substring(0, 19)}
+          </span>
         </div>
-
-        {/* Sentiment Summary */}
+        {/* Sentiment Badges */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20">
             <div className="w-2 h-2 rounded-full bg-green-500" />

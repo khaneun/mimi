@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Brain, History, Eye,
   TrendingUp, Lightbulb, Newspaper, FileBarChart,
   ShieldCheck, Wallet, Bot, Play, Settings,
-  BarChart3,
+  BarChart3, DollarSign,
 } from "lucide-react"
 import { MarketTickerBar } from "@/components/market-ticker-bar"
 import { useTheme } from "next-themes"
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/tooltip"
 import type { Market } from "@/types/dashboard"
 
-type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings"
+type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings" | "costs"
 
 interface DashboardHeaderProps {
   activeTab: TabType
@@ -32,7 +32,7 @@ interface DashboardHeaderProps {
 const MAIN_MENUS = [
   {
     id: "dashboard-group",
-    labelKo: "종합 대시보드",
+    labelKo: "종합",
     labelEn: "Dashboard",
     icon: LayoutDashboard,
     activeColor: "from-blue-600 to-indigo-600",
@@ -61,7 +61,7 @@ const MAIN_MENUS = [
     borderColor: "border-violet-500",
     textColor: "text-violet-400",
     bgColor: "bg-violet-500/10",
-    tabs: ["portfolio", "agents", "execution"] as TabType[],
+    tabs: ["portfolio", "agents", "execution", "costs"] as TabType[],
   },
   {
     id: "settings",
@@ -95,6 +95,7 @@ const SUBMENUS: Record<string, { tab: TabType; labelKo: string; labelEn: string;
     { tab: "portfolio",  labelKo: "포트폴리오 관리",   labelEn: "Portfolio",       icon: Wallet },
     { tab: "agents",     labelKo: "AI 에이전트 현황",  labelEn: "AI Agents",       icon: Bot },
     { tab: "execution",  labelKo: "파이프라인 실행",   labelEn: "Pipeline",        icon: Play },
+    { tab: "costs",      labelKo: "비용 현황",         labelEn: "Costs",           icon: DollarSign },
   ],
 }
 
@@ -165,7 +166,7 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             </div>
             <div>
               <h1 className="text-lg font-bold bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 bg-clip-text text-transparent leading-none">
-                MarketPulse
+                Mimi
               </h1>
               <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
                 <span className="relative flex h-1.5 w-1.5">

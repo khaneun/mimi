@@ -25,8 +25,8 @@ import { TriggerReliabilityBadge } from "@/components/trigger-reliability-badge"
 import { formatCurrency } from "@/lib/currency"
 import type { DashboardData, Holding, Market } from "@/types/dashboard"
 
-type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings"
-const VALID_TABS: TabType[] = ["dashboard", "ai-decisions", "trading", "watchlist", "insights", "portfolio", "news", "jeoningu-lab", "agents", "execution", "settings"]
+type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings" | "costs"
+const VALID_TABS: TabType[] = ["dashboard", "ai-decisions", "trading", "watchlist", "insights", "portfolio", "news", "jeoningu-lab", "agents", "execution", "settings", "costs"]
 
 // Get data file path based on market and language
 function getDataFilePath(market: Market, language: string): string {
@@ -61,6 +61,7 @@ function DashboardContent() {
   const [dataError, setDataError] = useState<string | null>(null)
   const [lastFetchTime, setLastFetchTime] = useState<string>("")
   const prevDataHash = useRef<string>("")
+  const [kisPortfolio, setKisPortfolio] = useState<{ summary: any; stocks: any[] } | null>(null)
 
   // URL에서 탭 파라미터 읽기
   const tabParam = searchParams.get("tab") as TabType | null
@@ -135,6 +136,18 @@ function DashboardContent() {
 
     return () => clearInterval(interval)
   }, [language, market])
+
+  // KIS 포트폴리오 데이터 로드 (시장 현황 투자 현황 섹션)
+  useEffect(() => {
+    if (market !== "KR") return
+    fetch("/api/portfolio?" + Date.now())
+      .then(r => r.json())
+      .then(d => {
+        const account = d?.accounts?.[0]
+        if (account) setKisPortfolio({ summary: account.summary ?? {}, stocks: account.stocks ?? [] })
+      })
+      .catch(() => {})
+  }, [market])
 
   const handleStockClick = (stock: Holding, isReal: boolean) => {
     setSelectedStock(stock)
@@ -266,9 +279,10 @@ function DashboardContent() {
               market={market}
             />
 
-            {/* 실전투자 총 수익 요약 배너 */}
-            {data.summary?.real_trading && (() => {
-              const rt = data.summary.real_trading
+            {/* 투자 현황 배너 — KIS 우선, fallback: dashboard_data */}
+            {(() => {
+              const rt = kisPortfolio?.summary ?? data.summary?.real_trading
+              if (!rt) return null
               const deposit = rt.deposit ?? 0
               const evalAmount = rt.total_eval_amount ?? 0
               const profitAmount = rt.total_profit_amount ?? 0
@@ -282,20 +296,39 @@ function DashboardContent() {
                 }`}>
                   <p className="text-sm font-medium text-foreground flex items-center gap-2 flex-wrap">
                     <span>💰</span>
-                    <span>{language === "ko" ? "총 투자금" : "Total Investment"} {formatCurrency(deposit, market, language as "ko" | "en")}</span>
+                    <span className="font-semibold text-muted-foreground">{language === "ko" ? "투자 현황" : "Portfolio"}</span>
+                    <span>{language === "ko" ? "예수금" : "Deposit"} {formatCurrency(deposit, market, language as "ko" | "en")}</span>
                     <span className="text-muted-foreground">→</span>
                     <span>{language === "ko" ? "평가금" : "Valuation"} {formatCurrency(evalAmount, market, language as "ko" | "en")}</span>
                     <span className="text-muted-foreground">|</span>
                     <span className={isProfit ? "text-emerald-400 font-bold" : "text-red-400 font-bold"}>
-                      {language === "ko" ? "수익금" : "Profit"} {formatCurrency(profitAmount, market, language as "ko" | "en")} ({profitRate >= 0 ? "+" : ""}{(profitRate ?? 0).toFixed(2)}%)
+                      {formatCurrency(profitAmount, market, language as "ko" | "en")} ({profitRate >= 0 ? "+" : ""}{(profitRate ?? 0).toFixed(2)}%)
                     </span>
                   </p>
                 </div>
               )
             })()}
 
-            {/* 실전투자 포트폴리오 - 최우선 표시 */}
-            {data.real_portfolio && data.real_portfolio.length > 0 && (
+            {/* 투자 현황 종목 테이블 — KIS 우선 */}
+            {kisPortfolio && kisPortfolio.stocks.length > 0 && (
+              <HoldingsTable
+                holdings={kisPortfolio.stocks.map((s: any) => ({
+                  ticker: s.code,
+                  name: s.name,
+                  current_price: s.current_price ?? 0,
+                  avg_price: s.avg_price ?? 0,
+                  quantity: s.quantity ?? 0,
+                  profit_rate: s.profit_rate ?? 0,
+                  profit: s.profit_amount ?? 0,
+                  sector: s.sector ?? "기타",
+                }))}
+                onStockClick={(stock) => handleStockClick(stock, true)}
+                title={t("table.realPortfolio")}
+                isRealTrading={true}
+                market={market}
+              />
+            )}
+            {(!kisPortfolio || kisPortfolio.stocks.length === 0) && data.real_portfolio && data.real_portfolio.length > 0 && (
               <HoldingsTable
                 holdings={data.real_portfolio}
                 onStockClick={(stock) => handleStockClick(stock, true)}
@@ -323,8 +356,6 @@ function DashboardContent() {
               market={market}
             />
 
-            {/* 운영 비용 카드 - 하단 배치 */}
-            <OperatingCostsCard costs={data.operating_costs ?? {}} />
           </div>
         )}
 
@@ -347,6 +378,15 @@ function DashboardContent() {
         {activeTab === "execution" && <ExecutionPage />}
 
         {activeTab === "settings" && <SettingsPage />}
+
+        {activeTab === "costs" && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm font-medium text-muted-foreground">{language === "ko" ? "프로젝트 운영 비용" : "Operating Costs"}</span>
+            </div>
+            <OperatingCostsCard costs={data?.operating_costs ?? {}} />
+          </div>
+        )}
       </main>
 
       {/* 프로젝트 소개 Footer */}

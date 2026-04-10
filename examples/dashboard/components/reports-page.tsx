@@ -76,24 +76,6 @@ export function ReportsPage() {
 
   return (
     <div className="space-y-4">
-      {/* 섹션 1: 컴팩트 헤더 */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
-          <FileText className="w-5 h-5 text-blue-400" />
-          <h2 className="text-xl font-bold text-foreground">리포트</h2>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>전체 <strong className="text-foreground">{ALL_REPORTS.length}</strong></span>
-          <span className="text-border">|</span>
-          <span>매크로 <strong className="text-blue-400">{countByCategory("매크로")}</strong></span>
-          <span className="text-border">|</span>
-          <span>특별 <strong className="text-red-400">{countByCategory("특별")}</strong></span>
-          <span className="text-border">|</span>
-          <span>종목 <strong className="text-emerald-400">{countByCategory("종목")}</strong></span>
-          <span className="text-border">|</span>
-          <span>월별 <strong className="text-teal-400">{countByCategory("월별")}</strong></span>
-        </div>
-      </div>
 
       {/* 섹션 2: 카테고리 탭 필터 */}
       <div className="flex gap-1.5">

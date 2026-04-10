@@ -277,10 +277,21 @@ export function AgentsPage() {
   const summaries = getGroupSummaries()
   const groups: AgentGroup[] = ["Investment Alpha", "MarketPulse", "Dev Team"]
 
-  const openDialog = (agent: Agent) => {
+  const openDialog = async (agent: Agent) => {
     setSelectedAgent(agent)
-    setPromptContent("")
+    setPromptContent(language === "ko" ? "프롬프트 로딩 중..." : "Loading prompt...")
     setDialogOpen(true)
+    try {
+      const res = await fetch(`/api/agents/${agent.id}`)
+      if (res.ok) {
+        const data = await res.json()
+        setPromptContent(data.content ?? "")
+      } else {
+        setPromptContent(`[오류] 프롬프트를 불러오지 못했습니다 (HTTP ${res.status})`)
+      }
+    } catch {
+      setPromptContent("[오류] 프롬프트 로드 실패")
+    }
   }
 
   const handleSave = async () => {

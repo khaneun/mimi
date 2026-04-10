@@ -35,7 +35,7 @@ const translations: Record<Language, Record<string, string>> = {
     "loading.text": "데이터 로딩 중...",
 
     // Tables
-    "table.realPortfolio": "실전투자 포트폴리오",
+    "table.realPortfolio": "투자 현황",
     "table.simulator": "MarketPulse 시뮬레이터",
     "table.stock": "종목",
     "table.stockName": "종목명",
@@ -55,7 +55,7 @@ const translations: Record<Language, Record<string, string>> = {
     "table.unknown": "알 수 없음",
 
     // Metrics Cards - Real Trading
-    "metrics.realTrading": "실전투자 (Season 2)",
+    "metrics.realTrading": "투자 현황",
     "metrics.realTotalAssets": "실전 총 자산",
     "metrics.realHoldingsProfit": "실전 보유종목 평가손익",
     "metrics.realProfitDist": "실전 포트폴리오 손익 분포",
@@ -521,7 +521,7 @@ const translations: Record<Language, Record<string, string>> = {
     "loading.text": "Loading data...",
 
     // Tables
-    "table.realPortfolio": "Real Trading Portfolio",
+    "table.realPortfolio": "Portfolio Overview",
     "table.simulator": "MarketPulse Simulator",
     "table.stock": "Stock",
     "table.stockName": "Stock Name",
@@ -541,7 +541,7 @@ const translations: Record<Language, Record<string, string>> = {
     "table.unknown": "Unknown",
 
     // Metrics Cards - Real Trading
-    "metrics.realTrading": "Real Trading (Season 2)",
+    "metrics.realTrading": "Portfolio Overview",
     "metrics.realTotalAssets": "Real Total Assets",
     "metrics.realHoldingsProfit": "Real Holdings P&L",
     "metrics.realProfitDist": "Real Profit Distribution",
