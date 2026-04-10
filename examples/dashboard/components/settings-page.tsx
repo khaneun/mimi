@@ -151,8 +151,10 @@ export function SettingsPage() {
         body: JSON.stringify({ kis_mode: mode }),
       })
       const data = await res.json()
-      if (data.success) setSettings(prev => prev ? { ...prev, kis_mode: data.kis_mode } : prev)
-      else setError(data.error || "설정 저장 실패")
+      if (data.success) {
+        setSettings(prev => prev ? { ...prev, kis_mode: data.kis_mode } : prev)
+        window.dispatchEvent(new CustomEvent("kis-mode-changed", { detail: { mode: data.kis_mode } }))
+      } else setError(data.error || "설정 저장 실패")
     } catch { setError("설정 저장 중 오류가 발생했습니다.") }
     setSaving(false)
   }

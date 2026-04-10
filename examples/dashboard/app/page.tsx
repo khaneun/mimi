@@ -137,8 +137,8 @@ function DashboardContent() {
     return () => clearInterval(interval)
   }, [language, market])
 
-  // KIS 포트폴리오 데이터 로드 (시장 현황 투자 현황 섹션)
-  useEffect(() => {
+  // KIS 포트폴리오 데이터 로드 헬퍼
+  const fetchKisPortfolio = () => {
     if (market !== "KR") return
     fetch("/api/portfolio?" + Date.now())
       .then(r => r.json())
@@ -151,6 +151,24 @@ function DashboardContent() {
         })
       })
       .catch(() => {})
+  }
+
+  // KIS 포트폴리오 초기 로드
+  useEffect(() => {
+    fetchKisPortfolio()
+  }, [market])
+
+  // 투자 모드 변경 시 자동 리프레시
+  useEffect(() => {
+    const handler = (e: Event) => {
+      setKisPortfolio(prev => prev
+        ? { ...prev, mode: (e as CustomEvent).detail.mode }
+        : prev
+      )
+      fetchKisPortfolio()
+    }
+    window.addEventListener("kis-mode-changed", handler)
+    return () => window.removeEventListener("kis-mode-changed", handler)
   }, [market])
 
   const handleStockClick = (stock: Holding, isReal: boolean) => {

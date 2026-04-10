@@ -103,9 +103,7 @@ export function PortfolioPage() {
   const [formQuantity, setFormQuantity] = useState("")
   const [formAvgPrice, setFormAvgPrice] = useState("")
 
-  // Load data: /api/portfolio → KIS 실시간 데이터 (없으면 portfolio_data.json 폴백)
-  useEffect(() => {
-    // 이전 캐시 정리
+  const loadPortfolioData = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY)
     localStorage.removeItem(STORAGE_KEY + "_edited")
 
@@ -115,7 +113,6 @@ export function PortfolioPage() {
         if (data?.accounts?.length > 0) {
           setPortfolioData(data)
         } else {
-          // fallback: static JSON
           return fetch("/portfolio_data.json?" + Date.now())
             .then((r) => r.json())
             .then((d: PortfolioData) => setPortfolioData(d))
@@ -128,6 +125,18 @@ export function PortfolioPage() {
           .catch((err) => console.error("Failed to load portfolio data:", err))
       })
   }, [])
+
+  // Load data: /api/portfolio → KIS 실시간 데이터 (없으면 portfolio_data.json 폴백)
+  useEffect(() => {
+    loadPortfolioData()
+  }, [loadPortfolioData])
+
+  // 투자 모드 변경 시 자동 리프레시
+  useEffect(() => {
+    const handler = () => loadPortfolioData()
+    window.addEventListener("kis-mode-changed", handler)
+    return () => window.removeEventListener("kis-mode-changed", handler)
+  }, [loadPortfolioData])
 
   // 현재가 로드: KIS API stock.current_price 우선, 없으면 dashboard_data.json
   useEffect(() => {
