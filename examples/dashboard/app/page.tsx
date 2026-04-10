@@ -137,7 +137,7 @@ function DashboardContent() {
     return () => clearInterval(interval)
   }, [language, market])
 
-  // KIS 포트폴리오 데이터 로드 헬퍼
+  // KIS 포트폴리오 데이터 로드 헬퍼 (GET — 캐시된 JSON 읽기)
   const fetchKisPortfolio = () => {
     if (market !== "KR") return
     fetch("/api/portfolio?" + Date.now())
@@ -158,14 +158,33 @@ function DashboardContent() {
     fetchKisPortfolio()
   }, [market])
 
-  // 투자 모드 변경 시 자동 리프레시
+  // 투자 모드 변경 시 → 새 계좌로 재동기화 후 UI 갱신
   useEffect(() => {
-    const handler = (e: Event) => {
-      setKisPortfolio(prev => prev
-        ? { ...prev, mode: (e as CustomEvent).detail.mode }
-        : prev
-      )
-      fetchKisPortfolio()
+    const handler = async (e: Event) => {
+      const newMode = (e as CustomEvent).detail.mode as string
+      // 모드 태그 즉시 반영
+      setKisPortfolio(prev => prev ? { ...prev, mode: newMode } : prev)
+      // 새 모드 자격증명으로 KIS 재조회 (sync_portfolio.py 실행)
+      try {
+        const res = await fetch("/api/portfolio", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode: newMode }),
+        })
+        const data = await res.json()
+        if (data.success && data.data?.accounts?.[0]) {
+          const account = data.data.accounts[0]
+          setKisPortfolio({
+            summary: account.summary ?? {},
+            stocks: account.stocks ?? [],
+            mode: data.data.kis_mode ?? newMode,
+          })
+        } else {
+          fetchKisPortfolio()
+        }
+      } catch {
+        fetchKisPortfolio()
+      }
     }
     window.addEventListener("kis-mode-changed", handler)
     return () => window.removeEventListener("kis-mode-changed", handler)

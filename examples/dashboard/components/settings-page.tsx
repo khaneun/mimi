@@ -153,9 +153,14 @@ export function SettingsPage() {
       const data = await res.json()
       if (data.success) {
         setSettings(prev => prev ? { ...prev, kis_mode: data.kis_mode } : prev)
+        // 모드 변경 이벤트 발행 → page.tsx / portfolio-page.tsx에서 새 계좌로 재동기화
         window.dispatchEvent(new CustomEvent("kis-mode-changed", { detail: { mode: data.kis_mode } }))
-      } else setError(data.error || "설정 저장 실패")
-    } catch { setError("설정 저장 중 오류가 발생했습니다.") }
+      } else {
+        setError(data.error || "설정 저장 실패")
+      }
+    } catch {
+      setError("설정 저장 중 오류가 발생했습니다.")
+    }
     setSaving(false)
   }
 
@@ -381,7 +386,8 @@ export function SettingsPage() {
           </div>
           {saving && (
             <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <Loader2 className="w-3 h-3 animate-spin" />{language === "ko" ? "저장 중..." : "Saving..."}
+              <Loader2 className="w-3 h-3 animate-spin" />
+              {language === "ko" ? "모드 저장 중... (계좌 정보 전환은 잠시 후 반영됩니다)" : "Saving... (account switch may take a moment)"}
             </p>
           )}
         </CardContent>

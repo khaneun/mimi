@@ -131,9 +131,30 @@ export function PortfolioPage() {
     loadPortfolioData()
   }, [loadPortfolioData])
 
-  // 투자 모드 변경 시 자동 리프레시
+  // 투자 모드 변경 시 → 새 계좌로 재동기화 후 UI 갱신
   useEffect(() => {
-    const handler = () => loadPortfolioData()
+    const handler = async (e: Event) => {
+      const newMode = (e as CustomEvent).detail.mode as string
+      setSyncing(true)
+      setSyncError(null)
+      try {
+        const res = await fetch("/api/portfolio", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode: newMode }),
+        })
+        const json = await res.json()
+        if (json.success && json.data?.accounts?.length > 0) {
+          setPortfolioData(json.data)
+        } else {
+          loadPortfolioData()
+        }
+      } catch {
+        loadPortfolioData()
+      } finally {
+        setSyncing(false)
+      }
+    }
     window.addEventListener("kis-mode-changed", handler)
     return () => window.removeEventListener("kis-mode-changed", handler)
   }, [loadPortfolioData])
