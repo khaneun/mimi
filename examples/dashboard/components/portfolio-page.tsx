@@ -33,8 +33,11 @@ interface Stock {
   code: string
   quantity: number
   avg_price: number
+  current_price?: number
+  eval_amount?: number
+  profit_amount?: number
+  profit_rate?: number
   sector?: string
-  _account?: string
 }
 
 const SECTOR_COLORS: Record<string, string> = {
@@ -59,11 +62,23 @@ const SECTOR_COLORS: Record<string, string> = {
 interface Account {
   name: string
   type: string
+  mode?: string
+  mode_label?: string
+  account_number?: string
   stocks: Stock[]
+  summary?: {
+    total_eval_amount?: number
+    total_profit_amount?: number
+    total_profit_rate?: number
+    deposit?: number
+    available_amount?: number
+  }
 }
 
 interface PortfolioData {
   accounts: Account[]
+  synced_at?: string
+  kis_mode?: string
 }
 
 const STORAGE_KEY = "portfolio_data_v1"
@@ -71,7 +86,6 @@ const STORAGE_KEY = "portfolio_data_v1"
 export function PortfolioPage() {
   const { language } = useLanguage()
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null)
-  const [activeAccount, setActiveAccount] = useState(0)
   const [editStock, setEditStock] = useState<{ accountIdx: number; stockIdx: number; stock: Stock } | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<{ accountIdx: number; stockIdx: number } | null>(null)
@@ -87,36 +101,33 @@ export function PortfolioPage() {
   const [formQuantity, setFormQuantity] = useState("")
   const [formAvgPrice, setFormAvgPrice] = useState("")
 
-  // Load data: 항상 서버 JSON 최신 로드 (localStorage는 사용자 CRUD 편집용)
+  // Load data: /api/portfolio → KIS 실시간 데이터 (없으면 portfolio_data.json 폴백)
   useEffect(() => {
-    // 이전 캐시 키 정리 (한번만 실행)
-    if (localStorage.getItem(STORAGE_KEY)) {
-      localStorage.removeItem(STORAGE_KEY)
-    }
+    // 이전 캐시 정리
+    localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(STORAGE_KEY + "_edited")
 
-    const EDITED_KEY = STORAGE_KEY + "_edited"
-    const userEdited = localStorage.getItem(EDITED_KEY)
-
-    // 사용자가 직접 편집한 데이터가 있으면 그것을 사용
-    if (userEdited) {
-      try {
-        setPortfolioData(JSON.parse(userEdited))
-        return
-      } catch {
-        localStorage.removeItem(EDITED_KEY)
-      }
-    }
-
-    // 서버 JSON 로드 (항상 최신)
-    fetch("/portfolio_data.json?" + Date.now()) // 캐시 방지
+    fetch("/api/portfolio?" + Date.now())
       .then((res) => res.json())
       .then((data: PortfolioData) => {
-        setPortfolioData(data)
+        if (data?.accounts?.length > 0) {
+          setPortfolioData(data)
+        } else {
+          // fallback: static JSON
+          return fetch("/portfolio_data.json?" + Date.now())
+            .then((r) => r.json())
+            .then((d: PortfolioData) => setPortfolioData(d))
+        }
       })
-      .catch((err) => console.error("Failed to load portfolio data:", err))
+      .catch(() => {
+        fetch("/portfolio_data.json?" + Date.now())
+          .then((res) => res.json())
+          .then((data: PortfolioData) => setPortfolioData(data))
+          .catch((err) => console.error("Failed to load portfolio data:", err))
+      })
   }, [])
 
-  // 한투 실시간 현재가 로드
+  // 현재가 로드: KIS API stock.current_price 우선, 없으면 dashboard_data.json
   useEffect(() => {
     const loadPrices = async () => {
       try {
@@ -141,10 +152,25 @@ export function PortfolioPage() {
     return () => clearInterval(interval)
   }, [])
 
-  // Save to localStorage whenever user edits data (CRUD)
+  // KIS API current_price가 있는 종목은 priceMap에 우선 반영
+  useEffect(() => {
+    if (!portfolioData) return
+    const kisMap: Record<string, number> = {}
+    for (const acc of portfolioData.accounts) {
+      for (const s of acc.stocks) {
+        if (s.current_price && s.current_price > 0) {
+          kisMap[s.code] = s.current_price
+        }
+      }
+    }
+    if (Object.keys(kisMap).length > 0) {
+      setPriceMap((prev) => ({ ...prev, ...kisMap }))
+    }
+  }, [portfolioData])
+
+  // Save to state (CRUD)
   const saveData = useCallback((data: PortfolioData) => {
     setPortfolioData(data)
-    localStorage.setItem(STORAGE_KEY + "_edited", JSON.stringify(data))
   }, [])
 
   const [formLookupLoading, setFormLookupLoading] = useState(false)
@@ -194,7 +220,7 @@ export function PortfolioPage() {
   const handleAdd = () => {
     if (!portfolioData || !formCode || !formQuantity || !formAvgPrice) return
     const newData = { ...portfolioData, accounts: portfolioData.accounts.map((a, i) => {
-      if (i !== activeAccount) return a
+      if (i !== 0) return a
       return {
         ...a,
         stocks: [...a.stocks, {
@@ -272,19 +298,13 @@ export function PortfolioPage() {
     )
   }
 
-  // 총 계좌(-1)면 모든 계좌 통합, 개별이면 해당 계좌
-  const isAllAccounts = activeAccount === -1
-  const account: Account = isAllAccounts
-    ? {
-        name: language === "ko" ? "총 계좌" : "All Accounts",
-        type: language === "ko" ? "통합" : "Combined",
-        stocks: portfolioData.accounts.flatMap(a => a.stocks.map(s => ({ ...s, _account: a.name }))),
-      }
-    : portfolioData.accounts[activeAccount]
-
-  if (!account) {
-    setActiveAccount(-1)
-    return null
+  // 모든 계좌 종목 통합 (단일 한국투자증권 뷰)
+  const account: Account = {
+    name: "한국투자증권",
+    type: "KIS",
+    mode_label: portfolioData.accounts[0]?.mode_label,
+    stocks: portfolioData.accounts.flatMap(a => a.stocks),
+    summary: portfolioData.accounts[0]?.summary,
   }
 
   const totalInvested = account.stocks.reduce((sum, s) => sum + s.quantity * s.avg_price, 0)
@@ -308,43 +328,31 @@ export function PortfolioPage() {
         </div>
       </div>
 
-      {/* Account Tabs: 총 계좌 + 개별 계좌 */}
-      <div className="flex gap-2">
-        {/* 총 계좌 탭 */}
-        <button
-          onClick={() => setActiveAccount(-1)}
-          className={`
-            flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200
-            ${activeAccount === -1
-              ? "bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-lg shadow-amber-500/25"
-              : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
-            }
-          `}
-        >
-          <span>{language === "ko" ? "총 계좌" : "All"}</span>
-          <Badge variant={activeAccount === -1 ? "secondary" : "outline"} className="text-[10px]">
-            {portfolioData.accounts.reduce((s, a) => s + a.stocks.length, 0)}{language === "ko" ? "종목" : " stocks"}
-          </Badge>
-        </button>
-        {/* 개별 계좌 탭 */}
-        {portfolioData.accounts.map((acc, idx) => (
-          <button
-            key={idx}
-            onClick={() => setActiveAccount(idx)}
-            className={`
-              flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200
-              ${activeAccount === idx
-                ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-500/25"
-                : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
+      {/* 계좌 정보 */}
+      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/30">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-sm">한국투자증권</span>
+          {account.mode_label && (
+            <Badge
+              variant="outline"
+              className={account.mode_label === "실전투자"
+                ? "border-emerald-500/40 text-emerald-400 text-[10px]"
+                : "border-blue-500/40 text-blue-400 text-[10px]"
               }
-            `}
-          >
-            <span>{acc.name}</span>
-            <Badge variant={activeAccount === idx ? "secondary" : "outline"} className="text-[10px]">
-              {acc.stocks.length}{language === "ko" ? "종목" : " stocks"}
+            >
+              {account.mode_label}
             </Badge>
-          </button>
-        ))}
+          )}
+        </div>
+        <Badge variant="outline" className="text-[10px] ml-auto">
+          {account.stocks.length}{language === "ko" ? "종목" : " stocks"}
+        </Badge>
+        {portfolioData.synced_at && (
+          <span className="text-[10px] text-muted-foreground">
+            {language === "ko" ? "동기화: " : "Synced: "}
+            {new Date(portfolioData.synced_at).toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+          </span>
+        )}
       </div>
 
       {/* Summary Cards */}
@@ -380,8 +388,12 @@ export function PortfolioPage() {
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <p className="text-sm text-muted-foreground">{language === "ko" ? "계좌 유형" : "Account Type"}</p>
-            <p className="text-2xl font-bold">{account.type ?? "-"}</p>
+            <p className="text-sm text-muted-foreground">{language === "ko" ? "예수금" : "Deposit"}</p>
+            {account.summary?.deposit != null ? (
+              <p className="text-2xl font-bold">{account.summary.deposit.toLocaleString()}<span className="text-sm text-muted-foreground ml-1">{language === "ko" ? "원" : "KRW"}</span></p>
+            ) : (
+              <p className="text-2xl font-bold text-muted-foreground">-</p>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -535,12 +547,10 @@ export function PortfolioPage() {
                 className="pl-8 h-9 w-40 text-sm"
               />
             </div>
-            {!isAllAccounts && (
-              <Button onClick={openAddModal} size="sm" className="gap-1">
-                <Plus className="w-4 h-4" />
-                {language === "ko" ? "추가" : "Add"}
-              </Button>
-            )}
+            <Button onClick={openAddModal} size="sm" className="gap-1">
+              <Plus className="w-4 h-4" />
+              {language === "ko" ? "추가" : "Add"}
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -576,7 +586,7 @@ export function PortfolioPage() {
                   </TableHead>
                 ))}
                 <TableHead className="text-right">{language === "ko" ? "비중" : "Weight"}</TableHead>
-                {!isAllAccounts && <TableHead className="text-center">{language === "ko" ? "관리" : "Actions"}</TableHead>}
+                <TableHead className="text-center">{language === "ko" ? "관리" : "Actions"}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -619,9 +629,6 @@ export function PortfolioPage() {
                           <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${SECTOR_COLORS[stock.sector] ?? 'bg-muted text-muted-foreground border-border'}`}>
                             {stock.sector}
                           </span>
-                        )}
-                        {isAllAccounts && stock._account && (
-                          <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{stock._account}</span>
                         )}
                       </div>
                     </TableCell>
@@ -695,28 +702,26 @@ export function PortfolioPage() {
                         {weight.toFixed(1)}%
                       </Badge>
                     </TableCell>
-                    {!isAllAccounts && (
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => openEditModal(activeAccount, idx, stock)}
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive hover:text-destructive"
-                            onClick={() => setDeleteConfirm({ accountIdx: activeAccount, stockIdx: idx })}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    )}
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => openEditModal(0, idx, stock)}
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-destructive hover:text-destructive"
+                          onClick={() => setDeleteConfirm({ accountIdx: 0, stockIdx: idx })}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 )
               })}

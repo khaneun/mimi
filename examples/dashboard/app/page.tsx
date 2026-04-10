@@ -16,6 +16,7 @@ import { NewsPage } from "@/components/news-page"
 import { PortfolioPage } from "@/components/portfolio-page"
 import { AgentsPage } from "@/components/agents-page"
 import { ExecutionPage } from "@/components/execution-page"
+import { SettingsPage } from "@/components/settings-page"
 import { StockDetailModal } from "@/components/stock-detail-modal"
 import { ProjectFooter } from "@/components/project-footer"
 import { useLanguage } from "@/components/language-provider"
@@ -24,8 +25,8 @@ import { TriggerReliabilityBadge } from "@/components/trigger-reliability-badge"
 import { formatCurrency } from "@/lib/currency"
 import type { DashboardData, Holding, Market } from "@/types/dashboard"
 
-type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution"
-const VALID_TABS: TabType[] = ["dashboard", "ai-decisions", "trading", "watchlist", "insights", "portfolio", "news", "jeoningu-lab", "agents", "execution"]
+type TabType = "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings"
+const VALID_TABS: TabType[] = ["dashboard", "ai-decisions", "trading", "watchlist", "insights", "portfolio", "news", "jeoningu-lab", "agents", "execution", "settings"]
 
 // Get data file path based on market and language
 function getDataFilePath(market: Market, language: string): string {
@@ -344,6 +345,8 @@ function DashboardContent() {
         {activeTab === "agents" && <AgentsPage />}
 
         {activeTab === "execution" && <ExecutionPage />}
+
+        {activeTab === "settings" && <SettingsPage />}
       </main>
 
       {/* 프로젝트 소개 Footer */}

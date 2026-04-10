@@ -1,6 +1,6 @@
 "use client"
 
-import { Moon, Sun, TrendingUp, Github, Send, Languages, Newspaper, Wallet, LayoutDashboard, Brain, History, Eye, Lightbulb, FileBarChart, Bot, Play } from "lucide-react"
+import { Moon, Sun, TrendingUp, Github, Send, Languages, Newspaper, Wallet, LayoutDashboard, Brain, History, Eye, Lightbulb, FileBarChart, Bot, Play, Settings } from "lucide-react"
 import { MarketTickerBar } from "@/components/market-ticker-bar"
 import { useTheme } from "next-themes"
 import { useLanguage } from "@/components/language-provider"
@@ -14,8 +14,8 @@ import {
 import type { Market } from "@/types/dashboard"
 
 interface DashboardHeaderProps {
-  activeTab: "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution"
-  onTabChange: (tab: "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution") => void
+  activeTab: "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings"
+  onTabChange: (tab: "dashboard" | "ai-decisions" | "trading" | "watchlist" | "insights" | "portfolio" | "news" | "jeoningu-lab" | "agents" | "execution" | "settings") => void
   lastUpdated?: string
   market?: Market
   onMarketChange?: (market: Market) => void
@@ -328,6 +328,14 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             <Play className="w-4 h-4 mr-1" />
             {language === "ko" ? "실행" : "Execution"}
           </Button>
+          <Button
+            variant={activeTab === "settings" ? "secondary" : "ghost"}
+            onClick={() => onTabChange("settings")}
+            className="font-medium"
+          >
+            <Settings className="w-4 h-4 mr-1" />
+            {language === "ko" ? "설정" : "Settings"}
+          </Button>
         </nav>
 
         {/* Mobile Navigation */}
@@ -421,6 +429,15 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
           >
             <Play className="w-4 h-4" />
             <span className="hidden sm:inline ml-1">{language === "ko" ? "실행" : "Execution"}</span>
+          </Button>
+          <Button
+            variant={activeTab === "settings" ? "secondary" : "ghost"}
+            onClick={() => onTabChange("settings")}
+            size="sm"
+            className="font-medium whitespace-nowrap"
+          >
+            <Settings className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">{language === "ko" ? "설정" : "Settings"}</span>
           </Button>
         </nav>
       </div>
