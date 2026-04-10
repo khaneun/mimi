@@ -175,12 +175,12 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
           {/* Daily / Night Selector */}
           {onMarketChange && (
             <div className="hidden sm:flex items-center">
-              <div className="flex bg-muted/50 rounded-xl p-1 gap-1">
+              <div className="flex bg-muted/50 rounded-lg p-0.5 gap-0.5">
                 <button
                   onClick={() => onMarketChange("KR")}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-medium text-xs transition-all duration-200 ${
                     market === "KR"
-                      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25"
+                      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/20"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
@@ -188,12 +188,8 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
                   <span>Daily</span>
                 </button>
                 <button
-                  onClick={() => onMarketChange("US")}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
-                    market === "US"
-                      ? "bg-gradient-to-r from-indigo-600 to-violet-700 text-white shadow-lg shadow-indigo-500/25"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
+                  disabled
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-md font-medium text-xs text-muted-foreground/30 cursor-not-allowed"
                 >
                   <span>🌙</span>
                   <span>Night</span>
@@ -209,7 +205,7 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
           <div className="sm:hidden flex gap-1 pb-2">
             <button
               onClick={() => onMarketChange("KR")}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg font-semibold text-xs transition-all ${
+              className={`flex items-center justify-center gap-1 px-3 py-1 rounded-md font-medium text-xs transition-all ${
                 market === "KR" ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white" : "text-muted-foreground bg-muted/50"
               }`}
             >
@@ -217,10 +213,8 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
               <span>Daily</span>
             </button>
             <button
-              onClick={() => onMarketChange("US")}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg font-semibold text-xs transition-all ${
-                market === "US" ? "bg-gradient-to-r from-indigo-600 to-violet-700 text-white" : "text-muted-foreground bg-muted/50"
-              }`}
+              disabled
+              className="flex items-center justify-center gap-1 px-3 py-1 rounded-md font-medium text-xs text-muted-foreground/30 cursor-not-allowed bg-muted/20"
             >
               <span>🌙</span>
               <span>Night</span>

@@ -20,7 +20,7 @@ $SSH "$EC2" "cd $DASH_DIR && npm run build" || { echo "✗ 빌드 실패"; exit 
 # ── [3/3] 서버 재시작 (npm start 방식) ─────────────────────────
 echo "▶ [3/3] 서버 재시작"
 $SSH "$EC2" "pkill -f 'next-server' 2>/dev/null; pkill -f 'next start' 2>/dev/null; mkdir -p $APP_DIR/logs; sleep 1; echo 'killed'" || true
-$SSH "$EC2" "nohup bash -c 'cd $DASH_DIR && node_modules/.bin/next start -p 3000 >> $LOG_FILE 2>&1' </dev/null &" 2>/dev/null; true
+$SSH "$EC2" "nohup bash -c 'cd $DASH_DIR && node_modules/.bin/next start -p 3000 >> $LOG_FILE 2>&1' </dev/null & disown; sleep 2" 2>/dev/null; true
 
 # ── 확인 (next-server 기동 대기) ────────────────────────────────
 echo "▶ 확인 중..."

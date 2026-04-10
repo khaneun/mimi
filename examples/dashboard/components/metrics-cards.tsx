@@ -96,18 +96,20 @@ export function MetricsCards({
               </div>
             </div>
           )}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Card 1: 총자산 + 종목수 */}
             <Card className="border-border/50">
-              <CardContent className="p-5">
-                <p className="text-2xl font-bold text-foreground">{formatCurrency(totalAssets)}</p>
+              <CardContent className="p-4">
+                <p className="text-xs text-muted-foreground mb-2">{language === "ko" ? "총자산" : "Total Assets"}</p>
+                <p className="text-xl font-bold text-foreground">{formatCurrency(totalAssets)}</p>
                 <p className="text-sm text-muted-foreground mt-1">{rt.total_stocks || 0}{t("metrics.stocks")}</p>
               </CardContent>
             </Card>
             {/* Card 2: 평가손익 + 수익률 */}
             <Card className="border-border/50">
-              <CardContent className="p-5">
-                <p className={`text-2xl font-bold ${isRealProfit ? "text-red-400" : "text-blue-400"}`}>
+              <CardContent className="p-4">
+                <p className="text-xs text-muted-foreground mb-2">{language === "ko" ? "평가손익" : "Unrealized P&L"}</p>
+                <p className={`text-xl font-bold ${isRealProfit ? "text-red-400" : "text-blue-400"}`}>
                   {formatCurrency(rt.total_profit_amount || 0)}
                 </p>
                 <p className={`text-sm font-semibold mt-1 ${isRealProfit ? "text-red-400" : "text-blue-400"}`}>
@@ -117,8 +119,9 @@ export function MetricsCards({
             </Card>
             {/* Card 3: 현금비율 */}
             <Card className="border-border/50">
-              <CardContent className="p-5">
-                <p className="text-2xl font-bold text-foreground">{cashRatio.toFixed(1)}%</p>
+              <CardContent className="p-4">
+                <p className="text-xs text-muted-foreground mb-2">{language === "ko" ? "현금비율" : "Cash Ratio"}</p>
+                <p className="text-xl font-bold text-foreground">{cashRatio.toFixed(1)}%</p>
               </CardContent>
             </Card>
           </div>
