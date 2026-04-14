@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useLanguage } from "@/components/language-provider"
-import { Play, CheckCircle, XCircle, Loader2, FileText } from "lucide-react"
+import { Play, CheckCircle, XCircle, Loader2, FileText, RefreshCw, Square } from "lucide-react"
 
 // --- 파이프라인 스크립트 정의 ---
 
@@ -127,6 +127,7 @@ interface LogDialog {
   name: string
   content: string
   loading: boolean
+  stopping: boolean
 }
 
 // --- Component ---
@@ -136,7 +137,7 @@ export function ExecutionPage() {
   const [runStates, setRunStates] = useState<Record<string, RunState>>({})
   const [elapsed, setElapsed] = useState<Record<string, number>>({})
   const [logDialog, setLogDialog] = useState<LogDialog>({
-    open: false, id: "", name: "", content: "", loading: false,
+    open: false, id: "", name: "", content: "", loading: false, stopping: false,
   })
 
   // API에서 프로세스 상태 + 마지막 실행 시간 동기화
@@ -264,6 +265,7 @@ export function ExecutionPage() {
       name: language === "ko" ? script.nameKo : script.nameEn,
       content: "",
       loading: true,
+      stopping: false,
     })
     try {
       const res = await fetch(`/api/execution?log=${script.id}`)
@@ -275,6 +277,32 @@ export function ExecutionPage() {
       }))
     } catch {
       setLogDialog(prev => ({ ...prev, content: "(로그 조회 실패)", loading: false }))
+    }
+  }
+
+  const refreshLog = async () => {
+    setLogDialog(prev => ({ ...prev, loading: true }))
+    try {
+      const res = await fetch(`/api/execution?log=${logDialog.id}`)
+      const data = await res.json()
+      setLogDialog(prev => ({
+        ...prev,
+        content: data.log || "(로그 없음)",
+        loading: false,
+      }))
+    } catch {
+      setLogDialog(prev => ({ ...prev, content: "(로그 조회 실패)", loading: false }))
+    }
+  }
+
+  const stopScript = async () => {
+    setLogDialog(prev => ({ ...prev, stopping: true }))
+    try {
+      await fetch(`/api/execution?id=${logDialog.id}`, { method: "DELETE" })
+      // 중단 후 상태 폴링에서 감지되도록 즉시 syncStatus 호출
+      await syncStatus()
+    } finally {
+      setLogDialog(prev => ({ ...prev, stopping: false }))
     }
   }
 
@@ -341,7 +369,7 @@ export function ExecutionPage() {
                         </div>
 
                         {/* 오른쪽: 실행 버튼 + 로그 버튼 */}
-                        <div className="flex flex-col items-end gap-1.5 shrink-0">
+                        <div className="flex flex-col items-center gap-1.5 shrink-0">
                           <Button
                             size="sm"
                             variant={isRunning ? "secondary" : "outline"}
@@ -386,9 +414,35 @@ export function ExecutionPage() {
       >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-sm font-semibold">
-              {logDialog.name} — {language === "ko" ? "실행 로그" : "Execution Log"}
-            </DialogTitle>
+            <div className="flex items-center justify-between pr-6">
+              <DialogTitle className="text-sm font-semibold">
+                {logDialog.name} — {language === "ko" ? "실행 로그" : "Execution Log"}
+              </DialogTitle>
+              <div className="flex items-center gap-2">
+                {/* 새로고침 버튼 */}
+                <button
+                  onClick={refreshLog}
+                  disabled={logDialog.loading}
+                  className="flex items-center gap-1 text-[11px] text-muted-foreground/60 hover:text-muted-foreground transition-colors disabled:opacity-40"
+                >
+                  <RefreshCw className={`w-3 h-3 ${logDialog.loading ? "animate-spin" : ""}`} />
+                  <span>{language === "ko" ? "새로고침" : "Refresh"}</span>
+                </button>
+                {/* 중단 버튼 — 실행 중일 때만 활성 */}
+                <button
+                  onClick={stopScript}
+                  disabled={logDialog.stopping || !runStates[logDialog.id] || runStates[logDialog.id].status !== "running"}
+                  className="flex items-center gap-1 text-[11px] text-red-400/70 hover:text-red-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  {logDialog.stopping ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Square className="w-3 h-3 fill-current" />
+                  )}
+                  <span>{language === "ko" ? "중단" : "Stop"}</span>
+                </button>
+              </div>
+            </div>
           </DialogHeader>
           <ScrollArea className="h-[55vh] rounded border border-border/30 bg-black/30">
             {logDialog.loading ? (

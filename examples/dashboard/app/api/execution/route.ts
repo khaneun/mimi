@@ -92,6 +92,26 @@ function getPythonBin(): string {
   return "python3"
 }
 
+/** scriptId로 해당 스크립트 프로세스 강제 종료 */
+export async function DELETE(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const scriptId = searchParams.get("id")
+
+  const scriptPath = Object.entries(SCRIPT_ID_MAP).find(([, id]) => id === scriptId)?.[0]
+  if (!scriptPath) {
+    return NextResponse.json({ error: "알 수 없는 스크립트 ID" }, { status: 400 })
+  }
+
+  const scriptName = path.basename(scriptPath)
+  try {
+    await execAsync(`pkill -f "${scriptName}"`)
+    return NextResponse.json({ success: true })
+  } catch {
+    // pkill exit 1 = 이미 종료됨 → 정상 처리
+    return NextResponse.json({ success: true, message: "already stopped" })
+  }
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const logId = searchParams.get("log")
