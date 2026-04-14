@@ -25,7 +25,7 @@ $SSH "$EC2" "
   pkill -f 'next start'  2>/dev/null || true
   sleep 1
   mkdir -p $APP_DIR/logs
-  setsid nohup $DASH_DIR/node_modules/.bin/next start -p 3000 \
+  cd $DASH_DIR && setsid nohup node_modules/.bin/next start -p 3000 \
     >>$LOG_FILE 2>&1 </dev/null &
   disown \$!
   echo '서버 시작됨'
