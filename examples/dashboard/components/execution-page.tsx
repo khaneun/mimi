@@ -4,10 +4,11 @@ import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useLanguage } from "@/components/language-provider"
-import { Play, CheckCircle, XCircle, Loader2, FileText, RefreshCw, Square } from "lucide-react"
+import { Play, CheckCircle, XCircle, Loader2, FileText, RefreshCw, Square, Clock } from "lucide-react"
 
 // --- 파이프라인 스크립트 정의 ---
 
@@ -139,6 +140,34 @@ export function ExecutionPage() {
   const [logDialog, setLogDialog] = useState<LogDialog>({
     open: false, id: "", name: "", content: "", loading: false, stopping: false,
   })
+  // 일일 파이프라인 스케줄 (crontab)
+  const [scheduleEnabled, setScheduleEnabled] = useState(false)
+  const [scheduleLoading, setScheduleLoading] = useState(false)
+
+  // 스케줄 로드
+  const loadSchedule = useCallback(async () => {
+    try {
+      const res = await fetch("/api/cron")
+      if (res.ok) {
+        const data = await res.json()
+        setScheduleEnabled(data.enabled ?? false)
+      }
+    } catch {}
+  }, [])
+
+  // 스케줄 토글
+  const toggleSchedule = async (on: boolean) => {
+    setScheduleLoading(true)
+    try {
+      const res = await fetch("/api/cron", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enable: on }),
+      })
+      if (res.ok) setScheduleEnabled(on)
+    } catch {}
+    setScheduleLoading(false)
+  }
 
   // API에서 프로세스 상태 + 마지막 실행 시간 동기화
   const syncStatus = useCallback(async () => {
@@ -188,7 +217,8 @@ export function ExecutionPage() {
   // 마운트 시 초기 상태 로드
   useEffect(() => {
     syncStatus()
-  }, [syncStatus])
+    loadSchedule()
+  }, [syncStatus, loadSchedule])
 
   // running 상태인 스크립트가 있는 동안 5초마다 폴링
   useEffect(() => {
@@ -365,6 +395,24 @@ export function ExecutionPage() {
                             <p className="text-[10px] text-muted-foreground/50 mt-1.5">
                               {language === "ko" ? "마지막 실행" : "Last run"}: {state.lastRunAt}
                             </p>
+                          )}
+                          {/* 일일 통합 파이프라인 전용 스케줄 스위치 */}
+                          {script.id === "daily" && (
+                            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/20">
+                              <Clock className="w-3 h-3 text-muted-foreground/50 shrink-0" />
+                              <span className="text-[10px] text-muted-foreground/70">
+                                {language === "ko" ? "매일 오후 9시 스케줄" : "Daily 9 PM schedule"}
+                              </span>
+                              {scheduleLoading ? (
+                                <Loader2 className="w-3 h-3 animate-spin text-muted-foreground/50 ml-auto" />
+                              ) : (
+                                <Switch
+                                  checked={scheduleEnabled}
+                                  onCheckedChange={toggleSchedule}
+                                  className="ml-auto scale-75 origin-right"
+                                />
+                              )}
+                            </div>
                           )}
                         </div>
 

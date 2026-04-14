@@ -160,8 +160,22 @@ export function SettingsPage() {
   }
 
   const handleCopyUrl = async (url: string) => {
-    await navigator.clipboard.writeText(url)
-    setCopied(true); setTimeout(() => setCopied(false), 2000)
+    try {
+      // HTTPS/localhost: Clipboard API 사용
+      await navigator.clipboard.writeText(url)
+    } catch {
+      // HTTP 환경 fallback: textarea + execCommand
+      const ta = document.createElement("textarea")
+      ta.value = url
+      ta.style.cssText = "position:fixed;top:0;left:0;opacity:0"
+      document.body.appendChild(ta)
+      ta.focus()
+      ta.select()
+      document.execCommand("copy")
+      document.body.removeChild(ta)
+    }
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   const handleModeChange = async (mode: string) => {
