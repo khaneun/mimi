@@ -19,8 +19,17 @@ interface OperatingCostsCardProps {
 
 export function OperatingCostsCard({ costs }: OperatingCostsCardProps) {
   const { language, t } = useLanguage()
+  const [claudeLoggedIn, setClaudeLoggedIn] = useState<boolean | null>(null)
 
   const actualMonth = costs?.month || "2026-04"
+
+  // Claude 로그인 상태 조회
+  useEffect(() => {
+    fetch("/api/claude-login")
+      .then(r => r.json())
+      .then(d => setClaudeLoggedIn(d.logged_in === true))
+      .catch(() => setClaudeLoggedIn(false))
+  }, [])
 
   const formatMonth = (monthStr: string) => {
     if (!monthStr) return ''
@@ -37,20 +46,27 @@ export function OperatingCostsCard({ costs }: OperatingCostsCardProps) {
       name: "Claude Code (Max)",
       desc: language === "ko" ? "AI 분석 엔진 · 뉴스 · 종목분석" : "AI Analysis Engine",
       icon: Cpu,
-      color: "text-orange-400",
-      gradient: "from-orange-500/20 to-amber-500/5",
-      status: language === "ko" ? "구독 포함" : "Included",
-      statusColor: "text-green-400",
+      // 로그인 여부에 따라 색상/상태 분기
+      color: claudeLoggedIn ? "text-orange-400" : "text-muted-foreground/40",
+      gradient: claudeLoggedIn ? "from-orange-500/20 to-amber-500/5" : "from-muted/20 to-muted/5",
+      status: claudeLoggedIn === null
+        ? (language === "ko" ? "확인 중..." : "Checking...")
+        : claudeLoggedIn
+          ? (language === "ko" ? "구독 포함" : "Included")
+          : (language === "ko" ? "로그인 필요" : "Not logged in"),
+      statusColor: claudeLoggedIn ? "text-green-400" : "text-muted-foreground/50",
+      dotColor: claudeLoggedIn ? "bg-green-500" : "bg-muted-foreground/30",
       cost: "$0",
     },
     {
-      name: language === "ko" ? "로컬 서버 (Mac)" : "Local Server (Mac)",
+      name: "EC2 t3.small",
       desc: language === "ko" ? "대시보드 · 실시간 서버" : "Dashboard · Realtime Server",
       icon: Server,
       color: "text-blue-400",
       gradient: "from-blue-500/20 to-blue-500/5",
-      status: language === "ko" ? "무료" : "Free",
+      status: language === "ko" ? "배포 완료" : "Deployed",
       statusColor: "text-green-400",
+      dotColor: "bg-green-500",
       cost: "$0",
     },
     {
@@ -61,6 +77,7 @@ export function OperatingCostsCard({ costs }: OperatingCostsCardProps) {
       gradient: "from-emerald-500/20 to-emerald-500/5",
       status: language === "ko" ? "연결됨" : "Connected",
       statusColor: "text-green-400",
+      dotColor: "bg-green-500",
       cost: "$0",
     },
     {
@@ -71,6 +88,7 @@ export function OperatingCostsCard({ costs }: OperatingCostsCardProps) {
       gradient: "from-cyan-500/20 to-cyan-500/5",
       status: language === "ko" ? "연결됨" : "Connected",
       statusColor: "text-green-400",
+      dotColor: "bg-green-500",
       cost: "$0",
     },
   ]
@@ -114,7 +132,7 @@ export function OperatingCostsCard({ costs }: OperatingCostsCardProps) {
                     <div className="flex items-center justify-between">
                       <Icon className={`w-5 h-5 ${svc.color}`} />
                       <div className="flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                        <span className={`w-1.5 h-1.5 rounded-full ${svc.dotColor} ${svc.dotColor === "bg-green-500" ? "animate-pulse" : ""}`} />
                         <span className={`text-[10px] font-medium ${svc.statusColor}`}>{svc.status}</span>
                       </div>
                     </div>
@@ -129,7 +147,7 @@ export function OperatingCostsCard({ costs }: OperatingCostsCardProps) {
           </div>
 
           {/* Claude Code Usage */}
-          <ClaudeUsagePanel language={language} />
+          <ClaudeUsagePanel language={language} loggedIn={claudeLoggedIn} />
 
           {/* Footer */}
           <div className="p-2.5 rounded-lg bg-muted/30 border border-border/30">
@@ -144,16 +162,15 @@ export function OperatingCostsCard({ costs }: OperatingCostsCardProps) {
 }
 
 // Claude Code 사용량 패널
-function ClaudeUsagePanel({ language }: { language: string }) {
+function ClaudeUsagePanel({ language, loggedIn }: { language: string; loggedIn: boolean | null }) {
   const [resetTime, setResetTime] = useState("")
   const [resetCountdown, setResetCountdown] = useState("")
 
   useEffect(() => {
     const updateReset = () => {
-      // Max 구독 리셋: 매일 UTC 00:00 (KST 09:00)
       const now = new Date()
       const nextReset = new Date(now)
-      nextReset.setUTCHours(24, 0, 0, 0) // 다음 UTC 자정
+      nextReset.setUTCHours(24, 0, 0, 0)
       if (nextReset <= now) nextReset.setUTCDate(nextReset.getUTCDate() + 1)
 
       setResetTime(nextReset.toLocaleString(language === "ko" ? "ko-KR" : "en-US", {
@@ -167,23 +184,39 @@ function ClaudeUsagePanel({ language }: { language: string }) {
     }
 
     updateReset()
-    const interval = setInterval(updateReset, 60000) // 1분마다 갱신
+    const interval = setInterval(updateReset, 60000)
     return () => clearInterval(interval)
   }, [language])
 
   const models = [
-    { name: "Opus 4.6", color: "bg-purple-500", desc: language === "ko" ? "아키텍처 · 복잡한 분석" : "Architecture" },
-    { name: "Sonnet 4.6", color: "bg-blue-500", desc: language === "ko" ? "코딩 · 일반 작업" : "Coding" },
-    { name: "Haiku 4.5", color: "bg-cyan-500", desc: language === "ko" ? "서브에이전트 · 빠른 작업" : "Sub-agents" },
+    { name: "Opus 4.6",   color: "bg-purple-500", desc: language === "ko" ? "아키텍처 · 복잡한 분석" : "Architecture" },
+    { name: "Sonnet 4.6", color: "bg-blue-500",   desc: language === "ko" ? "코딩 · 일반 작업" : "Coding" },
+    { name: "Haiku 4.5",  color: "bg-cyan-500",   desc: language === "ko" ? "서브에이전트 · 빠른 작업" : "Sub-agents" },
   ]
 
+  // 로그인 안된 경우 전체 패널 그레이아웃
+  const inactive = loggedIn === false
+
   return (
-    <div className="p-4 rounded-lg bg-gradient-to-r from-purple-500/5 to-blue-500/5 border border-purple-500/20">
+    <div className={`p-4 rounded-lg border transition-all ${
+      inactive
+        ? "bg-muted/10 border-border/20 opacity-60"
+        : "bg-gradient-to-r from-purple-500/5 to-blue-500/5 border-purple-500/20"
+    }`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Brain className="w-4 h-4 text-purple-400" />
-          <span className="text-sm font-semibold text-foreground">Claude Code</span>
-          <Badge variant="outline" className="text-[10px] bg-amber-500/10 text-amber-400 border-amber-500/30">
+          <Brain className={`w-4 h-4 ${inactive ? "text-muted-foreground/40" : "text-purple-400"}`} />
+          <span className={`text-sm font-semibold ${inactive ? "text-muted-foreground/60" : "text-foreground"}`}>
+            Claude Code
+          </span>
+          <Badge
+            variant="outline"
+            className={`text-[10px] ${
+              inactive
+                ? "bg-muted/20 text-muted-foreground/50 border-border/30"
+                : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+            }`}
+          >
             Max
           </Badge>
         </div>
@@ -196,24 +229,49 @@ function ClaudeUsagePanel({ language }: { language: string }) {
       {/* 모델별 */}
       <div className="grid grid-cols-3 gap-2">
         {models.map(m => (
-          <div key={m.name} className="p-2 rounded-md bg-background/50 border border-border/30">
+          <div
+            key={m.name}
+            className={`p-2 rounded-md border border-border/30 ${inactive ? "bg-muted/10" : "bg-background/50"}`}
+          >
             <div className="flex items-center gap-1.5 mb-1">
-              <span className={`w-2 h-2 rounded-full ${m.color}`} />
-              <span className="text-[11px] font-medium text-foreground">{m.name}</span>
+              <span className={`w-2 h-2 rounded-full ${inactive ? "bg-muted-foreground/30" : m.color}`} />
+              <span className={`text-[11px] font-medium ${inactive ? "text-muted-foreground/50" : "text-foreground"}`}>
+                {m.name}
+              </span>
             </div>
-            <p className="text-[10px] text-muted-foreground">{m.desc}</p>
+            <p className="text-[10px] text-muted-foreground/70">{m.desc}</p>
           </div>
         ))}
       </div>
 
-      {/* 리셋 시간 */}
+      {/* 상태 표시 */}
       <div className="flex items-center justify-between mt-3 pt-2 border-t border-border/20">
         <span className="text-[10px] text-muted-foreground">
           {language === "ko" ? "다음 리셋" : "Next reset"}: {resetTime}
         </span>
         <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-[10px] text-green-400">{language === "ko" ? "구독 활성" : "Active"}</span>
+          {inactive ? (
+            <>
+              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
+              <span className="text-[10px] text-muted-foreground/50">
+                {language === "ko" ? "로그인 필요" : "Not logged in"}
+              </span>
+            </>
+          ) : loggedIn ? (
+            <>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-[10px] text-green-400">
+                {language === "ko" ? "구독 활성" : "Active"}
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30 animate-pulse" />
+              <span className="text-[10px] text-muted-foreground/50">
+                {language === "ko" ? "확인 중..." : "Checking..."}
+              </span>
+            </>
+          )}
         </div>
       </div>
     </div>

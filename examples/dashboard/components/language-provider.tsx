@@ -98,7 +98,7 @@ const translations: Record<Language, Record<string, string>> = {
     "metrics.elapsed": "일 경과",
 
     // Operating Costs
-    "costs.title": "프로젝트 운영 비용 투명 공개",
+    "costs.title": "프로젝트 운영 비용",
     "costs.description": "오픈소스 프로젝트의 지속 가능한 운영을 위해 전월 비용을 공개합니다",
     "costs.serverHosting": "서버 호스팅",
     "costs.basis": "기준",
@@ -584,7 +584,7 @@ const translations: Record<Language, Record<string, string>> = {
     "metrics.elapsed": "d elapsed",
 
     // Operating Costs
-    "costs.title": "Project Operating Costs Transparency",
+    "costs.title": "Project Operating Costs",
     "costs.description": "Disclosing last month's costs for sustainable open-source operations",
     "costs.serverHosting": "Server Hosting",
     "costs.basis": "as of",
