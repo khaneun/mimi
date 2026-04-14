@@ -159,7 +159,7 @@ export function DashboardHeader({ activeTab, onTabChange, lastUpdated, market = 
             </div>
             <div>
               <h1 className="text-lg font-bold bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 bg-clip-text text-transparent leading-none">
-                Mimmy
+                Mimi
               </h1>
               <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
                 <span className="relative flex h-1.5 w-1.5">

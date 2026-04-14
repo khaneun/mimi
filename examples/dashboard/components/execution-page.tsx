@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect, useCallback } from "react"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { useLanguage } from "@/components/language-provider"
-import { Play, CheckCircle, XCircle, Loader2 } from "lucide-react"
+import { Play, CheckCircle, XCircle, Loader2, FileText } from "lucide-react"
 
 // --- 파이프라인 스크립트 정의 ---
 
@@ -119,34 +121,104 @@ interface RunState {
   lastRunAt?: string  // "yyyy-mm-dd hh:mm:ss"
 }
 
+interface LogDialog {
+  open: boolean
+  id: string
+  name: string
+  content: string
+  loading: boolean
+}
+
 // --- Component ---
 
 export function ExecutionPage() {
   const { language } = useLanguage()
   const [runStates, setRunStates] = useState<Record<string, RunState>>({})
   const [elapsed, setElapsed] = useState<Record<string, number>>({})
+  const [logDialog, setLogDialog] = useState<LogDialog>({
+    open: false, id: "", name: "", content: "", loading: false,
+  })
 
-  // 실행 중인 항목의 경과 시간 갱신
+  // API에서 프로세스 상태 + 마지막 실행 시간 동기화
+  const syncStatus = useCallback(async () => {
+    try {
+      const res = await fetch("/api/execution")
+      if (!res.ok) return
+      const data = await res.json() as {
+        lastRunTimes: Record<string, string>
+        running: string[]
+      }
+
+      setRunStates(prev => {
+        const next = { ...prev }
+
+        // 서버 저장된 마지막 실행 시간 반영 (아직 UI에 없는 경우)
+        for (const [id, time] of Object.entries(data.lastRunTimes)) {
+          const cur = next[id] ?? { status: "idle" as const }
+          if (!cur.lastRunAt) {
+            next[id] = { ...cur, lastRunAt: time }
+          }
+        }
+
+        // 프로세스 실행 여부 반영
+        for (const script of PIPELINE_SCRIPTS) {
+          const cur = next[script.id] ?? { status: "idle" as const }
+          const serverRunning = data.running.includes(script.id)
+
+          if (serverRunning && cur.status !== "running") {
+            // 서버에서 실행 중이지만 UI는 모르는 경우 (예: 페이지 재진입)
+            next[script.id] = { ...cur, status: "running", startedAt: Date.now() }
+          } else if (!serverRunning && cur.status === "running") {
+            // 실행 중이었는데 프로세스가 종료된 경우 → done으로 전환
+            next[script.id] = {
+              status: "done",
+              lastRunAt: data.lastRunTimes[script.id] ?? cur.lastRunAt,
+            }
+          }
+        }
+
+        return next
+      })
+    } catch {
+      // 네트워크 오류 무시
+    }
+  }, [])
+
+  // 마운트 시 초기 상태 로드
+  useEffect(() => {
+    syncStatus()
+  }, [syncStatus])
+
+  // running 상태인 스크립트가 있는 동안 5초마다 폴링
+  useEffect(() => {
+    const hasRunning = Object.values(runStates).some(s => s.status === "running")
+    if (!hasRunning) return
+    const interval = setInterval(syncStatus, 5000)
+    return () => clearInterval(interval)
+  }, [runStates, syncStatus])
+
+  // 실행 중인 항목의 경과 시간 갱신 (1초 단위)
   useEffect(() => {
     const ticker = setInterval(() => {
       const now = Date.now()
-      const newElapsed: Record<string, number> = {}
+      const updates: Record<string, number> = {}
       for (const [id, state] of Object.entries(runStates)) {
         if (state.status === "running" && state.startedAt) {
-          newElapsed[id] = Math.floor((now - state.startedAt) / 1000)
+          updates[id] = Math.floor((now - state.startedAt) / 1000)
         }
       }
-      if (Object.keys(newElapsed).length > 0) {
-        setElapsed(prev => ({ ...prev, ...newElapsed }))
+      if (Object.keys(updates).length > 0) {
+        setElapsed(prev => ({ ...prev, ...updates }))
       }
     }, 1000)
     return () => clearInterval(ticker)
   }, [runStates])
 
   const runScript = async (script: PipelineScript) => {
+    // 즉시 running 상태로 전환 (버튼 비활성화)
     setRunStates(prev => ({
       ...prev,
-      [script.id]: { status: "running", startedAt: Date.now() },
+      [script.id]: { ...prev[script.id], status: "running", startedAt: Date.now() },
     }))
     setElapsed(prev => ({ ...prev, [script.id]: 0 }))
 
@@ -157,24 +229,52 @@ export function ExecutionPage() {
         body: JSON.stringify({ script: script.script }),
       })
       const data = await res.json()
-      const lastRunAt = new Date().toISOString().replace("T", " ").substring(0, 19)
-      if (res.ok && data.success) {
+
+      if (!res.ok || !data.success) {
+        // 실행 실패 시에만 error 상태로 전환
         setRunStates(prev => ({
           ...prev,
-          [script.id]: { status: "done", message: data.message ?? "실행 완료", lastRunAt },
+          [script.id]: {
+            ...prev[script.id],
+            status: "error",
+            message: data.error ?? `HTTP ${res.status}`,
+            lastRunAt: new Date().toISOString().replace("T", " ").substring(0, 19),
+          },
         }))
-      } else {
-        setRunStates(prev => ({
-          ...prev,
-          [script.id]: { status: "error", message: data.error ?? `HTTP ${res.status}`, lastRunAt },
-        }))
+        return
       }
+      // 성공: running 유지, 폴링이 완료 시점 감지
     } catch (e: any) {
-      const lastRunAt = new Date().toISOString().replace("T", " ").substring(0, 19)
       setRunStates(prev => ({
         ...prev,
-        [script.id]: { status: "error", message: e.message, lastRunAt },
+        [script.id]: {
+          ...prev[script.id],
+          status: "error",
+          message: e.message,
+          lastRunAt: new Date().toISOString().replace("T", " ").substring(0, 19),
+        },
       }))
+    }
+  }
+
+  const openLog = async (script: PipelineScript) => {
+    setLogDialog({
+      open: true,
+      id: script.id,
+      name: language === "ko" ? script.nameKo : script.nameEn,
+      content: "",
+      loading: true,
+    })
+    try {
+      const res = await fetch(`/api/execution?log=${script.id}`)
+      const data = await res.json()
+      setLogDialog(prev => ({
+        ...prev,
+        content: data.log || "(로그 없음)",
+        loading: false,
+      }))
+    } catch {
+      setLogDialog(prev => ({ ...prev, content: "(로그 조회 실패)", loading: false }))
     }
   }
 
@@ -182,7 +282,6 @@ export function ExecutionPage() {
 
   return (
     <div className="space-y-6">
-      {/* Script groups */}
       {categories.map(cat => {
         const scripts = PIPELINE_SCRIPTS.filter(s => s.category === cat)
         return (
@@ -198,15 +297,19 @@ export function ExecutionPage() {
                 const state = runStates[script.id] ?? { status: "idle" }
                 const isRunning = state.status === "running"
                 return (
-                  <Card key={script.id} className={`border-border/50 bg-card/50 ${isRunning ? "border-blue-500/40" : ""}`}>
+                  <Card
+                    key={script.id}
+                    className={`border-border/50 bg-card/50 ${isRunning ? "border-blue-500/40" : ""}`}
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
+                        {/* 왼쪽: 스크립트 정보 */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <Badge variant="outline" className={`text-[10px] ${script.color}`}>
                               {language === "ko" ? CATEGORY_LABEL[script.category].ko : CATEGORY_LABEL[script.category].en}
                             </Badge>
-                            {state.status === "running" && (
+                            {isRunning && (
                               <Badge className="text-[10px] bg-blue-500/20 text-blue-400 border-blue-500/30 animate-pulse">
                                 {elapsed[script.id] ?? 0}s
                               </Badge>
@@ -224,37 +327,48 @@ export function ExecutionPage() {
                           <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                             {language === "ko" ? script.descKo : script.descEn}
                           </p>
-                          <p className="text-[10px] font-mono text-muted-foreground/60 mt-1">{script.script}</p>
+                          <p className="text-[10px] font-mono text-muted-foreground/60 mt-1">
+                            {script.script}
+                          </p>
                           {state.status === "error" && state.message && (
                             <p className="text-xs text-red-400 mt-1 truncate">{state.message}</p>
                           )}
-                          {state.status === "done" && state.message && (
-                            <p className="text-xs text-emerald-400 mt-1">{state.message}</p>
-                          )}
                           {state.lastRunAt && (
                             <p className="text-[10px] text-muted-foreground/50 mt-1.5">
-                              {language === "ko" ? "마지막 실행 시간" : "Last run"} {state.lastRunAt}
+                              {language === "ko" ? "마지막 실행" : "Last run"}: {state.lastRunAt}
                             </p>
                           )}
                         </div>
-                        <Button
-                          size="sm"
-                          variant={isRunning ? "secondary" : "outline"}
-                          disabled={isRunning}
-                          onClick={() => runScript(script)}
-                          className="shrink-0 h-8 px-3"
-                        >
-                          {isRunning ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Play className="w-3.5 h-3.5" />
-                          )}
-                          <span className="ml-1.5 text-xs">
-                            {isRunning
-                              ? (language === "ko" ? "실행 중" : "Running")
-                              : (language === "ko" ? "실행" : "Run")}
-                          </span>
-                        </Button>
+
+                        {/* 오른쪽: 실행 버튼 + 로그 버튼 */}
+                        <div className="flex flex-col items-end gap-1.5 shrink-0">
+                          <Button
+                            size="sm"
+                            variant={isRunning ? "secondary" : "outline"}
+                            disabled={isRunning}
+                            onClick={() => runScript(script)}
+                            className="h-8 px-3"
+                          >
+                            {isRunning ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Play className="w-3.5 h-3.5" />
+                            )}
+                            <span className="ml-1.5 text-xs">
+                              {isRunning
+                                ? (language === "ko" ? "실행 중" : "Running")
+                                : (language === "ko" ? "실행" : "Run")}
+                            </span>
+                          </Button>
+                          {/* 로그 버튼 */}
+                          <button
+                            onClick={() => openLog(script)}
+                            className="flex items-center gap-0.5 text-[10px] text-muted-foreground/40 hover:text-muted-foreground/80 transition-colors"
+                          >
+                            <FileText className="w-2.5 h-2.5" />
+                            <span>{language === "ko" ? "로그" : "Log"}</span>
+                          </button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -264,6 +378,31 @@ export function ExecutionPage() {
           </div>
         )
       })}
+
+      {/* 로그 다이얼로그 */}
+      <Dialog
+        open={logDialog.open}
+        onOpenChange={open => setLogDialog(prev => ({ ...prev, open }))}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-sm font-semibold">
+              {logDialog.name} — {language === "ko" ? "실행 로그" : "Execution Log"}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[55vh] rounded border border-border/30 bg-black/30">
+            {logDialog.loading ? (
+              <div className="flex items-center justify-center h-full py-12">
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <pre className="p-4 text-[11px] font-mono text-muted-foreground whitespace-pre-wrap break-all leading-relaxed">
+                {logDialog.content}
+              </pre>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
