@@ -170,45 +170,55 @@ export async function POST(request: Request) {
       )
     }
 
+    // 코드 전송 후 stdin 닫기 (EOF 신호 — 이게 없으면 프로세스가 대기 상태로 남음)
     try {
       loginProcess.stdin.write(code.trim() + "\n")
+      loginProcess.stdin.end()
     } catch (e: any) {
       return NextResponse.json({ success: false, error: "코드 전송 실패: " + e.message }, { status: 500 })
     }
 
-    // 폴링으로 인증 상태 확인 (최대 20초, 2초 간격)
-    const checkAuth = async (): Promise<boolean> => {
+    // 프로세스 종료 대기 (최대 20초) — 성공 시 exit code 0
+    const proc = loginProcess
+    let exitCode: number | null = null
+    let procOutput = ""
+
+    await new Promise<void>((resolve) => {
+      const timer = setTimeout(() => resolve(), 20000)
+      proc.stdout?.on("data", (d: Buffer) => { procOutput += d.toString() })
+      proc.stderr?.on("data", (d: Buffer) => { procOutput += d.toString() })
+      proc.on("exit", (code) => {
+        exitCode = code
+        clearTimeout(timer)
+        resolve()
+      })
+    })
+
+    loginProcess = null
+
+    // exit code 0이면 성공, 그 외 실패
+    if (exitCode === 0) {
+      loginStatus = "idle"
+      loginUrl = null
+      return NextResponse.json({ success: true, logged_in: true })
+    }
+
+    // 혹시 exit code가 null(타임아웃)이면 auth status로 재확인
+    if (exitCode === null) {
       try {
         const { stdout, stderr } = await execAsync(`${claude} auth status 2>&1 || true`, { timeout: 8000 })
         const output = (stdout + stderr).trim()
-        try {
-          const jsonMatch = output.match(/\{[\s\S]*\}/)
-          if (jsonMatch) return JSON.parse(jsonMatch[0]).loggedIn === true
-        } catch {}
-        return output.includes("Logged in")
-      } catch {
-        return false
-      }
+        const jsonMatch = output.match(/\{[\s\S]*\}/)
+        if (jsonMatch && JSON.parse(jsonMatch[0]).loggedIn === true) {
+          loginStatus = "idle"
+          loginUrl = null
+          return NextResponse.json({ success: true, logged_in: true })
+        }
+      } catch {}
     }
 
-    // 최대 20초 동안 2초마다 확인
-    let loggedIn = false
-    for (let i = 0; i < 10; i++) {
-      await new Promise(r => setTimeout(r, 2000))
-      loggedIn = await checkAuth()
-      if (loggedIn) break
-    }
-
-    if (loggedIn) {
-      loginStatus = "idle"
-      loginUrl = null
-      if (loginProcess) {
-        try { loginProcess.kill() } catch {}
-        loginProcess = null
-      }
-      return NextResponse.json({ success: true, logged_in: true })
-    }
-    return NextResponse.json({ success: false, logged_in: false, error: "인증 확인 실패. 코드가 올바른지 확인해주세요." })
+    const hint = procOutput.trim() ? ` (${procOutput.trim().slice(0, 120)})` : ""
+    return NextResponse.json({ success: false, logged_in: false, error: `인증 실패. 코드가 만료되었거나 올바르지 않습니다.${hint}` })
   }
 
   // ── 로그인 취소 ──
