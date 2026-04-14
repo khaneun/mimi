@@ -7,7 +7,7 @@ KEY="$HOME/kitty-key.pem"
 APP_DIR="/home/ec2-user/mimi"
 DASH_DIR="$APP_DIR/examples/dashboard"
 LOG_DIR="$APP_DIR/logs"
-LOG_FILE="$LOG_DIR/dashboard.log"
+LOG_FILE="$LOG_DIR/nextjs.log"    # npm start(concurrently)와 분리된 전용 로그
 PID_FILE="$LOG_DIR/dashboard.pid"
 SSH="ssh -i $KEY -o StrictHostKeyChecking=no"
 
@@ -21,49 +21,64 @@ $SSH "$EC2" "cd $DASH_DIR && npm run build" || { echo "✗ 빌드 실패"; exit 
 
 # ── [3/3] 서버 재시작 ───────────────────────────────────────────
 echo "▶ [3/3] 서버 재시작"
-$SSH "$EC2" "
-  # PID 파일로 기존 프로세스 종료
-  if [ -f $PID_FILE ]; then
-    OLD_PID=\$(cat $PID_FILE)
-    kill \$OLD_PID 2>/dev/null || true
-    rm -f $PID_FILE
+$SSH "$EC2" bash << 'ENDSSH'
+  APP_DIR="/home/ec2-user/mimi"
+  DASH_DIR="$APP_DIR/examples/dashboard"
+  LOG_DIR="$APP_DIR/logs"
+  LOG_FILE="$LOG_DIR/nextjs.log"
+  PID_FILE="$LOG_DIR/dashboard.pid"
+
+  # 기존 프로세스 정리
+  if [ -f "$PID_FILE" ]; then
+    OLD_PID=$(cat "$PID_FILE")
+    kill "$OLD_PID" 2>/dev/null || true
+    rm -f "$PID_FILE"
   fi
-  # 혹시 남은 next 프로세스도 정리
   pkill -f 'next-server' 2>/dev/null || true
   pkill -f 'next start'  2>/dev/null || true
+  pkill -f 'concurrently' 2>/dev/null || true
   sleep 2
 
-  mkdir -p $LOG_DIR
-  cd $DASH_DIR
+  mkdir -p "$LOG_DIR"
 
-  # start.sh와 동일한 방식으로 기동
-  REPORTS_DIR=$APP_DIR/reports \
-  nohup npm start -- -p 3000 \
-    > $LOG_FILE 2>&1 &
-  echo \$! > $PID_FILE
-  echo \"서버 PID: \$(cat $PID_FILE)\"
-"
+  # setsid로 새 세션(컨트롤 터미널 없음) → SIGHUP 무관
+  # next start 직접 실행 (concurrently 경유 X → SIGHUP 전파 없음)
+  setsid bash -c "
+    cd '$DASH_DIR'
+    exec node_modules/.bin/next start -p 3000
+  " >> "$LOG_FILE" 2>&1 &
+
+  echo $! > "$PID_FILE"
+  echo "서버 PID: $(cat $PID_FILE)"
+ENDSSH
 
 # ── 확인 ────────────────────────────────────────────────────────
 echo "▶ 확인 중..."
-$SSH "$EC2" "
-  for i in \$(seq 1 15); do
-    STATUS=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/ 2>/dev/null)
-    PID=\$(cat $PID_FILE 2>/dev/null)
-    if [ \"\$STATUS\" = '200' ]; then
-      echo \"✅ 배포 완료 — PID: \$PID, HTTP \$STATUS\"
+$SSH "$EC2" bash << 'ENDSSH'
+  LOG_FILE="/home/ec2-user/mimi/logs/nextjs.log"
+  PID_FILE="/home/ec2-user/mimi/logs/dashboard.pid"
+
+  for i in $(seq 1 20); do
+    STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/ 2>/dev/null)
+    PID=$(cat "$PID_FILE" 2>/dev/null)
+
+    if [ "$STATUS" = "200" ]; then
+      echo "✅ 배포 완료 — PID: $PID, HTTP $STATUS"
       exit 0
     fi
-    # 프로세스 생존 확인
-    if [ -n \"\$PID\" ] && ! kill -0 \$PID 2>/dev/null; then
-      echo '✗ 서버 프로세스가 종료됨'
-      tail -20 $LOG_FILE
+
+    if [ -n "$PID" ] && ! kill -0 "$PID" 2>/dev/null; then
+      echo "✗ 서버 프로세스 종료됨 (PID $PID)"
+      echo "--- 최근 로그 ---"
+      tail -20 "$LOG_FILE"
       exit 1
     fi
-    echo \"  대기 중... \${i}/15 (HTTP \$STATUS)\"
+
+    echo "  대기 중... ${i}/20 (HTTP $STATUS)"
     sleep 2
   done
-  echo '✗ 서버 응답 없음 (타임아웃)'
-  tail -10 $LOG_FILE
+
+  echo "✗ 타임아웃 — 최근 로그:"
+  tail -15 "$LOG_FILE"
   exit 1
-"
+ENDSSH
