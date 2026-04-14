@@ -176,27 +176,39 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "코드 전송 실패: " + e.message }, { status: 500 })
     }
 
-    // 프로세스가 코드를 처리할 시간 대기 후 인증 상태 확인
-    await new Promise(r => setTimeout(r, 3000))
-
-    try {
-      const { stdout } = await execAsync(`${claude} auth status 2>&1 || true`, { timeout: 8000 })
-      const loggedIn = stdout.includes("Logged in") || stdout.includes("loggedIn: true") ||
-                       stdout.includes('"loggedIn":true')
-
-      if (loggedIn) {
-        loginStatus = "idle"
-        loginUrl = null
-        if (loginProcess) {
-          try { loginProcess.kill() } catch {}
-          loginProcess = null
-        }
-        return NextResponse.json({ success: true, logged_in: true })
+    // 폴링으로 인증 상태 확인 (최대 20초, 2초 간격)
+    const checkAuth = async (): Promise<boolean> => {
+      try {
+        const { stdout, stderr } = await execAsync(`${claude} auth status 2>&1 || true`, { timeout: 8000 })
+        const output = (stdout + stderr).trim()
+        try {
+          const jsonMatch = output.match(/\{[\s\S]*\}/)
+          if (jsonMatch) return JSON.parse(jsonMatch[0]).loggedIn === true
+        } catch {}
+        return output.includes("Logged in")
+      } catch {
+        return false
       }
-      return NextResponse.json({ success: false, logged_in: false, error: "인증 확인 실패. 코드가 올바른지 확인해주세요." })
-    } catch {
-      return NextResponse.json({ success: false, logged_in: false, error: "상태 확인 중 오류" })
     }
+
+    // 최대 20초 동안 2초마다 확인
+    let loggedIn = false
+    for (let i = 0; i < 10; i++) {
+      await new Promise(r => setTimeout(r, 2000))
+      loggedIn = await checkAuth()
+      if (loggedIn) break
+    }
+
+    if (loggedIn) {
+      loginStatus = "idle"
+      loginUrl = null
+      if (loginProcess) {
+        try { loginProcess.kill() } catch {}
+        loginProcess = null
+      }
+      return NextResponse.json({ success: true, logged_in: true })
+    }
+    return NextResponse.json({ success: false, logged_in: false, error: "인증 확인 실패. 코드가 올바른지 확인해주세요." })
   }
 
   // ── 로그인 취소 ──
