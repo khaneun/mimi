@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import {
   Settings, CheckCircle, AlertCircle, Building2,
   ToggleLeft, ToggleRight, Bot, LogIn, LogOut,
-  ExternalLink, Copy, Loader2, RefreshCw,
+  ExternalLink, Copy, Loader2, RefreshCw, ClipboardPaste,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -40,6 +40,9 @@ export function SettingsPage() {
   const [claudeLoading, setClaudeLoading] = useState(false)
   const [loginUrl, setLoginUrl] = useState<string | null>(null)
   const [loginPolling, setLoginPolling] = useState(false)
+  const [authCode, setAuthCode] = useState("")
+  const [submittingCode, setSubmittingCode] = useState(false)
+  const [codeError, setCodeError] = useState<string | null>(null)
   const [testResult, setTestResult] = useState<"idle" | "testing" | "ok" | "fail">("idle")
   const [copied, setCopied] = useState(false)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -95,7 +98,7 @@ export function SettingsPage() {
   }
 
   const handleStartLogin = async () => {
-    setError(null); setLoginUrl(null)
+    setError(null); setLoginUrl(null); setAuthCode(""); setCodeError(null)
     try {
       const res = await fetch("/api/claude-login", {
         method: "POST",
@@ -106,6 +109,25 @@ export function SettingsPage() {
       if (data.url) { setLoginUrl(data.url); startPolling() }
       else setError(data.error || "로그인 URL을 가져오지 못했습니다.")
     } catch { setError("로그인 시작 실패") }
+  }
+
+  const handleSubmitCode = async () => {
+    if (!authCode.trim()) { setCodeError("코드를 입력해주세요"); return }
+    setSubmittingCode(true); setCodeError(null)
+    try {
+      const res = await fetch("/api/claude-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "submit-code", code: authCode.trim() }),
+      })
+      const data = await res.json()
+      if (data.logged_in) {
+        stopPolling(); setLoginUrl(null); setAuthCode(""); fetchClaudeStatus()
+      } else {
+        setCodeError(data.error || "인증 실패. 코드를 다시 확인해주세요.")
+      }
+    } catch { setCodeError("코드 전송 중 오류가 발생했습니다.") }
+    setSubmittingCode(false)
   }
 
   const handleLogout = async () => {
@@ -121,7 +143,7 @@ export function SettingsPage() {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "cancel-login" }),
     })
-    setLoginUrl(null); stopPolling(); fetchClaudeStatus()
+    setLoginUrl(null); setAuthCode(""); setCodeError(null); stopPolling(); fetchClaudeStatus()
   }
 
   const handleTest = async () => {
@@ -245,38 +267,82 @@ export function SettingsPage() {
             </div>
           </div>
 
-          {/* 로그인 URL */}
+          {/* 2단계 로그인 흐름 */}
           {loginUrl && (
-            <div className="space-y-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
-              <div className="flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
-                <p className="text-sm font-semibold text-amber-300">
-                  {language === "ko" ? "브라우저에서 로그인을 완료해주세요" : "Complete login in your browser"}
+            <div className="space-y-4 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
+              {/* Step 1 */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-[11px] font-bold shrink-0">1</span>
+                  <p className="text-sm font-semibold text-amber-300">
+                    {language === "ko" ? "아래 URL을 브라우저에서 열고 Claude 계정으로 로그인" : "Open the URL below and sign in with your Claude account"}
+                  </p>
+                </div>
+                <div className="p-2 rounded-lg bg-muted/50 border border-border/30">
+                  <span className="text-xs font-mono text-foreground break-all leading-relaxed">{loginUrl}</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" className="gap-1.5" onClick={() => handleCopyUrl(loginUrl)}>
+                    <Copy className="w-3.5 h-3.5" />
+                    {copied ? (language === "ko" ? "복사됨!" : "Copied!") : (language === "ko" ? "URL 복사" : "Copy URL")}
+                  </Button>
+                  <Button size="sm" variant="outline" className="gap-1.5" asChild>
+                    <a href={loginUrl} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      {language === "ko" ? "브라우저에서 열기" : "Open in browser"}
+                    </a>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-[11px] font-bold shrink-0">2</span>
+                  <p className="text-sm font-semibold text-amber-300">
+                    {language === "ko"
+                      ? "로그인 후 화면에 표시된 코드를 아래에 붙여넣기"
+                      : "Paste the code shown after login"}
+                  </p>
+                </div>
+                <p className="text-xs text-muted-foreground pl-7">
+                  {language === "ko"
+                    ? "브라우저 인증 완료 후 \"Paste this into Claude Code:\" 아래에 있는 코드를 복사하여 붙여넣으세요."
+                    : "After authorizing, copy the code shown under \"Paste this into Claude Code:\""}
                 </p>
+                <div className="flex gap-2 pl-7">
+                  <input
+                    type="text"
+                    value={authCode}
+                    onChange={e => { setAuthCode(e.target.value); setCodeError(null) }}
+                    onKeyDown={e => e.key === "Enter" && handleSubmitCode()}
+                    placeholder={language === "ko" ? "인증 코드 붙여넣기..." : "Paste auth code here..."}
+                    className="flex-1 px-3 py-1.5 rounded-md bg-muted/50 border border-border/50 text-sm font-mono focus:outline-none focus:border-amber-500/60 placeholder:text-muted-foreground/40"
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleSubmitCode}
+                    disabled={submittingCode || !authCode.trim()}
+                    className="gap-1.5 shrink-0"
+                  >
+                    {submittingCode ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <ClipboardPaste className="w-3.5 h-3.5" />
+                    )}
+                    {language === "ko" ? "인증 완료" : "Confirm"}
+                  </Button>
+                </div>
+                {codeError && (
+                  <p className="text-xs text-red-400 pl-7 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 shrink-0" />{codeError}
+                  </p>
+                )}
               </div>
-              <p className="text-xs text-muted-foreground">
-                {language === "ko"
-                  ? "아래 URL을 브라우저에서 열고 Claude 계정으로 로그인하세요. 완료 시 자동으로 상태가 업데이트됩니다."
-                  : "Open the URL below and sign in with your Claude account."}
-              </p>
-              <div className="p-2 rounded-lg bg-muted/50 border border-border/30">
-                <span className="text-xs font-mono text-foreground break-all leading-relaxed">{loginUrl}</span>
-              </div>
-              <div className="flex gap-2">
-                <Button size="sm" className="gap-1.5 flex-1" onClick={() => handleCopyUrl(loginUrl)}>
-                  <Copy className="w-3.5 h-3.5" />
-                  {copied ? "복사됨!" : (language === "ko" ? "URL 복사" : "Copy URL")}
-                </Button>
-                <Button size="sm" variant="outline" className="gap-1.5" asChild>
-                  <a href={loginUrl} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    {language === "ko" ? "열기" : "Open"}
-                  </a>
-                </Button>
-                <Button size="sm" variant="ghost" onClick={handleCancelLogin} className="text-muted-foreground">
-                  {language === "ko" ? "취소" : "Cancel"}
-                </Button>
-              </div>
+
+              <Button size="sm" variant="ghost" onClick={handleCancelLogin} className="text-muted-foreground/60 text-xs">
+                {language === "ko" ? "취소" : "Cancel"}
+              </Button>
             </div>
           )}
 
